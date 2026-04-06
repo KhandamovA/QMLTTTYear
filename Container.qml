@@ -28,7 +28,7 @@ Item {
         return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y)]
     }
 
-    Component.onCompleted: {
+    function updatePolypath() {
         let temp = [];
 
         // temp.push(Qt.point(view.width + (margins * 2), 0))
@@ -50,6 +50,10 @@ Item {
         temp.push(Qt.point(arrowMargin + arrowWidth, container.actualHeight + view.height + arrowHeight + (margins * 2)))
 
         polyPath = temp
+    }
+
+    Component.onCompleted: {
+        updatePolypath()
     }
 
     Shape {
@@ -78,5 +82,9 @@ Item {
         x: root.margins
         y: root.margins + root.arrowHeight + container.actualHeight
         color: root.textColor
+
+        onWidthChanged: {
+            root.updatePolypath()
+        }
     }
 }

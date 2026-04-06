@@ -163,11 +163,15 @@ Item {
         }
 
         Repeater {
-            model: ["Иначе", ""]
+            model: ["Иначе $$", ""]
 
             delegate: Container {
                 viewText: modelData
                 textColor: root.textColor
+
+                onWidthChanged: {
+                    props.updatePolyPath()
+                }
             }
         }
     }
