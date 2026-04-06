@@ -4,9 +4,13 @@ import QtQuick.Shapes
 Item {
     id: root
 
+    property int uid: -1
+
     property string viewText: "Значение переменной $$"
     property string textColor: "black"
     property string bodyColor: "#cccccc"
+
+    property var objectsGridPos: ({})
 
     Item {
         id: props
@@ -51,6 +55,12 @@ Item {
             id: dragHandler
             target: root // Перемещаем весь корневой объект
             cursorShape: Qt.SizeAllCursor // Меняем курсор при наведении
+
+            onActiveChanged: {
+                if (!active) {
+                    Utils.changeGridPos(root)
+                }
+            }
         }
     }
 

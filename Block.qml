@@ -4,10 +4,17 @@ import QtQuick.Shapes
 Item {
     id: root
 
+    width: shape.width
+    height: shape.height
+
+    property int uid: -1
+
     property string viewText: "Если $$ тогда"
     property bool hasInput: true
     property string textColor: "black"
     property string bodyColor: "#cccccc"
+
+    property var objectsGridPos: ({})
 
     Item {
         id: props
@@ -119,8 +126,9 @@ Item {
     }
 
     Shape {
-        width: root.width
-        height: root.height
+        id: shape
+        // width: root.width
+        // height: root.height
         containsMode: Shape.FillContains
 
         ShapePath {
@@ -142,6 +150,12 @@ Item {
             id: dragHandler
             target: root // Перемещаем весь корневой объект
             cursorShape: Qt.SizeAllCursor // Меняем курсор при наведении
+
+            onActiveChanged: {
+                if (!active) {
+                    Utils.changeGridPos(root)
+                }
+            }
         }
     }
 

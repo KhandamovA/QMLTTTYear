@@ -6,11 +6,13 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    Block {}
-
-    Reporter {}
-
-    Component.onCompleted: {
-        Utils.test()
+    Block {
+        uid: 0
     }
+
+    Reporter {
+        uid: 1
+    }
+
+    Component.onCompleted: {}
 }
