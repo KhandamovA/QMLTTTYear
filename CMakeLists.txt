@@ -12,6 +12,10 @@ qt_add_executable(apptttYear
     main.cpp
 )
 
+set_source_files_properties(Utils.qml PROPERTIES
+    QT_QML_SINGLETON_TYPE TRUE
+)
+
 qt_add_qml_module(apptttYear
     URI tttYear
     QML_FILES
@@ -21,6 +25,7 @@ qt_add_qml_module(apptttYear
         QML_FILES BlockTitle.qml
         QML_FILES Slot.qml
         QML_FILES Reporter.qml
+        QML_FILES Utils.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

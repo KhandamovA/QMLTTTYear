@@ -9,4 +9,8 @@ Window {
     Block {}
 
     Reporter {}
+
+    Component.onCompleted: {
+        Utils.test()
+    }
 }
