@@ -13,17 +13,21 @@ Window {
         Block {
             id: b1
             uid: 0
+            Component.onCompleted: {
+                Utils.registerSceneItem(b1)
+            }
         }
 
         Reporter {
             id: b2
             uid: 1
+            Component.onCompleted: {
+                Utils.registerSceneItem(b2)
+            }
         }
 
         Component.onCompleted: {
             Utils.init(scene)
-            Utils.registerSceneItem(b1)
-            Utils.registerSceneItem(b2)
         }
     }
 }

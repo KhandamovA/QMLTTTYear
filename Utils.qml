@@ -18,6 +18,8 @@ QtObject {
         let uid = target.uid
         sceneItems[uid] = target
         changeGridPos(target)
+
+        console.log("new item uid:", target, uid)
     }
 
     function changeGridPos(target) {
@@ -101,7 +103,7 @@ QtObject {
         //                                                                            })
         //                                  })
 
-        console.log(JSON.stringify(objectsGrid))
+        // console.log(JSON.stringify(objectsGrid))
         console.log("")
     }
 
@@ -110,24 +112,28 @@ QtObject {
         let col = Math.floor(x / objectsGridSize)
         let row = Math.floor(y / objectsGridSize);
 
+        // console.log(col, " ", row, " ", JSON.stringify(objectsGrid))
 
 
         // 2. Проверяем, существует ли клетка и есть ли в ней элементы
-        if (objectsGrid[col] && objectsGrid[col][row] && Array.isArray(objectsGrid[col][row])) {
+        if(col in objectsGrid){
+            if( row in objectsGrid[col]){
+                let result = []
+                for(let uid in objectsGrid[col][row]){
+                    let item = sceneItems[uid]
 
-            let result = []
-            for(let uid in objectsGrid[col][row]){
-                let item = sceneItems[uid]
+                    // Проверка что точка точно в фигуре
+                    if(item){
+                        let pos = item.shape.mapFromItem(Utils.sceneContainer, x, y)
+                        if(item.shape.contains(pos))
+                            result.push(item)
+                    }
 
-                // Проверка что точка точно в фигуре
-                if(item){
-                    let pos = item.shape.mapFromItem(Utils.sceneContainer, x, y)
-                    if(item.shape.contains(pos))
-                        result.push(item)
                 }
+                console.log(result.length)
 
+                return result
             }
-            return result
         }
 
         // 3. Если ничего не найдено, возвращаем пустой массив
