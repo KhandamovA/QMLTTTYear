@@ -2,6 +2,7 @@ import QtQuick
 
 Item {
     id: root
+    property Item rootParent: null
 
     property string viewText: ""
     property string color: ""
@@ -9,9 +10,40 @@ Item {
     width: container.width
     height: container.height
 
+    readonly property bool isBlockTitle: true
+
+    property var slotsData: []
+
     Item {
         id: props
         property var items: []
+    }
+
+    function updateSlotsData() {
+        let ret = []
+        let childs = container.children
+        let count = container.children.length
+
+        for (let i = 0; i < count; i++) {
+            let s = childs[i]
+            if ("isSlot" in s) {
+                let scene = Utils.sceneContainer
+                let point = mapToItem(scene, 0, 0)
+
+                let paddingX = point.x
+                let paddingY = point.y
+
+                let rect = Qt.rect(s.x + paddingX, s.y + paddingX, s.width, s.height)
+                ret.push({
+                    "item": s,
+                    "rect": rect
+                });
+
+                // console.log(rect, s)
+            }
+        }
+
+        slotsData = ret
     }
 
     onViewTextChanged: {
@@ -52,8 +84,6 @@ Item {
         id: container
         spacing: 2
 
-
-
         Repeater {
             model: props.items
             delegate: DelegateChooser {
@@ -69,7 +99,9 @@ Item {
 
                 DelegateChoice {
                     roleValue: "slot"
-                    delegate: Slot {}
+                    delegate: Slot {
+                        rootParent: root
+                    }
                 }
             }
         }

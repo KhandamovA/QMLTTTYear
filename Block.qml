@@ -3,11 +3,13 @@ import QtQuick.Shapes
 
 Item {
     id: root
+    property Item rootParent: null
 
     width: shape.width
     height: shape.height
 
     property int uid: -1
+    readonly property bool isBlock: true
 
     property string viewText: "Если $$ тогда"
     property bool hasInput: true
@@ -15,6 +17,7 @@ Item {
     property string bodyColor: "#cccccc"
 
     property var objectsGridPos: ({})
+    property alias shape: shape
 
     Item {
         id: props
@@ -153,7 +156,19 @@ Item {
 
             onActiveChanged: {
                 if (!active) {
+                    if (root.x < 0)
+                        root.x = 0
+
+                    if (root.y < 0)
+                        root.y = 0
+
                     Utils.changeGridPos(root)
+                    view.updateSlotsData()
+
+                    containers.children.forEach(x => {
+                        if ("isContainer" in x)
+                            x.updateSlotsData()
+                    })
                 }
             }
         }
@@ -161,6 +176,7 @@ Item {
 
     BlockTitle {
         id: view
+        rootParent: root
         viewText: root.viewText
         x: props.margins
         y: props.margins + props.arrowHeight
@@ -180,6 +196,7 @@ Item {
             model: ["Иначе $$", ""]
 
             delegate: Container {
+                rootParent: root
                 viewText: modelData
                 textColor: root.textColor
 

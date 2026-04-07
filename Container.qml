@@ -3,9 +3,12 @@ import QtQuick.Shapes
 
 Item {
     id: root
+    property Item rootParent: null
 
     property string viewText: "test text"
     property string textColor: "white"
+
+    readonly property bool isContainer: true
 
     width: view.width + (margins * 2)
     height: view.height + (margins * 2) + arrowHeight + container.actualHeight
@@ -52,6 +55,10 @@ Item {
         polyPath = temp
     }
 
+    function updateSlotsData() {
+        view.updateSlotsData()
+    }
+
     Component.onCompleted: {
         updatePolypath()
     }
@@ -78,6 +85,7 @@ Item {
 
     BlockTitle {
         id: view
+        rootParent: root
         viewText: root.viewText
         x: root.margins
         y: root.margins + root.arrowHeight + container.actualHeight

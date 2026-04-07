@@ -3,24 +3,25 @@ import QtQuick
 
 QtObject {
     property var objectsGrid: ({})
-    property int objectsGridSize: 64
+    property int objectsGridSize: 100
+    property var sceneContainer: null
+
+    property var sceneItems: ({})
+
+    function init(sceneContainer_) {
+        sceneContainer = sceneContainer_
+
+        console.log('Инициализация успешна', sceneContainer)
+    }
+
+    function registerSceneItem(target){
+        let uid = target.uid
+        sceneItems[uid] = target
+        changeGridPos(target)
+    }
 
     function changeGridPos(target) {
         let uid = target.uid
-
-        // 1. УДАЛЕНИЕ СТАРОГО (используем сохраненные старые координаты)
-        let oldEndX = target.objectsGridPos.oldX + target.objectsGridPos.oldW
-        let oldEndY = target.objectsGridPos.oldY + target.objectsGridPos.oldH
-
-        for (let col = target.objectsGridPos.oldX; col < oldEndX; col++) {
-            if (objectsGrid[col]) {
-                for (let row = target.objectsGridPos.oldY; row < oldEndY; row++) {
-                    if (objectsGrid[col][row]) {
-                        objectsGrid[col][row] = objectsGrid[col][row].filter(id => id !== uid)
-                    }
-                }
-            }
-        }
 
         // 2. ВЫЧИСЛЕНИЕ НОВЫХ КЛЕТОК
         // Переводим пиксели (x, y, width, height) в индексы сетки
@@ -33,19 +34,55 @@ QtObject {
         let newEndX = newStartX + cellsW
         let newEndY = newStartY + cellsH
 
+        // Проверка что есть изменения для обновления сетки
+        if(target.objectsGridPos.oldX === newStartX &&
+                target.objectsGridPos.oldY === newStartY &&
+                target.objectsGridPos.oldW == cellsW
+                && target.objectsGridPos.oldH == cellsH){
+            return;
+        }
+
+        // 1. УДАЛЕНИЕ СТАРОГО (используем сохраненные старые координаты)
+        let oldEndX = target.objectsGridPos.oldX + target.objectsGridPos.oldW
+        let oldEndY = target.objectsGridPos.oldY + target.objectsGridPos.oldH
+
+        for (let col = target.objectsGridPos.oldX; col < oldEndX; col++) {
+            if (objectsGrid[col]) {
+                for (let row = target.objectsGridPos.oldY; row < oldEndY; row++) {
+                    if (objectsGrid[col][row]) {
+                        objectsGrid[col][row] = objectsGrid[col][row].filter(id => id !== uid)
+                        if (objectsGrid[col][row].length === 0) {
+                            delete objectsGrid[col][row]
+                            if (Object.keys(objectsGrid[col]).length === 0) {
+                                delete objectsGrid[col]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+
         // 3. ЗАПИСЬ В НОВЫЕ КЛЕТКИ
         for (let col = newStartX; col < newEndX; col++) {
             if (objectsGrid[col] === undefined)
-                objectsGrid[col] = []
+                objectsGrid[col] = ({})
 
             for (let row = newStartY; row < newEndY; row++) {
-                if (objectsGrid[col][row] === undefined) {
+                if (objectsGrid[col][row] === undefined || objectsGrid[col][row] === null) {
                     objectsGrid[col][row] = []
                 }
+
                 // Добавляем UID, если его там еще нет
-                if (objectsGrid[col][row].indexOf(uid) === -1) {
+                let alreadyExists = objectsGrid[col][row].some(item => item.uid === uid); // или item.id, смотря как названо свойство
+
+                if(!alreadyExists)
+                {
                     objectsGrid[col][row].push(uid)
                 }
+
+
             }
         }
 
@@ -55,6 +92,45 @@ QtObject {
         target.objectsGridPos.oldW = cellsW
         target.objectsGridPos.oldH = cellsH
 
-        console.log(Object.keys(objectsGrid))
+        // Object.keys(objectsGrid).forEach(col => {
+        //                                      Object.keys(objectsGrid[col]).forEach(row => {
+        //                                                                                let items = objectsGrid[col][row]
+        //                                                                                if (items && items.length > 0) {
+        //                                                                                    console.log(`Колонка [${col}], Строка [${row}]: [${items.join(", ")}]`)
+        //                                                                                }
+        //                                                                            })
+        //                                  })
+
+        console.log(JSON.stringify(objectsGrid))
+        console.log("")
+    }
+
+    function getItemsForGrid(x, y) {
+        // 1. Определяем клетку по координатам
+        let col = Math.floor(x / objectsGridSize)
+        let row = Math.floor(y / objectsGridSize);
+
+
+
+        // 2. Проверяем, существует ли клетка и есть ли в ней элементы
+        if (objectsGrid[col] && objectsGrid[col][row] && Array.isArray(objectsGrid[col][row])) {
+
+            let result = []
+            for(let uid in objectsGrid[col][row]){
+                let item = sceneItems[uid]
+
+                // Проверка что точка точно в фигуре
+                if(item){
+                    let pos = item.shape.mapFromItem(Utils.sceneContainer, x, y)
+                    if(item.shape.contains(pos))
+                        result.push(item)
+                }
+
+            }
+            return result
+        }
+
+        // 3. Если ничего не найдено, возвращаем пустой массив
+        return []
     }
 }
