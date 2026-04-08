@@ -34,7 +34,6 @@ Item {
         property int actualHeight: view.height + (margins * 2) + arrowHeight
 
         onActualWidthChanged: {
-            console.log(actualWidth)
             props.updatePolyPath()
         }
 
@@ -169,6 +168,8 @@ Item {
                         if ("isContainer" in x)
                             x.updateSlotsData()
                     })
+                } else {
+                    Utils.raise(root)
                 }
             }
         }

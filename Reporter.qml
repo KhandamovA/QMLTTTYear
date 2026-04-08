@@ -71,6 +71,8 @@ Item {
 
                     Utils.changeGridPos(root)
                     view.updateSlotsData()
+                } else {
+                    Utils.raise(root)
                 }
             }
 
