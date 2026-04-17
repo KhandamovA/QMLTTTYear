@@ -11,6 +11,7 @@ Item {
     height: container.height
 
     readonly property bool isBlockTitle: true
+    property alias container: container
 
     property var slotsData: []
 
@@ -20,20 +21,20 @@ Item {
     }
 
     function updateSlotsData() {
-        let ret = []
-        let childs = container.children
-        let count = container.children.length
+        let ret = [];
+        let childs = container.children;
+        let count = container.children.length;
 
         for (let i = 0; i < count; i++) {
-            let s = childs[i]
+            let s = childs[i];
             if ("isSlot" in s) {
-                let scene = Utils.sceneContainer
-                let point = mapToItem(scene, 0, 0)
+                let scene = Utils.sceneContainer;
+                let point = mapToItem(scene, 0, 0);
 
-                let paddingX = point.x
-                let paddingY = point.y
+                let paddingX = point.x;
+                let paddingY = point.y;
 
-                let rect = Qt.rect(s.x + paddingX, s.y + paddingX, s.width, s.height)
+                let rect = Qt.rect(s.x + paddingX, s.y + paddingX, s.width, s.height);
                 ret.push({
                     "item": s,
                     "rect": rect
@@ -43,41 +44,41 @@ Item {
             }
         }
 
-        slotsData = ret
+        slotsData = ret;
     }
 
     onViewTextChanged: {
-        let temp = []
+        let temp = [];
 
-        let buffer = ""
+        let buffer = "";
         let check = () => {
             if (buffer.length > 0) {
                 temp.push({
                     "type": "text",
                     "value": buffer
-                })
-                buffer = ""
+                });
+                buffer = "";
             }
-        }
+        };
 
         for (let i = 0; i < viewText.length; i++) {
-            let pair = viewText[i] + (viewText[i + 1] ? viewText[i + 1] : "")
+            let pair = viewText[i] + (viewText[i + 1] ? viewText[i + 1] : "");
 
             if (pair == "$$") {
-                i += 2
+                i += 2;
 
-                check()
+                check();
                 temp.push({
                     "type": "slot"
-                })
+                });
             }
 
             if (i < viewText.length)
-                buffer += viewText[i]
+                buffer += viewText[i];
         }
-        check()
+        check();
 
-        props.items = temp
+        props.items = temp;
     }
 
     Row {
@@ -94,6 +95,7 @@ Item {
                     delegate: Text {
                         text: modelData.value
                         color: root.color
+                        anchors.verticalCenter: parent.verticalCenter
                     }
                 }
 
@@ -101,8 +103,17 @@ Item {
                     roleValue: "slot"
                     delegate: Slot {
                         rootParent: root
+                        anchors.verticalCenter: parent.verticalCenter
                     }
                 }
+            }
+        }
+
+        onHeightChanged: {
+            if ("updatePolyPath" in root.rootParent) {
+                root.rootParent.updatePolyPath();
+            } else {
+                console.log(root.rootParent);
             }
         }
     }

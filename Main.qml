@@ -14,7 +14,7 @@ Window {
             id: b1
             uid: 1
             Component.onCompleted: {
-                Utils.registerSceneItem(b1)
+                Utils.registerSceneItem(b1);
             }
         }
 
@@ -22,7 +22,15 @@ Window {
             id: b2
             uid: 2
             Component.onCompleted: {
-                Utils.registerSceneItem(b2)
+                Utils.registerSceneItem(b2);
+            }
+        }
+
+        Reporter {
+            id: b5
+            uid: 7
+            Component.onCompleted: {
+                Utils.registerSceneItem(b5);
             }
         }
 
@@ -30,7 +38,7 @@ Window {
             id: b3
             uid: 3
             Component.onCompleted: {
-                Utils.registerSceneItem(b3)
+                Utils.registerSceneItem(b3);
             }
         }
 
@@ -38,12 +46,12 @@ Window {
             id: b4
             uid: 4
             Component.onCompleted: {
-                Utils.registerSceneItem(b4)
+                Utils.registerSceneItem(b4);
             }
         }
 
         Component.onCompleted: {
-            Utils.init(scene)
+            Utils.init(scene);
         }
     }
 }

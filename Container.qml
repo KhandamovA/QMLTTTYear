@@ -24,43 +24,43 @@ Item {
     property int minWidth: 64
 
     function drawInputFromLeft(beginPoint) {
-        return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y)]
+        return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y)];
     }
 
     function drawInputFromRight(beginPoint) {
-        return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y)]
+        return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y)];
     }
 
-    function updatePolypath() {
+    function updatePolyPath() {
         let temp = [];
 
         // temp.push(Qt.point(view.width + (margins * 2), 0))
-        temp.push(Qt.point(arrowMargin + arrowWidth, 0))
+        temp.push(Qt.point(arrowMargin + arrowWidth, 0));
 
         drawInputFromRight(Qt.point(arrowMargin + arrowWidth, 0)).forEach(p => {
-            temp.push(p)
-        })
-        temp.push(Qt.point(0, 0))
-        temp.push(Qt.point(0, container.actualHeight))
-        temp.push(Qt.point(arrowMargin, container.actualHeight))
+            temp.push(p);
+        });
+        temp.push(Qt.point(0, 0));
+        temp.push(Qt.point(0, container.actualHeight));
+        temp.push(Qt.point(arrowMargin, container.actualHeight));
 
         drawInputFromLeft(Qt.point(arrowMargin, container.actualHeight)).forEach(p => {
-            temp.push(p)
-        })
+            temp.push(p);
+        });
 
-        temp.push(Qt.point(Math.max(view.width + (margins * 2), minWidth), container.actualHeight))
-        temp.push(Qt.point(Math.max(view.width + (margins * 2), minWidth), container.actualHeight + view.height + arrowHeight + (margins * 2)))
-        temp.push(Qt.point(arrowMargin + arrowWidth, container.actualHeight + view.height + arrowHeight + (margins * 2)))
+        temp.push(Qt.point(Math.max(view.width + (margins * 2), minWidth), container.actualHeight));
+        temp.push(Qt.point(Math.max(view.width + (margins * 2), minWidth), container.actualHeight + view.height + arrowHeight + (margins * 2)));
+        temp.push(Qt.point(arrowMargin + arrowWidth, container.actualHeight + view.height + arrowHeight + (margins * 2)));
 
-        polyPath = temp
+        polyPath = temp;
     }
 
     function updateSlotsData() {
-        view.updateSlotsData()
+        view.updateSlotsData();
     }
 
     Component.onCompleted: {
-        updatePolypath()
+        updatePolyPath();
     }
 
     Shape {
@@ -80,7 +80,7 @@ Item {
 
     Item {
         id: container
-        property int actualHeight: height < 1 ? 24 : height
+        property int actualHeight: height < 1 ? 24 : container.height
     }
 
     BlockTitle {
@@ -92,7 +92,12 @@ Item {
         color: root.textColor
 
         onWidthChanged: {
-            root.updatePolypath()
+            root.updatePolyPath();
+        }
+
+        onHeightChanged: {
+            console.log(root.height);
+            root.updatePolyPath();
         }
     }
 }

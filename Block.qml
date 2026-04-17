@@ -1,3 +1,4 @@
+// pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Shapes
 
@@ -11,7 +12,7 @@ Item {
     property int uid: -1
     readonly property bool isBlock: true
 
-    property string viewText: "Если $$ тогда"
+    property string viewText: "$$ Если $$ тогда"
     property bool hasInput: true
     property string textColor: "black"
     property string bodyColor: "#cccccc"
@@ -34,97 +35,101 @@ Item {
         property int actualHeight: view.height + (margins * 2) + arrowHeight
 
         onActualWidthChanged: {
-            props.updatePolyPath()
+            props.updatePolyPath();
         }
 
         function drawInputFromLeft(beginPoint) {
-            return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + props.arrowHeight), Qt.point(beginPoint.x + props.arrowWidth, beginPoint.y + props.arrowHeight), Qt.point(beginPoint.x + props.arrowWidth, beginPoint.y)]
+            return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + props.arrowHeight), Qt.point(beginPoint.x + props.arrowWidth, beginPoint.y + props.arrowHeight), Qt.point(beginPoint.x + props.arrowWidth, beginPoint.y)];
         }
 
         function drawInputFromRight(beginPoint) {
-            return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + props.arrowHeight), Qt.point(beginPoint.x - props.arrowWidth, beginPoint.y + props.arrowHeight), Qt.point(beginPoint.x - props.arrowWidth, beginPoint.y)]
+            return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + props.arrowHeight), Qt.point(beginPoint.x - props.arrowWidth, beginPoint.y + props.arrowHeight), Qt.point(beginPoint.x - props.arrowWidth, beginPoint.y)];
         }
 
         function updatePolyPath() {
-            let temp = []
+            let temp = [];
 
-            let firstWidth = 0
-            let lastWidth = 0
+            let firstWidth = 0;
+            let lastWidth = 0;
 
             if (containers.children.length > 2) {
-                let f = containers.children[0]
-                let l = containers.children[containers.children.length - 2]
-                firstWidth = f.width
-                lastWidth = l.width
+                let f = containers.children[0];
+                let l = containers.children[containers.children.length - 2];
+                firstWidth = f.width;
+                lastWidth = l.width;
             }
 
             //==================
 
-            let items = []
-            let totalHeight = 0
-            let chlds = containers.children
+            let items = [];
+            let totalHeight = 0;
+            let chlds = containers.children;
 
             for (let i = 0; i < chlds.length; i++) {
-                let cntnr = chlds[i]
-                let polyPath = cntnr.polyPath
+                let cntnr = chlds[i];
+                let polyPath = cntnr.polyPath;
 
                 if (polyPath) {
                     items.push({
                         "h": cntnr.height,
                         "path": polyPath
-                    })
-                    totalHeight += cntnr.height
+                    });
+                    totalHeight += cntnr.height;
                 }
             }
 
-            totalHeight = actualHeight
+            totalHeight = actualHeight;
 
             for (let i = 0; i < items.length; i++) {
-                let polyPath = items[i].path
+                let polyPath = items[i].path;
                 let h = items[i].h;
                 // totalHeight -= h
 
                 if (polyPath) {
                     for (let j = 0; j < polyPath.length; j++) {
-                        let point = polyPath[j]
-                        temp.push(Qt.point(point.x + containersMargin, point.y + totalHeight))
+                        let point = polyPath[j];
+                        temp.push(Qt.point(point.x + containersMargin, point.y + totalHeight));
                     }
-                    totalHeight += h
+                    totalHeight += h;
                 }
             }
 
             //==================
 
             if (items.length == 0) {
-                temp.push(Qt.point(props.arrowMargin + props.arrowWidth + props.containersMargin, containers.height + props.actualHeight))
+                temp.push(Qt.point(props.arrowMargin + props.arrowWidth + props.containersMargin, containers.height + props.actualHeight));
             }
 
             drawInputFromRight(Qt.point(props.arrowMargin + props.arrowWidth, containers.height + props.actualHeight)).forEach(p => {
-                temp.push(p)
-            })
+                temp.push(p);
+            });
 
-            temp.push(Qt.point(0, containers.height + props.actualHeight))
-            temp.push(Qt.point(0, 0))
-            temp.push(Qt.point(props.arrowMargin, 0))
+            temp.push(Qt.point(0, containers.height + props.actualHeight));
+            temp.push(Qt.point(0, 0));
+            temp.push(Qt.point(props.arrowMargin, 0));
 
             if (root.hasInput) {
                 drawInputFromLeft(Qt.point(props.arrowMargin, 0)).forEach(p => {
-                    temp.push(p)
-                })
+                    temp.push(p);
+                });
             }
 
-            temp.push(Qt.point(Math.max(props.actualWidth, props.minWidth), 0))
-            temp.push(Qt.point(Math.max(props.actualWidth, props.minWidth), props.actualHeight))
+            temp.push(Qt.point(Math.max(props.actualWidth, props.minWidth), 0));
+            temp.push(Qt.point(Math.max(props.actualWidth, props.minWidth), props.actualHeight));
             temp.push(Qt.point(props.arrowMargin + props.arrowWidth + props.containersMargin, props.actualHeight));
 
             //==================
 
-            props.polyPath = temp
+            props.polyPath = temp;
         }
     }
 
+    function updatePolyPath() {
+        props.updatePolyPath();
+    }
+
     Component.onCompleted: {
-        props.updatePolyPath()
+        updatePolyPath();
     }
 
     Shape {
@@ -156,20 +161,20 @@ Item {
             onActiveChanged: {
                 if (!active) {
                     if (root.x < 0)
-                        root.x = 0
+                        root.x = 0;
 
                     if (root.y < 0)
-                        root.y = 0
+                        root.y = 0;
 
-                    Utils.changeGridPos(root)
-                    view.updateSlotsData()
+                    Utils.changeGridPos(root);
+                    view.updateSlotsData();
 
                     containers.children.forEach(x => {
                         if ("isContainer" in x)
-                            x.updateSlotsData()
-                    })
+                            x.updateSlotsData();
+                    });
                 } else {
-                    Utils.raise(root)
+                    Utils.raise(root);
                 }
             }
         }
@@ -190,11 +195,11 @@ Item {
         y: props.actualHeight
 
         onChildrenChanged: {
-            props.updatePolyPath()
+            props.updatePolyPath();
         }
 
         Repeater {
-            model: ["Иначе $$", ""]
+            model: ["hello $$", "hello $$", "hello $$"]
 
             delegate: Container {
                 rootParent: root
@@ -202,9 +207,13 @@ Item {
                 textColor: root.textColor
 
                 onWidthChanged: {
-                    props.updatePolyPath()
+                    props.updatePolyPath();
                 }
             }
+        }
+
+        onHeightChanged: {
+            props.updatePolyPath();
         }
     }
 }

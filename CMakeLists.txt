@@ -16,18 +16,24 @@ set_source_files_properties(Utils.qml PROPERTIES
     QT_QML_SINGLETON_TYPE TRUE
 )
 
+
+
 qt_add_qml_module(apptttYear
     URI tttYear
+    VERSION 1.0
     QML_FILES
         Main.qml
-        QML_FILES Block.qml
-        QML_FILES Container.qml
-        QML_FILES BlockTitle.qml
-        QML_FILES Slot.qml
-        QML_FILES Reporter.qml
-        QML_FILES Utils.qml
-        QML_FILES Scene.qml
+        Block.qml
+        Container.qml
+        BlockTitle.qml
+        Slot.qml
+        Reporter.qml
+        Utils.qml
+        Scene.qml
 )
+
+
+
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

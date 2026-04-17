@@ -14,6 +14,7 @@ Item {
     width: shape.width
     height: shape.height
 
+    property var slots: []
     property var objectsGridPos: ({})
     property alias shape: shape
 
@@ -64,23 +65,33 @@ Item {
             onActiveChanged: {
                 if (!active) {
                     if (root.x < 0)
-                        root.x = 0
+                        root.x = 0;
 
                     if (root.y < 0)
-                        root.y = 0
+                        root.y = 0;
 
-                    Utils.changeGridPos(root)
-                    view.updateSlotsData()
+                    Utils.changeGridPos(root);
+                    view.updateSlotsData();
+
+                    let rect = Utils._rectFromScene(root);
+                    let slot = Utils.getCandidateSlotByRect(rect, root.slots);
+
+                    if (slot !== null) {
+                        slot.setReporter(root);
+                        Utils.candidateSlot.candidate = false;
+                        Utils.candidateSlot = null;
+                    }
                 } else {
-                    Utils.raise(root)
+                    Utils.raise(root);
                 }
             }
 
             onCentroidChanged: {
                 // console.log(root.x, root.y)
-                let items = Utils.getItemsForGrid(root.x, root.y);
+                let rect = Utils._rectFromScene(root);
+                Utils.getCandidateSlotByRect(rect, root.slots);
 
-                // console.log(items.length)
+                // console.log(slot);
             }
         }
     }
@@ -92,5 +103,18 @@ Item {
         x: props.margins
         y: props.margins
         color: root.textColor
+
+        onWidthChanged: {
+            let buffer = [];
+            let childs = view.container.children;
+            for (let i of childs) {
+                let slots = Utils._findChildWithProp(i, "isSlot");
+                for (let j of slots) {
+                    buffer.push(j);
+                }
+            }
+
+            root.slots = buffer;
+        }
     }
 }
