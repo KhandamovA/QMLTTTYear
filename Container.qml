@@ -8,7 +8,9 @@ Item {
     property string viewText: "test text"
     property string textColor: "white"
 
+    property var nextBlock: null
     readonly property bool isContainer: true
+    property alias output_: output_
 
     width: view.width + (margins * 2)
     height: view.height + (margins * 2) + arrowHeight + container.actualHeight
@@ -24,40 +26,65 @@ Item {
     property int minWidth: 64
 
     function drawInputFromLeft(beginPoint) {
-        return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y)];
+        return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y)]
     }
 
     function drawInputFromRight(beginPoint) {
-        return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y)];
+        return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x - root.arrowWidth, beginPoint.y)]
     }
 
     function updatePolyPath() {
         let temp = [];
 
         // temp.push(Qt.point(view.width + (margins * 2), 0))
-        temp.push(Qt.point(arrowMargin + arrowWidth, 0));
+        temp.push(Qt.point(arrowMargin + arrowWidth, 0))
 
         drawInputFromRight(Qt.point(arrowMargin + arrowWidth, 0)).forEach(p => {
-            temp.push(p);
-        });
-        temp.push(Qt.point(0, 0));
-        temp.push(Qt.point(0, container.actualHeight));
-        temp.push(Qt.point(arrowMargin, container.actualHeight));
+            temp.push(p)
+        })
+        temp.push(Qt.point(0, 0))
+        temp.push(Qt.point(0, container.actualHeight))
+        temp.push(Qt.point(arrowMargin, container.actualHeight))
 
         drawInputFromLeft(Qt.point(arrowMargin, container.actualHeight)).forEach(p => {
-            temp.push(p);
-        });
+            temp.push(p)
+        })
 
-        temp.push(Qt.point(Math.max(view.width + (margins * 2), minWidth), container.actualHeight));
-        temp.push(Qt.point(Math.max(view.width + (margins * 2), minWidth), container.actualHeight + view.height + arrowHeight + (margins * 2)));
-        temp.push(Qt.point(arrowMargin + arrowWidth, container.actualHeight + view.height + arrowHeight + (margins * 2)));
+        temp.push(Qt.point(Math.max(view.width + (margins * 2), minWidth), container.actualHeight))
+        temp.push(Qt.point(Math.max(view.width + (margins * 2), minWidth), container.actualHeight + view.height + arrowHeight + (margins * 2)))
+        temp.push(Qt.point(arrowMargin + arrowWidth, container.actualHeight + view.height + arrowHeight + (margins * 2)))
 
         polyPath = temp;
+
+        // rootParent.updateSceneInfo()
     }
 
+    function setNextBlock(block) {
+        if (block) {
+            block.prevContainer = root
+            root.nextBlock = block
+
+            block.parent = root
+            block.x = 0
+            block.y = 0
+            block.updateSceneInfo()
+        } else {
+            if (root.nextBlock) {
+                let next = root.nextBlock
+                let rect = Utils._rectFromScene(next)
+                next.parent = Utils.sceneContainer
+                next.prevContainer = null
+                next.x = rect.x
+                next.y = rect.y
+                root.nextBlock = null
+                next.updateSceneInfo()
+            }
+        }
+        updatePolyPath()
+    }
 
     Component.onCompleted: {
-        updatePolyPath();
+        updatePolyPath()
     }
 
     Shape {
@@ -77,7 +104,7 @@ Item {
 
     Item {
         id: container
-        property int actualHeight: height < 1 ? 24 : container.height
+        property int actualHeight: root.nextBlock ? root.nextBlock.chainHeight : height < 1 ? 24 : container.height
     }
 
     BlockTitle {
@@ -89,12 +116,23 @@ Item {
         color: root.textColor
 
         onWidthChanged: {
-            root.updatePolyPath();
+            root.updatePolyPath()
         }
 
         onHeightChanged: {
-            console.log(root.height);
-            root.updatePolyPath();
+            console.log(root.height)
+            root.updatePolyPath()
         }
+    }
+
+    BlockConnector {
+        id: output_
+        rootParent: root
+        width: root.width > root.minWidth ? root.width : root.minWidth
+        y: 0
+    }
+
+    onHeightChanged: {
+        root.updatePolyPath()
     }
 }

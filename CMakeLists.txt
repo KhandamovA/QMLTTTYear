@@ -30,6 +30,7 @@ qt_add_qml_module(apptttYear
         Reporter.qml
         Utils.qml
         Scene.qml
+        BlockConnector.qml
 )
 
 
