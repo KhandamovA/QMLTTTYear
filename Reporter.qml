@@ -15,6 +15,7 @@ Item {
     height: shape.height
 
     property var slots: []
+    property var currentSlot: null
     property var objectsGridPos: ({})
     property alias shape: shape
 
@@ -61,37 +62,56 @@ Item {
             id: dragHandler
             target: root // Перемещаем весь корневой объект
             cursorShape: Qt.SizeAllCursor // Меняем курсор при наведении
+            dragThreshold: 5
 
             onActiveChanged: {
                 if (!active) {
+                    Utils.changeGridPos(root);
+
+                    let rect = Utils._rectFromScene(root);
+                    let slot = Utils.getCandidateSlotByRect(rect, root.slots);
+                    let allSlots = Utils.getSlotsForGridByRect(rect);
+
+                    if (root.currentSlot && allSlots.includes(root.currentSlot)) {
+                        root.x = 0;
+                        root.y = 0;
+                    }
+
+                    if (slot !== null) {
+                        if (root.currentSlot) {
+                            root.currentSlot.setReporter(null);
+                            root.currentSlot = null;
+                        }
+
+                        slot.setReporter(root);
+                        Utils.candidateSlot.candidate = false;
+                        Utils.candidateSlot = null;
+                        root.currentSlot = slot;
+                    } else {
+                        if (root.currentSlot) {
+                            root.currentSlot.setReporter(null);
+                            root.currentSlot = null;
+                        }
+                    }
+
                     if (root.x < 0)
                         root.x = 0;
 
                     if (root.y < 0)
                         root.y = 0;
-
-                    Utils.changeGridPos(root);
-                    view.updateSlotsData();
-
-                    let rect = Utils._rectFromScene(root);
-                    let slot = Utils.getCandidateSlotByRect(rect, root.slots);
-
-                    if (slot !== null) {
-                        slot.setReporter(root);
-                        Utils.candidateSlot.candidate = false;
-                        Utils.candidateSlot = null;
-                    }
                 } else {
                     Utils.raise(root);
                 }
             }
 
             onCentroidChanged: {
-                // console.log(root.x, root.y)
-                let rect = Utils._rectFromScene(root);
-                Utils.getCandidateSlotByRect(rect, root.slots);
+                if (dragHandler.active) {
+                    console.log("reporter", root.x, root.y);
+                    let rect = Utils._rectFromScene(root);
+                    Utils.getCandidateSlotByRect(rect, root.slots);
 
-                // console.log(slot);
+                    console.log(rect);
+                }
             }
         }
     }

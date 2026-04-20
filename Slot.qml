@@ -20,12 +20,16 @@ Rectangle {
 
     function setReporter(target) {
         if (target == null) {
-            busy = false;
-            reporter.parent = Utils.sceneContainer;
-            let scenePos = reporter.mapToItem(Utils.sceneContainer);
-            reporter.x = scenePos.x;
-            reporter.y = scenePos.y;
-            reporter = null;
+            if (reporter) {
+                busy = false;
+                let scenePos = Utils._rectFromScene(reporter);
+                reporter.parent = Utils.sceneContainer;
+                reporter.x = scenePos.x;
+                reporter.y = scenePos.y;
+                Utils.changeGridPos(reporter);
+                Utils.changeGridPos(rootParent.rootParent);
+                reporter = null;
+            }
             return;
         }
         reporter = target;

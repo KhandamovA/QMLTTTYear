@@ -55,9 +55,6 @@ Item {
         polyPath = temp;
     }
 
-    function updateSlotsData() {
-        view.updateSlotsData();
-    }
 
     Component.onCompleted: {
         updatePolyPath();

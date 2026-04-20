@@ -49,6 +49,14 @@ Window {
                 Utils.registerSceneItem(b4);
             }
         }
+        Block {
+            id: b7
+            uid: 8
+            viewTexts: ["Установить $$"]
+            Component.onCompleted: {
+                Utils.registerSceneItem(b7);
+            }
+        }
 
         Component.onCompleted: {
             Utils.init(scene);

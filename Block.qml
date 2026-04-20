@@ -12,13 +12,22 @@ Item {
     property int uid: -1
     readonly property bool isBlock: true
 
-    property string viewText: "$$ Если $$ тогда"
+    property var viewTexts: ["Если $$", "Иначе", ""]
     property bool hasInput: true
     property string textColor: "black"
     property string bodyColor: "#cccccc"
 
     property var objectsGridPos: ({})
     property alias shape: shape
+
+    onViewTextsChanged: {
+        let texts = viewTexts;
+        if (texts.length > 1) {
+            repeater.model = texts.slice(1);
+        } else {
+            repeater.model = [];
+        }
+    }
 
     Item {
         id: props
@@ -157,6 +166,7 @@ Item {
             id: dragHandler
             target: root // Перемещаем весь корневой объект
             cursorShape: Qt.SizeAllCursor // Меняем курсор при наведении
+            dragThreshold: 5
 
             onActiveChanged: {
                 if (!active) {
@@ -167,12 +177,6 @@ Item {
                         root.y = 0;
 
                     Utils.changeGridPos(root);
-                    view.updateSlotsData();
-
-                    containers.children.forEach(x => {
-                        if ("isContainer" in x)
-                            x.updateSlotsData();
-                    });
                 } else {
                     Utils.raise(root);
                 }
@@ -183,7 +187,7 @@ Item {
     BlockTitle {
         id: view
         rootParent: root
-        viewText: root.viewText
+        viewText: root.viewTexts.length > 0 ? root.viewTexts[0] : ""
         x: props.margins
         y: props.margins + props.arrowHeight
         color: root.textColor
@@ -199,7 +203,8 @@ Item {
         }
 
         Repeater {
-            model: ["hello $$", "hello $$", "hello $$"]
+            id: repeater
+            model: []
 
             delegate: Container {
                 rootParent: root
