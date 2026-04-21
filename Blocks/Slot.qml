@@ -8,7 +8,7 @@ Rectangle {
     property Item reporter: null
 
     // Высота фиксированная или от репортера
-    height: reporter === null ? 18 : reporter.height
+    height: reporter === null ? 20 : reporter.height
     // Ширина подстраивается под текст, но не меньше минимальной
     width: reporter === null ? Math.max(30, input.implicitWidth + (margins * 2)) : reporter.width
 
@@ -42,12 +42,8 @@ Rectangle {
         color: "#333333"
         width: implicitWidth > 18 ? implicitWidth : 18
         visible: !root.busy
-
-        // Чтобы TextInput не расширял родителя бесконечно,
-        // используем implicitWidth для расчетов ширины родителя
     }
 
-    // --- Твоя логика (без изменений) ---
     property var rootParent: null
     property bool candidate: false
     property bool busy: false
