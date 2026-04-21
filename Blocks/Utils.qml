@@ -19,7 +19,7 @@ QtObject {
     function init(sceneContainer_) {
         sceneContainer = sceneContainer_
 
-        console.log('Инициализация успешна', sceneContainer)
+        console.log('Инициализация сцены прошла успешно', sceneContainer)
     }
 
     // Поднятие элемента по z-индексу вверх
@@ -32,13 +32,21 @@ QtObject {
     // При создании нового элемента его требуется зарегистрировать на сцены для пересчета положения и оптимизации поиска
     function registerSceneItem(target) {
         let uid = target.uid
+
+        let uids = Object.keys(sceneItems)
+        while (uids.includes(`${uid}`)) {
+            uid += 1
+        }
+
+        target.uid = uid
+
         sceneItems[uid] = target
         changeGridPos(target)
 
         let scene = sceneContainer.rootParent
         scene.addItem(target)
 
-        console.log("new item uid:", target, uid)
+        console.log("new item uid:", uid, target)
     }
 
     // Метод перезаписи положения на виртуальной сетке сцены
@@ -116,7 +124,7 @@ QtObject {
         target.objectsGridPos.oldY = newStartY
         target.objectsGridPos.oldW = cellsW
         target.objectsGridPos.oldH = cellsH
-        console.log("newPos ", uid, " ", Object.keys(target.objectsGridPos), Object.values(target.objectsGridPos))
+        // console.log("newPos ", uid, " ", Object.keys(target.objectsGridPos), Object.values(target.objectsGridPos))
     }
 
     // Получение списка элементов по позиции на сцене

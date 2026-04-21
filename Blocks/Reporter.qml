@@ -5,7 +5,7 @@ Item {
     id: root
     property Item rootParent: null
 
-    property int uid: -1
+    property int uid: 0
 
     property string viewText: "Значение переменной $$ $$"
     property string textColor: "black"
@@ -106,11 +106,12 @@ Item {
 
             onCentroidChanged: {
                 if (dragHandler.active) {
-                    console.log("reporter", root.x, root.y)
-                    let rect = Utils._rectFromScene(root)
-                    Utils.getCandidateSlotByRect(rect, root.slots)
+                    // console.log("reporter", root.x, root.y)
 
-                    console.log(rect)
+                    let rect = Utils._rectFromScene(root)
+                    Utils.getCandidateSlotByRect(rect, root.slots);
+
+                    // console.log(rect)
                 }
             }
         }

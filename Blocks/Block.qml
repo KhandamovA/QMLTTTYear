@@ -9,7 +9,7 @@ Item {
     width: shape.width
     height: shape.height
 
-    property int uid: -1
+    property int uid: 0
     readonly property bool isBlock: true
 
     property var viewTexts: ["Если $$", "Иначе", ""]
@@ -362,7 +362,7 @@ Item {
                         }
                     }
 
-                    console.log(rect, output)
+                    // console.log(rect, output)
 
                     if (output == Utils.candidateConnector)
                         return
