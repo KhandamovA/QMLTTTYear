@@ -14,6 +14,7 @@ Item {
 
     property var viewTexts: ["Если $$", "Иначе", ""]
     property bool hasInput: true
+    property bool hasOutput: true
     property string textColor: "black"
     property string bodyColor: "#cccccc"
 
@@ -117,9 +118,11 @@ Item {
                 temp.push(Qt.point(props.arrowMargin + props.arrowWidth + props.containersMargin, containers.height + props.actualHeight))
             }
 
-            drawInputFromRight(Qt.point(props.arrowMargin + props.arrowWidth, containers.height + props.actualHeight)).forEach(p => {
-                temp.push(p)
-            })
+            if (root.hasOutput) {
+                drawInputFromRight(Qt.point(props.arrowMargin + props.arrowWidth, containers.height + props.actualHeight)).forEach(p => {
+                    temp.push(p)
+                })
+            }
 
             temp.push(Qt.point(0, containers.height + props.actualHeight))
             temp.push(Qt.point(0, 0))
@@ -143,10 +146,12 @@ Item {
         function updateBlockConnectors() {
             let buffer = []
 
-            buffer.push({
-                "rect": Utils._rectFromScene(input_),
-                "connector": input_
-            })
+            if (root.hasInput) {
+                buffer.push({
+                    "rect": Utils._rectFromScene(input_),
+                    "connector": input_
+                })
+            }
 
             for (let i of containers.children) {
                 if ("isContainer" in i) {
@@ -157,10 +162,12 @@ Item {
                 }
             }
 
-            buffer.push({
-                "rect": Utils._rectFromScene(output_),
-                "connector": output_
-            })
+            if (root.hasOutput) {
+                buffer.push({
+                    "rect": Utils._rectFromScene(output_),
+                    "connector": output_
+                })
+            }
 
             root.blockConnectors = buffer
         }
@@ -339,7 +346,7 @@ Item {
             }
 
             onCentroidChanged: {
-                if (dragHandler.active) {
+                if (root.hasInput && dragHandler.active) {
                     let rect = Utils._rectFromScene(input_)
                     let connectors = Utils.getCandidateBlockByRect(rect, root.blockConnectors);
                     // console.log(rect, connectors)
