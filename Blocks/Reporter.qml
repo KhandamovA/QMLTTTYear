@@ -9,7 +9,7 @@ Item {
 
     property string viewText: "Значение переменной $$ $$"
     property string textColor: "black"
-    property string bodyColor: "#cccccc"
+    property string bodyColor: "#bfcdd9"
 
     width: shape.width
     height: shape.height

@@ -1,22 +1,56 @@
-pragma ValueTypeBehavior: Inaddressable
 import QtQuick
 
 Rectangle {
     id: root
-    property var rootParent: null
-    width: root.reporter === null ? Math.max(26, input.width + (root.margins * 2)) : root.reporter.width
-    height: root.reporter === null ? 18 : root.reporter.height
-    radius: root.width / 2
-    antialiasing: true
 
-    border.color: root.candidate ? "blue" : "black"
-    border.width: root.candidate ? 2 : 0
-    color: "white"
-
-    property int margins: 4
-    property bool candidate: false // При наведении показывает является ли он кандидатом на подключение
-    property bool busy: false
+    // --- Настройки размеров ---
+    property int margins: 6
     property Item reporter: null
+
+    // Высота фиксированная или от репортера
+    height: reporter === null ? 18 : reporter.height
+    // Ширина подстраивается под текст, но не меньше минимальной
+    width: reporter === null ? Math.max(30, input.implicitWidth + (margins * 2)) : reporter.width
+
+    // Идеальный радиус для капсулы — половина высоты
+    radius: height / 2
+
+    // Сглаживание включаем, но убираем слои
+    antialiasing: true
+    layer.enabled: false
+
+    // Цвета из твоей логики
+    color: candidate ? "blue" : "#4a4a4a" // Темно-серый вместо чисто черного (мягче)
+
+    // Внутренняя часть (тело слота)
+    Rectangle {
+        anchors.fill: parent
+        anchors.margins: !root.busy ? (root.candidate ? 2 : 1) : 0
+        color: "white"
+        radius: parent.radius - 1 // Чуть меньше, чтобы не просвечивало
+        antialiasing: true
+    }
+
+    TextInput {
+        id: input
+        anchors.centerIn: parent // Центрируем по всему овалу
+        text: "" // Для теста
+        font.pixelSize: 12
+        verticalAlignment: TextInput.AlignVCenter
+        horizontalAlignment: TextInput.AlignHCenter
+        selectByMouse: true
+        color: "#333333"
+        width: implicitWidth > 18 ? implicitWidth : 18
+        visible: !root.busy
+
+        // Чтобы TextInput не расширял родителя бесконечно,
+        // используем implicitWidth для расчетов ширины родителя
+    }
+
+    // --- Твоя логика (без изменений) ---
+    property var rootParent: null
+    property bool candidate: false
+    property bool busy: false
     readonly property bool isSlot: true
 
     function setReporter(target) {
@@ -56,35 +90,6 @@ Rectangle {
         reporter.parent = root
         reporter.x = 0
         reporter.y = 0
-        busy = true;
-
-        // let item = rootParent.rootParent
-
-        // if (("isReporter" in item)) {
-        //     Utils.changeGridPos(item)
-        //     reporter = null
-        //     return
-        // }
-
-        // if (("isContainer" in item)) {
-        //     item = item.rootParent
-        //     Utils.changeGridPos(item)
-        //     reporter = null
-        //     return
-        // }
-
-        // if (("isBlock" in item)) {
-        //     Utils.changeGridPos(item)
-        //     reporter = null
-        //     return
-        // }
-    }
-
-    TextInput {
-        id: input
-        x: root.margins
-        height: root.height
-        text: ""
-        width: implicitWidth > 18 ? implicitWidth : 18
+        busy = true
     }
 }

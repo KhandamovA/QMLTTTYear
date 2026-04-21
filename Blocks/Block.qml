@@ -16,7 +16,7 @@ Item {
     property bool hasInput: true
     property bool hasOutput: true
     property string textColor: "black"
-    property string bodyColor: "#cccccc"
+    property string bodyColor: "#bfcdd9"
 
     property var prevConnector: null
     property var prevContainer: null
@@ -41,7 +41,7 @@ Item {
     Item {
         id: props
 
-        property var polyPath: []
+        // property var polyPath: []
         property int margins: 8
         property int arrowMargin: margins + 5
         property int arrowWidth: 16
@@ -140,7 +140,9 @@ Item {
 
             //==================
 
-            props.polyPath = temp
+            // props.polyPath = temp
+            if (polylinePath)
+                polylinePath.path = temp
         }
 
         function updateBlockConnectors() {
@@ -253,7 +255,8 @@ Item {
             fillColor: root.bodyColor
 
             PathPolyline {
-                path: props.polyPath
+                id: polylinePath
+                // path: props.polyPath
             }
         }
 
