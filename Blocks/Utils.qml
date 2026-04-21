@@ -35,6 +35,9 @@ QtObject {
         sceneItems[uid] = target
         changeGridPos(target)
 
+        let scene = sceneContainer.rootParent
+        scene.addItem(target)
+
         console.log("new item uid:", target, uid)
     }
 

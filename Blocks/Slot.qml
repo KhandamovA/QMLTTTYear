@@ -51,11 +51,33 @@ Rectangle {
             }
             return
         }
+
         reporter = target
         reporter.parent = root
         reporter.x = 0
         reporter.y = 0
-        busy = true
+        busy = true;
+
+        // let item = rootParent.rootParent
+
+        // if (("isReporter" in item)) {
+        //     Utils.changeGridPos(item)
+        //     reporter = null
+        //     return
+        // }
+
+        // if (("isContainer" in item)) {
+        //     item = item.rootParent
+        //     Utils.changeGridPos(item)
+        //     reporter = null
+        //     return
+        // }
+
+        // if (("isBlock" in item)) {
+        //     Utils.changeGridPos(item)
+        //     reporter = null
+        //     return
+        // }
     }
 
     TextInput {

@@ -248,7 +248,7 @@ Item {
         containsMode: Shape.FillContains
 
         ShapePath {
-            strokeWidth: 1
+            strokeWidth: 1 / Utils.sceneContainer.rootParent.zoomScale
             strokeColor: "#888888"
             fillColor: root.bodyColor
 
@@ -431,5 +431,9 @@ Item {
         isOutput: true
         width: root.width
         y: root.height - props.arrowHeight
+    }
+
+    onHeightChanged: {
+        root.updateSceneInfo()
     }
 }

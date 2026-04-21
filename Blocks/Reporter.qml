@@ -37,12 +37,8 @@ Item {
         antialiasing: true
         preferredRendererType: Shape.CurveRenderer
 
-        layer.enabled: true
-        layer.samples: 8
-        layer.smooth: true
-
         ShapePath {
-            strokeWidth: 1
+            strokeWidth: 1 / Utils.sceneContainer.rootParent.zoomScale
             strokeColor: "#888888"
             fillColor: root.bodyColor
             capStyle: ShapePath.RoundCap
@@ -70,8 +66,6 @@ Item {
 
             onActiveChanged: {
                 if (!active) {
-                    Utils.changeGridPos(root)
-
                     let rect = Utils._rectFromScene(root)
                     let slot = Utils.getCandidateSlotByRect(rect, root.slots)
                     let allSlots = Utils.getSlotsForGridByRect(rect)
@@ -103,6 +97,8 @@ Item {
 
                     if (root.y < 0)
                         root.y = 0
+
+                    Utils.changeGridPos(root)
                 } else {
                     Utils.raise(root)
                 }

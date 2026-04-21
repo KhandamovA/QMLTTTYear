@@ -12,7 +12,7 @@ qt_add_executable(apptttYear
     main.cpp
 )
 
-set_source_files_properties(Utils.qml PROPERTIES
+set_source_files_properties(Blocks/Utils.qml PROPERTIES
     QT_QML_SINGLETON_TYPE TRUE
 )
 
@@ -21,16 +21,29 @@ set_source_files_properties(Utils.qml PROPERTIES
 qt_add_qml_module(apptttYear
     URI tttYear
     VERSION 1.0
+    RESOURCE_PREFIX /qt/qml
+
     QML_FILES
         Main.qml
-        Block.qml
-        Container.qml
-        BlockTitle.qml
-        Slot.qml
-        Reporter.qml
-        Utils.qml
         Scene.qml
-        BlockConnector.qml
+        Blocks/Block.qml
+        Blocks/Container.qml
+        Blocks/BlockTitle.qml
+        Blocks/Slot.qml
+        Blocks/Reporter.qml
+        Blocks/Utils.qml
+        Blocks/BlockConnector.qml
+)
+
+set_source_files_properties(
+    Blocks/Block.qml
+    Blocks/Container.qml
+    Blocks/BlockTitle.qml
+    Blocks/Slot.qml
+    Blocks/Reporter.qml
+    Blocks/Utils.qml
+    Blocks/BlockConnector.qml
+    PROPERTIES QT_RESOURCE_ALIAS "${CMAKE_CURRENT_SOURCE_DIR}/Blocks/"
 )
 
 
