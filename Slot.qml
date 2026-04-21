@@ -3,7 +3,7 @@ import QtQuick
 
 Rectangle {
     id: root
-    property Item rootParent: null
+    property var rootParent: null
     width: root.reporter === null ? Math.max(26, input.width + (root.margins * 2)) : root.reporter.width
     height: root.reporter === null ? 18 : root.reporter.height
     radius: root.width / 2
@@ -30,15 +30,20 @@ Rectangle {
                 Utils.changeGridPos(reporter)
                 let item = rootParent.rootParent
 
-                if (!("isReporter" in item)) {
+                if (("isReporter" in item)) {
                     Utils.changeGridPos(item)
                     reporter = null
                     return
                 }
 
-                item = rootParent.rootParent
-                if (!("isBlock" in item)) {
+                if (("isContainer" in item)) {
                     item = item.rootParent
+                    Utils.changeGridPos(item)
+                    reporter = null
+                    return
+                }
+
+                if (("isBlock" in item)) {
                     Utils.changeGridPos(item)
                     reporter = null
                     return

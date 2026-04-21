@@ -19,6 +19,8 @@ Item {
     property var objectsGridPos: ({})
     property alias shape: shape
 
+    readonly property bool isReporter: true
+
     Item {
         id: props
 
