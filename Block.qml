@@ -22,6 +22,7 @@ Item {
     property var prevBlock: null
     property var nextBlock: null
     property int chainHeight: nextBlock ? root.height + nextBlock.chainHeight - props.arrowHeight : root.height - props.arrowHeight
+    property var lastBlock: nextBlock ? nextBlock.lastBlock : root
 
     property var blockConnectors: []
     property var objectsGridPos: ({})
@@ -263,14 +264,22 @@ Item {
             onActiveChanged: {
                 if (!active) {
                     let item = null
+                    let next = null
+                    let busy = false
+                    let cand = Utils.candidateConnector
                     if (Utils.candidateConnector) {
-                        item = Utils.candidateConnector.rootParent
+                        item = cand.rootParent
+                        next = item.nextBlock
+                        busy = cand.busy
                     }
 
                     if (root.prevBlock) {
                         if (item == root.prevBlock) {
                             root.x = 0
                             root.y = item.height - props.arrowHeight
+                            cand.candidate = false
+                            Utils.candidateConnector = null
+                            return
                         } else {
                             if (root.prevBlock)
                                 root.prevBlock.setNextBlock(null)
@@ -284,6 +293,9 @@ Item {
                         if (item == root.prevContainer) {
                             root.x = 0
                             root.y = 0
+                            cand.candidate = false
+                            Utils.candidateConnector = null
+                            return
                         } else {
                             if (root.prevContainer)
                                 root.prevContainer.setNextBlock(null)
@@ -295,14 +307,16 @@ Item {
 
                     // Устанавливаем нового родителя
                     if (Utils.candidateConnector) {
-                        let cand = Utils.candidateConnector
                         let item = cand.rootParent
 
-                        if ("isBlock" in item) {
+                        if (busy) {
+                            item.setNextBlock(null)
                             item.setNextBlock(root)
+                            root.lastBlock.setNextBlock(next)
+
                             root.prevConnector = cand
                             root.prevConnector.busy = true
-                        } else if ("isContainer" in item) {
+                        } else {
                             item.setNextBlock(root)
                             root.prevConnector = cand
                             root.prevConnector.busy = true

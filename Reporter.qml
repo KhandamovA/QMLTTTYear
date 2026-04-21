@@ -33,6 +33,7 @@ Item {
         height: view.height + props.margins * 2
         containsMode: Shape.FillContains
         antialiasing: true
+        preferredRendererType: Shape.CurveRenderer
 
         layer.enabled: true
         layer.samples: 8
@@ -45,11 +46,12 @@ Item {
             capStyle: ShapePath.RoundCap
 
             PathRectangle {
-                x: 0
-                y: 0
-                width: shape.width
-                height: shape.height
-                radius: width / 2
+                x: 1
+                y: 1
+                width: shape.width - 2
+                height: shape.height - 2
+                radius: width
+                strokeAdjustment: 1
             }
         }
 
@@ -66,51 +68,51 @@ Item {
 
             onActiveChanged: {
                 if (!active) {
-                    Utils.changeGridPos(root);
+                    Utils.changeGridPos(root)
 
-                    let rect = Utils._rectFromScene(root);
-                    let slot = Utils.getCandidateSlotByRect(rect, root.slots);
-                    let allSlots = Utils.getSlotsForGridByRect(rect);
+                    let rect = Utils._rectFromScene(root)
+                    let slot = Utils.getCandidateSlotByRect(rect, root.slots)
+                    let allSlots = Utils.getSlotsForGridByRect(rect)
 
                     if (root.currentSlot && allSlots.includes(root.currentSlot)) {
-                        root.x = 0;
-                        root.y = 0;
+                        root.x = 0
+                        root.y = 0
                     }
 
                     if (slot !== null) {
                         if (root.currentSlot) {
-                            root.currentSlot.setReporter(null);
-                            root.currentSlot = null;
+                            root.currentSlot.setReporter(null)
+                            root.currentSlot = null
                         }
 
-                        slot.setReporter(root);
-                        Utils.candidateSlot.candidate = false;
-                        Utils.candidateSlot = null;
-                        root.currentSlot = slot;
+                        slot.setReporter(root)
+                        Utils.candidateSlot.candidate = false
+                        Utils.candidateSlot = null
+                        root.currentSlot = slot
                     } else {
                         if (root.currentSlot) {
-                            root.currentSlot.setReporter(null);
-                            root.currentSlot = null;
+                            root.currentSlot.setReporter(null)
+                            root.currentSlot = null
                         }
                     }
 
                     if (root.x < 0)
-                        root.x = 0;
+                        root.x = 0
 
                     if (root.y < 0)
-                        root.y = 0;
+                        root.y = 0
                 } else {
-                    Utils.raise(root);
+                    Utils.raise(root)
                 }
             }
 
             onCentroidChanged: {
                 if (dragHandler.active) {
-                    console.log("reporter", root.x, root.y);
-                    let rect = Utils._rectFromScene(root);
-                    Utils.getCandidateSlotByRect(rect, root.slots);
+                    console.log("reporter", root.x, root.y)
+                    let rect = Utils._rectFromScene(root)
+                    Utils.getCandidateSlotByRect(rect, root.slots)
 
-                    console.log(rect);
+                    console.log(rect)
                 }
             }
         }
@@ -125,16 +127,16 @@ Item {
         color: root.textColor
 
         onWidthChanged: {
-            let buffer = [];
-            let childs = view.container.children;
+            let buffer = []
+            let childs = view.container.children
             for (let i of childs) {
-                let slots = Utils._findChildWithProp(i, "isSlot");
+                let slots = Utils._findChildWithProp(i, "isSlot")
                 for (let j of slots) {
-                    buffer.push(j);
+                    buffer.push(j)
                 }
             }
 
-            root.slots = buffer;
+            root.slots = buffer
         }
     }
 }

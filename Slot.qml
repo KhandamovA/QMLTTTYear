@@ -1,3 +1,4 @@
+pragma ValueTypeBehavior: Inaddressable
 import QtQuick
 
 Rectangle {
@@ -21,22 +22,35 @@ Rectangle {
     function setReporter(target) {
         if (target == null) {
             if (reporter) {
-                busy = false;
-                let scenePos = Utils._rectFromScene(reporter);
-                reporter.parent = Utils.sceneContainer;
-                reporter.x = scenePos.x;
-                reporter.y = scenePos.y;
-                Utils.changeGridPos(reporter);
-                Utils.changeGridPos(rootParent.rootParent);
-                reporter = null;
+                busy = false
+                let scenePos = Utils._rectFromScene(reporter)
+                reporter.parent = Utils.sceneContainer
+                reporter.x = scenePos.x
+                reporter.y = scenePos.y
+                Utils.changeGridPos(reporter)
+                let item = rootParent.rootParent
+
+                if (!("isReporter" in item)) {
+                    Utils.changeGridPos(item)
+                    reporter = null
+                    return
+                }
+
+                item = rootParent.rootParent
+                if (!("isBlock" in item)) {
+                    item = item.rootParent
+                    Utils.changeGridPos(item)
+                    reporter = null
+                    return
+                }
             }
-            return;
+            return
         }
-        reporter = target;
-        reporter.parent = root;
-        reporter.x = 0;
-        reporter.y = 0;
-        busy = true;
+        reporter = target
+        reporter.parent = root
+        reporter.x = 0
+        reporter.y = 0
+        busy = true
     }
 
     TextInput {
