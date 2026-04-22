@@ -9,7 +9,8 @@ Item {
     width: shape.width
     height: shape.height
 
-    property int uid: 0
+    property int uid: -1
+    property int type: 0
     readonly property bool isBlock: true
 
     property var viewTexts: ["Если $$", "Иначе", ""]
@@ -232,10 +233,106 @@ Item {
 
         updatePolyPath()
         Utils.changeGridPos(root)
-        updateBlockConnectors()
 
         if (root.nextBlock) {
             root.nextBlock.updateSceneInfo()
+        }
+
+        updateBlockConnectors()
+    }
+
+    function checkCandidateBlock() {
+        let rect = Utils._rectFromScene(input_)
+        let connectors = Utils.getCandidateBlockByRect(rect, root.blockConnectors);
+        // console.log(rect, connectors)
+
+        let output = null
+        for (let i of connectors) {
+            if ((i.connector.isOutput && !i.connector.busy) || i.connector == root.prevConnector) {
+                output = i.connector
+                break
+            }
+        }
+
+        // console.log(rect, output)
+
+        if (output == Utils.candidateConnector)
+            return
+        if (Utils.candidateConnector) {
+            Utils.candidateConnector.candidate = false
+            Utils.candidateConnector = null
+        }
+
+        Utils.candidateConnector = output
+
+        if (Utils.candidateConnector) {
+            Utils.candidateConnector.candidate = true
+            //
+        }
+    }
+
+    function applyCandidateBlock() {
+        let item = null
+        let next = null
+        let busy = false
+        let cand = Utils.candidateConnector
+        if (Utils.candidateConnector) {
+            item = cand.rootParent
+            next = item.nextBlock
+            busy = cand.busy
+        }
+
+        if (root.prevBlock) {
+            if (item == root.prevBlock) {
+                root.x = 0
+                root.y = item.height - props.arrowHeight
+                cand.candidate = false
+                Utils.candidateConnector = null
+                return
+            } else {
+                if (root.prevBlock)
+                    root.prevBlock.setNextBlock(null)
+
+                root.prevConnector.busy = false
+                root.prevConnector = null
+            }
+        }
+
+        if (root.prevContainer) {
+            if (item == root.prevContainer) {
+                root.x = 0
+                root.y = 0
+                cand.candidate = false
+                Utils.candidateConnector = null
+                return
+            } else {
+                if (root.prevContainer)
+                    root.prevContainer.setNextBlock(null)
+
+                root.prevConnector.busy = false
+                root.prevConnector = null
+            }
+        }
+
+        // Устанавливаем нового родителя
+        if (Utils.candidateConnector) {
+            let item = cand.rootParent
+
+            if (busy) {
+                item.setNextBlock(null)
+                item.setNextBlock(root)
+                root.lastBlock.setNextBlock(next)
+
+                root.prevConnector = cand
+                root.prevConnector.busy = true
+            } else {
+                item.setNextBlock(root)
+                root.prevConnector = cand
+                root.prevConnector.busy = true
+            }
+
+            cand.candidate = false
+            Utils.candidateConnector = null
         }
     }
 
@@ -273,68 +370,7 @@ Item {
 
             onActiveChanged: {
                 if (!active) {
-                    let item = null
-                    let next = null
-                    let busy = false
-                    let cand = Utils.candidateConnector
-                    if (Utils.candidateConnector) {
-                        item = cand.rootParent
-                        next = item.nextBlock
-                        busy = cand.busy
-                    }
-
-                    if (root.prevBlock) {
-                        if (item == root.prevBlock) {
-                            root.x = 0
-                            root.y = item.height - props.arrowHeight
-                            cand.candidate = false
-                            Utils.candidateConnector = null
-                            return
-                        } else {
-                            if (root.prevBlock)
-                                root.prevBlock.setNextBlock(null)
-
-                            root.prevConnector.busy = false
-                            root.prevConnector = null
-                        }
-                    }
-
-                    if (root.prevContainer) {
-                        if (item == root.prevContainer) {
-                            root.x = 0
-                            root.y = 0
-                            cand.candidate = false
-                            Utils.candidateConnector = null
-                            return
-                        } else {
-                            if (root.prevContainer)
-                                root.prevContainer.setNextBlock(null)
-
-                            root.prevConnector.busy = false
-                            root.prevConnector = null
-                        }
-                    }
-
-                    // Устанавливаем нового родителя
-                    if (Utils.candidateConnector) {
-                        let item = cand.rootParent
-
-                        if (busy) {
-                            item.setNextBlock(null)
-                            item.setNextBlock(root)
-                            root.lastBlock.setNextBlock(next)
-
-                            root.prevConnector = cand
-                            root.prevConnector.busy = true
-                        } else {
-                            item.setNextBlock(root)
-                            root.prevConnector = cand
-                            root.prevConnector.busy = true
-                        }
-
-                        cand.candidate = false
-                        Utils.candidateConnector = null
-                    }
+                    root.applyCandidateBlock()
 
                     if (root.x < 0)
                         root.x = 0
@@ -350,33 +386,7 @@ Item {
 
             onCentroidChanged: {
                 if (root.hasInput && dragHandler.active) {
-                    let rect = Utils._rectFromScene(input_)
-                    let connectors = Utils.getCandidateBlockByRect(rect, root.blockConnectors);
-                    // console.log(rect, connectors)
-
-                    let output = null
-                    for (let i of connectors) {
-                        if ((i.connector.isOutput && !i.connector.busy) || i.connector == root.prevConnector) {
-                            output = i.connector
-                            break
-                        }
-                    }
-
-                    // console.log(rect, output)
-
-                    if (output == Utils.candidateConnector)
-                        return
-                    if (Utils.candidateConnector) {
-                        Utils.candidateConnector.candidate = false
-                        Utils.candidateConnector = null
-                    }
-
-                    Utils.candidateConnector = output
-
-                    if (Utils.candidateConnector) {
-                        Utils.candidateConnector.candidate = true
-                        //
-                    }
+                    root.checkCandidateBlock()
                 }
             }
         }
@@ -418,6 +428,14 @@ Item {
                 textColor: root.textColor
 
                 onWidthChanged: {
+                    root.updateSceneInfo()
+                }
+
+                onSlotChanged: {
+                    root.updateSceneInfo()
+                }
+
+                onYChanged: {
                     root.updateSceneInfo()
                 }
             }

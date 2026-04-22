@@ -5,7 +5,7 @@ import Qt.labs.qmlmodels
 
 Flickable {
     id: scene
-    anchors.fill: parent
+    // anchors.fill: parent
     contentWidth: contentContainer.width * zoomScale
     contentHeight: contentContainer.height * zoomScale
     clip: true
@@ -217,6 +217,47 @@ Flickable {
             border.color: "#00bfff"
             border.width: 2 / scene.zoomScale
             z: 10000
+        }
+
+        DropArea {
+            id: sceneDropArea
+            anchors.fill: contentContainer
+
+            // Тот самый ключ, который мы указали в магазине
+            keys: ["block"]
+
+            // Когда блок отпустили над сценой
+            onDropped: drop => {
+                // 1. Получаем данные, которые мы упаковали в магазине
+                let data = drop.source.Drag.mimeData.blockData
+
+                // 2. Координаты сброса (относительно DropArea)
+
+                // Получаем размеры блока из источника
+                let blockW = drop.source.width
+                let blockH = drop.source.height
+
+                // Получаем hotSpot (смещение курсора относительно угла картинки)
+                let hsX = drop.source.Drag.hotSpot.x
+                let hsY = drop.source.Drag.hotSpot.y;
+
+                // Вычисляем левый верхний угол
+                let finalX = drop.x - hsX
+                let finalY = drop.y - hsY
+
+                // console.log("Приняли блок:", data.type, "в координаты:", xPos, yPos);
+
+                // 3. Вызываем твою логику создания реального блока
+                Utils.addSceneItemFromData(finalX, finalY, data);
+
+                // 4. Подтверждаем системе, что дроп принят успешно
+                drop.accept()
+            }
+
+            // Опционально: визуальная реакция, когда блок "занесли" над сценой
+            onEntered: drag => {}
+
+            onExited: {}
         }
     }
 

@@ -5,7 +5,8 @@ Item {
     id: root
     property Item rootParent: null
 
-    property int uid: 0
+    property int uid: -1
+    property int type: 0
 
     property string viewText: "Значение переменной $$ $$"
     property string textColor: "black"

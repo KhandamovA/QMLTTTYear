@@ -21,37 +21,37 @@ Item {
     }
 
     onViewTextChanged: {
-        let temp = [];
+        let temp = []
 
-        let buffer = "";
+        let buffer = ""
         let check = () => {
             if (buffer.length > 0) {
                 temp.push({
                     "type": "text",
                     "value": buffer
-                });
-                buffer = "";
+                })
+                buffer = ""
             }
-        };
+        }
 
         for (let i = 0; i < viewText.length; i++) {
-            let pair = viewText[i] + (viewText[i + 1] ? viewText[i + 1] : "");
+            let pair = viewText[i] + (viewText[i + 1] ? viewText[i + 1] : "")
 
             if (pair == "$$") {
-                i += 2;
+                i += 2
 
-                check();
+                check()
                 temp.push({
                     "type": "slot"
-                });
+                })
             }
 
             if (i < viewText.length)
-                buffer += viewText[i];
+                buffer += viewText[i]
         }
-        check();
+        check()
 
-        props.items = temp;
+        props.items = temp
     }
 
     Row {
@@ -68,7 +68,7 @@ Item {
                     delegate: Text {
                         text: modelData.value
                         color: root.color
-                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenter: container.verticalCenter
                     }
                 }
 
@@ -76,7 +76,7 @@ Item {
                     roleValue: "slot"
                     delegate: Slot {
                         rootParent: root
-                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenter: container.verticalCenter
                     }
                 }
             }
@@ -84,9 +84,9 @@ Item {
 
         onHeightChanged: {
             if ("updatePolyPath" in root.rootParent) {
-                root.rootParent.updatePolyPath();
+                root.rootParent.updatePolyPath()
             } else {
-                console.log(root.rootParent);
+                // console.log(root.rootParent)
             }
         }
     }

@@ -8,6 +8,7 @@ QtObject {
     property int objectsGridSize: 250
     // Сама сцена
     property var sceneContainer: null
+    property var blocksShop: null
 
     // Список со всеми элементами, uid должен быть уникальным
     property var sceneItems: ({})
@@ -16,10 +17,54 @@ QtObject {
     property var candidateConnector: null
 
     // Инициализация, обязательно указывается виджет в роли холста на котором будут распологаться все элементы
-    function init(sceneContainer_) {
+    function init(sceneContainer_, blocksShop_) {
         sceneContainer = sceneContainer_
+        blocksShop = blocksShop_
 
-        console.log('Инициализация сцены прошла успешно', sceneContainer)
+        console.log('Инициализация сцены прошла успешно. Scene:', sceneContainer, "BlocksShop", blocksShop)
+    }
+
+    function addSceneItemFromData(x, y, renderData) {
+        // console.log(x, y, data)
+
+        let type = renderData.type
+        let shape = renderData.blockShape
+
+        delete renderData["blockShape"]
+        delete renderData["group"]
+
+        let componentPath = ""
+
+        if (shape === 1) {
+            componentPath = "Reporter.qml"
+            // Специфика для репортера
+            renderData["viewText"] = renderData["viewTexts"][0]
+            delete renderData["viewTexts"]
+            delete renderData["hasInput"]
+            delete renderData["hasOutput"]
+        } else {
+            componentPath = "Block.qml"
+        }
+
+        let component = Qt.createComponent(componentPath)
+
+        if (component.status === Component.Error) {
+            console.error("Ошибка загрузки:", component.errorString())
+            return
+        }
+
+        let obj = component.createObject(sceneContainer, renderData)
+
+        obj.x = x
+        obj.y = y
+
+        registerSceneItem(obj);
+
+        // После попадания на сцену принудительно просим чекнуть нет ли там чего к чему можно присосаться
+        if ("isBlock" in obj) {
+            obj.checkCandidateBlock()
+            obj.applyCandidateBlock()
+        }
     }
 
     // Поднятие элемента по z-индексу вверх
@@ -33,6 +78,9 @@ QtObject {
     function registerSceneItem(target) {
         let uid = target.uid
 
+        if (uid == -1)
+            uid = 0
+
         let uids = Object.keys(sceneItems)
         while (uids.includes(`${uid}`)) {
             uid += 1
@@ -41,18 +89,24 @@ QtObject {
         target.uid = uid
 
         sceneItems[uid] = target
-        changeGridPos(target)
 
         let scene = sceneContainer.rootParent
         scene.addItem(target)
 
         console.log("new item uid:", uid, target)
+        changeGridPos(target);
+
+        // Обновляем положения коннекторов после попадания на сцену, чтобы значения были корректными
+        if ("isBlock" in target)
+            target.updateBlockConnectors()
     }
 
     // Метод перезаписи положения на виртуальной сетке сцены
     function changeGridPos(target) {
         let uid = target.uid
 
+        if (uid == -1)
+            return
         let sceneRect = _rectFromScene(target);
 
         // ВЫЧИСЛЕНИЕ НОВЫХ КЛЕТОК

@@ -25,6 +25,8 @@ Item {
     property int containersMargin: 16
     property int minWidth: 64
 
+    signal slotChanged
+
     function drawInputFromLeft(beginPoint) {
         return [Qt.point(beginPoint.x, beginPoint.y), Qt.point(beginPoint.x, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y + root.arrowHeight), Qt.point(beginPoint.x + root.arrowWidth, beginPoint.y)]
     }
@@ -81,6 +83,8 @@ Item {
             }
         }
         updatePolyPath()
+
+        slotChanged()
     }
 
     Component.onCompleted: {
@@ -120,7 +124,6 @@ Item {
         }
 
         onHeightChanged: {
-            console.log(root.height)
             root.updatePolyPath()
         }
     }
