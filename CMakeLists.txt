@@ -26,7 +26,7 @@ qt_add_qml_module(apptttYear
 
     QML_FILES
     Main.qml
-    Scene.qml
+    Blocks/Scene.qml
     Blocks/Block.qml
     Blocks/Container.qml
     Blocks/BlockTitle.qml
@@ -45,6 +45,7 @@ qt_add_qml_module(apptttYear
 )
 
 set_source_files_properties(
+    Blocks/Scene.qml
     Blocks/Block.qml
     Blocks/Container.qml
     Blocks/BlockTitle.qml
