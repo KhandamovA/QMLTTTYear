@@ -21,7 +21,11 @@ struct BlockData
     // Подсказки для слотов
     QList<QString> slotsPlaceholders;
     // Колбэки для получения списка элементов для combobox-сов
-    QList<std::function<QList<QPair<QString, QVariant>>()>> comboBoxCallCurrentList;
+    QList<std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>>
+        comboBoxCallCurrentList;
+    // Колбэки для получения установки значения и текста в слот с кнопкой, lastValue приходит последнее значение
+    QList<std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>>
+        buttonSettersNewValue;
     QString group = "defaultGroup";
 
     QJsonObject toJson() const;
@@ -40,7 +44,12 @@ struct BlockConstructor
     BlockConstructor &text(const QString &text);
     BlockConstructor &slot(const QString &placeholder);
     BlockConstructor &addContainer();
-    BlockConstructor &comboBox(std::function<QList<QPair<QString, QVariant>>()> callCurrentList);
+    BlockConstructor &comboBox(
+        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
+            callCurrentList);
+    BlockConstructor &button(
+        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
+            callSetterNewValue);
 
     operator BlockData() { return data; }
 
@@ -58,7 +67,12 @@ struct ReporterConstructor
 
     ReporterConstructor &text(const QString &text);
     ReporterConstructor &slot(const QString &placeholder);
-    ReporterConstructor &comboBox(std::function<QList<QPair<QString, QVariant>>()> callCurrentList);
+    ReporterConstructor &comboBox(
+        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
+            callCurrentList);
+    ReporterConstructor &button(
+        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
+            callSetterNewValue);
 
     operator BlockData() { return data; }
 

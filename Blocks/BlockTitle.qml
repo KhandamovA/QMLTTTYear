@@ -41,6 +41,7 @@ Item {
 
         let slotCounter = 0
         let comboBoxCounter = 0
+        let buttonCounter = 0
         for (let i = 0; i < viewText.length; i++) {
             let pair = viewText[i] + (viewText[i + 1] ? viewText[i + 1] : "")
 
@@ -66,6 +67,15 @@ Item {
                     "type": "comboBoxSlot"
                 })
                 comboBoxCounter++
+            } else if (pair == "**") {
+                i += 2
+
+                check()
+                temp.push({
+                    "index": buttonCounter,
+                    "type": "buttonSlot"
+                })
+                buttonCounter++
             }
 
             if (i < viewText.length)
@@ -112,9 +122,21 @@ Item {
                         updateItemMethod: function () {
                             return Utils.qmlQuery("comboBoxList", {
                                 "type": root.ownerBlock.type,
-                                "index": modelData.index
+                                "index": modelData.index,
+                                "key": selectedValue.key,
+                                "value": selectedValue.value
                             })
                         }
+                    }
+                }
+
+                DelegateChoice {
+                    roleValue: "buttonSlot"
+                    delegate: ButtonSlot {
+                        rootParent: root
+                        ownerBlock: root.ownerBlock
+                        index: modelData.index
+                        anchors.verticalCenter: container.verticalCenter
                     }
                 }
             }

@@ -48,6 +48,8 @@ qt_add_qml_module(apptttYear
     SOURCES
     Integration/editorwatcher.h Integration/editorwatcher.cpp
     Integration/editorscene.h Integration/editorscene.cpp
+    QML_FILES
+    QML_FILES Blocks/ButtonSlot.qml
 
 
 

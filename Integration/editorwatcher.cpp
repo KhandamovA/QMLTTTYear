@@ -30,7 +30,9 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         QJsonArray ret;
         auto type = data["type"].toInteger();
         auto index = data["index"].toInteger();
-        auto list = m_blocksInfo[type].comboBoxCallCurrentList[index]();
+        auto lastKey = data["key"].toString();
+        auto lastValue = data["value"].toVariant();
+        auto list = m_blocksInfo[type].comboBoxCallCurrentList[index]({lastKey, lastValue});
 
         for (auto &i : list) {
             QJsonObject entry;
@@ -40,6 +42,16 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         }
 
         return ret;
+    } else if (method == "buttonSetter") {
+        QJsonArray ret;
+        auto type = data["type"].toInteger();
+        auto index = data["index"].toInteger();
+        auto lastKey = data["key"].toString();
+        auto lastValue = data["value"].toVariant();
+
+        auto newValue = m_blocksInfo[type].buttonSettersNewValue[index]({lastKey, lastValue});
+
+        return QJsonObject{{"key", newValue.first}, {"value", newValue.second.toJsonValue()}};
     }
     return {};
 }
@@ -137,10 +149,18 @@ BlockConstructor &BlockConstructor::addContainer()
 }
 
 BlockConstructor &BlockConstructor::comboBox(
-    std::function<QList<QPair<QString, QVariant> >()> callCurrentList)
+    std::function<QList<QPair<QString, QVariant> >(QPair<QString, QVariant>)> callCurrentList)
 {
     data.viewTexts[currentRow] += " ?? ";
     data.comboBoxCallCurrentList.append(callCurrentList);
+    return (*this);
+}
+
+BlockConstructor &BlockConstructor::button(
+    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue)
+{
+    data.viewTexts[currentRow] += " ** ";
+    data.buttonSettersNewValue.append(callSetterNewValue);
     return (*this);
 }
 
@@ -172,9 +192,17 @@ ReporterConstructor &ReporterConstructor::slot(const QString &placeholder)
 }
 
 ReporterConstructor &ReporterConstructor::comboBox(
-    std::function<QList<QPair<QString, QVariant> >()> callCurrentList)
+    std::function<QList<QPair<QString, QVariant> >(QPair<QString, QVariant>)> callCurrentList)
 {
     data.viewTexts[currentRow] += " ?? ";
     data.comboBoxCallCurrentList.append(callCurrentList);
+    return (*this);
+}
+
+ReporterConstructor &ReporterConstructor::button(
+    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue)
+{
+    data.viewTexts[currentRow] += " ** ";
+    data.buttonSettersNewValue.append(callSetterNewValue);
     return (*this);
 }
