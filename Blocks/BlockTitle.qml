@@ -53,7 +53,7 @@ Item {
                     "index": slotCounter,
                     "type": "slot",
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
-                        "type": root.ownerBlock.top,
+                        "type": root.ownerBlock.type,
                         "index": slotCounter
                     })
                 })
