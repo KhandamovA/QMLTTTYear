@@ -15,7 +15,7 @@ Flickable {
     // boundsBehavior: Flickable.StopAtBounds
     property real zoomScale: 1.0
     readonly property real minZoom: 0.2
-    readonly property real maxZoom: 1.6
+    readonly property real maxZoom: 4.0
     readonly property bool isScene: true
     property alias containter: contentContainer
 
@@ -51,31 +51,39 @@ Flickable {
 
         grabPermissions: PointerHandler.TakeOverForbidden
 
-        onWheel: event => {
-            let mouseX = event.x
-            let mouseY = event.y
-            let zoomFactor = event.angleDelta.y > 0 ? 1.1 : 0.9
-            let newScale = scene.zoomScale * zoomFactor
+        function wheelEvent(delta, mx, my) {
+            let oldScale = scene.zoomScale
+            let zoomFactor = delta > 0 ? 1.1 : 0.9
+            let newScale = Math.max(scene.minZoom, Math.min(scene.maxZoom, oldScale * zoomFactor))
 
-            if (newScale < scene.minZoom)
-                newScale = scene.minZoom
-            if (newScale > scene.maxZoom)
-                newScale = scene.maxZoom
+            if ((oldScale < 1.0 && newScale > 1.0) || (oldScale > 1.0 && newScale < 1.0))
+                newScale = 1.0
 
-            if (newScale !== scene.zoomScale) {
-                // Координаты точки под мышью в содержимом до масштабирования
-                let contentXBefore = scene.contentX
-                let contentYBefore = scene.contentY
-                let mouseInContentX = (contentXBefore + mouseX) / scene.zoomScale
-                let mouseInContentY = (contentYBefore + mouseY) / scene.zoomScale
+            if (newScale !== oldScale) {
+                // 1. Вычисляем ГДЕ мышь стоит относительно окна (viewport)
+                // Раз event.x растет вместе с контентом, то разница между ним
+                // и сдвигом контента (contentX) — это стабильная точка на экране.
+                let stableMouseX = mx - scene.contentX
+                let stableMouseY = my - scene.contentY
 
+                // 2. Находим "чистую" координату точки в контенте (без учета масштаба)
+                let contentPointX = mx / oldScale
+                let contentPointY = my / oldScale
+
+                // 3. Применяем зум
                 scene.zoomScale = newScale;
 
-                // После изменения масштаба, смещаем так, чтобы точка под мышью осталась на месте
-                scene.contentX = mouseInContentX * newScale - mouseX
-                scene.contentY = mouseInContentY * newScale - mouseY
+                // 4. Двигаем контент
+                // Новое смещение = (Точка в контенте * новый масштаб) - стабильная точка на экране
+                scene.contentX = contentPointX * newScale - stableMouseX
+                scene.contentY = contentPointY * newScale - stableMouseY
+
+                zoomIndicator.show()
             }
-            event.accepted = true
+        }
+
+        onWheel: event => {
+            wheelEvent(event.angleDelta.y, event.x, event.y)
         }
     }
 
@@ -259,6 +267,44 @@ Flickable {
             onEntered: drag => {}
 
             onExited: {}
+        }
+    }
+
+    Text {
+        id: zoomIndicator
+        // Это заставит текст игнорировать прокрутку контента
+        parent: scene
+
+        // Центрируем вручную, так как anchors иногда капризничают в Flickable
+        x: (scene.width - width) / 2
+        y: (scene.height - height) / 2
+
+        z: 1000 // Гарантируем, что текст выше всех элементов сцены
+
+        text: Math.round(scene.zoomScale * 100) + "%"
+        color: "white"
+        font.pixelSize: 60 // Сделаем побольше, чтобы точно заметить
+        font.bold: true
+
+        // Обводка, чтобы не сливалось
+        style: Text.Outline
+        styleColor: "black"
+
+        opacity: 0
+        visible: opacity > 0 // Экономим ресурсы, когда не видно
+
+        NumberAnimation on opacity {
+            id: fadeAnimation
+            from: 1.0
+            to: 0.0
+            duration: 1000
+            easing.type: Easing.OutCubic
+        }
+
+        function show() {
+            fadeAnimation.stop()
+            zoomIndicator.opacity = 1.0
+            fadeAnimation.start()
         }
     }
 
