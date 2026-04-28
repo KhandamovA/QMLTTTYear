@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Shapes
 import QtQuick.Controls
 
 Item {
@@ -26,7 +27,7 @@ Item {
     // Функция для восстановления последнего значения
     function restoreLastValue() {
         if (inputField) {
-            inputField.text = selectedValue.key
+            inputField.text = selectedValue.key ? selectedValue.key : ""
             inputField.cursorPosition = 0
         }
     }
@@ -104,28 +105,43 @@ Item {
             radius: 14
             // color: area.pressed ? "#e0e0e0" : (area.containsMouse ? "#f0f0f0" : "transparent")
 
-            Canvas {
+            Shape {
                 id: canvas
                 anchors.centerIn: parent
                 width: 10
                 height: 6
-                onPaint: {
-                    var ctx = getContext("2d")
-                    ctx.clearRect(0, 0, width, height)
-                    ctx.fillStyle = "#7f8c8d"
 
-                    if (popup.opened) {
-                        ctx.beginPath()
-                        ctx.moveTo(0, height)
-                        ctx.lineTo(width / 2, 0)
-                        ctx.lineTo(width, height)
-                        ctx.fill()
-                    } else {
-                        ctx.beginPath()
-                        ctx.moveTo(0, 0)
-                        ctx.lineTo(width / 2, height)
-                        ctx.lineTo(width, 0)
-                        ctx.fill()
+                antialiasing: true
+                preferredRendererType: Shape.CurveRenderer
+
+                ShapePath {
+                    fillColor: "#7f8c8d"
+                    strokeColor: "transparent"
+
+                    // Рисуем треугольник носиком вниз
+                    startX: 0
+                    startY: 0
+                    PathLine {
+                        x: canvas.width
+                        y: 0
+                    }
+                    PathLine {
+                        x: canvas.width / 2
+                        y: canvas.height
+                    }
+                    PathLine {
+                        x: 0
+                        y: 0
+                    }
+                }
+
+                // Вместо смены координат в onPaint, просто вращаем Shape
+                rotation: popup.opened ? 180 : 0
+
+                Behavior on rotation {
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.InOutQuad
                     }
                 }
             }
@@ -143,7 +159,6 @@ Item {
                             inputField.text = ""
                         }
                         popup.open()
-                        canvas.requestPaint()
                         inputField.forceActiveFocus()
                     }
                 }
@@ -166,7 +181,6 @@ Item {
                 inputField.focus = false
             }
             root.restoreLastValue()
-            canvas.requestPaint()
         }
 
         onOpened: {

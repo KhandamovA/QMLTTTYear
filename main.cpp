@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     auto watcher = scene.watcher();
 
     BlockConstructor if__("Управление", 0);
-    if__.text("Если").slot("условие").text("тогда").addContainer().text("Иначе").addContainer();
+    if__.text("Если").slot("true").text("тогда").addContainer().text("Иначе").addContainer();
 
     std::function<QList<QPair<QString, QVariant>>()> c1 = []() {
         QList<QPair<QString, QVariant>> ret = {{"One", 1}, {"Two", 2}, {"Three", 3}, {"Four", 4}};

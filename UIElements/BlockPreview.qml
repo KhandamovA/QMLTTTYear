@@ -44,24 +44,30 @@ Item {
             return
         }
 
+        let container = Qt.createQmlObject('import QtQuick; Item { visible: false; opacity: 1 }', root);
         // 3. Создаем объект, передавая ОЧИЩЕННУЮ копию
-        let obj = component.createObject(root, renderData)
+        let obj = component.createObject(container, renderData)
 
+        obj.x += 2
+        obj.y += 2
         if (!obj) {
             console.error("Не удалось создать объект для рендера. Проверь оставшиеся свойства в renderData")
             return
         }
 
-        obj.opacity = 0
-        let targetSize = Qt.size(obj.width + 4, obj.height + 4)
+        obj.opacity = 1.0
+        let targetSize = Qt.size(obj.width + 2, obj.height + 2)
 
+        container.width = targetSize.width
+        container.height = targetSize.height
         root.width = targetSize.width
         root.height = targetSize.height
 
-        obj.grabToImage(function (result) {
+        container.grabToImage(function (result) {
             previewImage.source = ""
             previewImage.source = result.url
             obj.destroy()
+            container.destroy()
         }, targetSize)
     }
 
