@@ -20,6 +20,11 @@ Rectangle {
 
     property var watcher: null
 
+    onWatcherChanged: {
+        // Кладем в синглтон, чтобы иметь доступ везде
+        Utils.watcher = win.watcher
+    }
+
     SplitView {
         id: splitView
         anchors.fill: parent

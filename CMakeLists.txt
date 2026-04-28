@@ -17,6 +17,10 @@ set_source_files_properties(Blocks/Utils.qml PROPERTIES
     QT_QML_SINGLETON_TYPE TRUE
 )
 
+set_source_files_properties(Blocks/Resources.qml PROPERTIES
+    QT_QML_SINGLETON_TYPE TRUE
+)
+
 target_include_directories(apptttYear PRIVATE Integration)
 
 qt_add_qml_module(apptttYear
@@ -36,12 +40,18 @@ qt_add_qml_module(apptttYear
     Blocks/BlockConnector.qml
 
     UIElements/BlocksShop.qml
+    UIElements/BlockPreview.qml
+    UIElements/BlocksGroup.qml
+    Blocks/ComboBoxSlot.qml
+    Blocks/Resources.qml
 
     SOURCES
     Integration/editorwatcher.h Integration/editorwatcher.cpp
     Integration/editorscene.h Integration/editorscene.cpp
-    QML_FILES UIElements/BlockPreview.qml
-    QML_FILES UIElements/BlocksGroup.qml
+
+
+
+
 )
 
 set_source_files_properties(
@@ -53,6 +63,8 @@ set_source_files_properties(
     Blocks/Reporter.qml
     Blocks/Utils.qml
     Blocks/BlockConnector.qml
+    Blocks/ComboBoxSlot.qml
+    Blocks/Resources.qml
     PROPERTIES QT_RESOURCE_ALIAS "${CMAKE_CURRENT_SOURCE_DIR}/Blocks/"
 )
 

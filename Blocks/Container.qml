@@ -114,6 +114,7 @@ Item {
     BlockTitle {
         id: view
         rootParent: root
+        ownerBlock: root.rootParent
         viewText: root.viewText
         x: root.margins
         y: root.margins + root.arrowHeight + container.actualHeight

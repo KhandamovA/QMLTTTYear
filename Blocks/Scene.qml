@@ -92,6 +92,7 @@ Flickable {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: e => {
+            focus = true
             ctrlPressed = e.modifiers & Qt.ControlModifier
 
             if (e.button === Qt.RightButton) {
@@ -229,7 +230,7 @@ Flickable {
             // Когда блок отпустили над сценой
             onDropped: drop => {
                 // 1. Получаем данные, которые мы упаковали в магазине
-                let data = drop.source.Drag.mimeData.blockData
+                let data = JSON.parse(JSON.stringify(drop.source.Drag.mimeData.blockData));
 
                 // 2. Координаты сброса (относительно DropArea)
 

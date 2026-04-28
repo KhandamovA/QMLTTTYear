@@ -8,6 +8,8 @@
 
 struct BlockData
 {
+    enum Shape { Block = 0, Reporter = 1 };
+
     int type = 0;
     QList<QString> viewTexts;
     bool hasInput = true;
@@ -16,10 +18,53 @@ struct BlockData
     QString bodyColor = "#bfcdd9";
     int blockShape = 0; ///< 0 - обычный блок, 1 - репортер
 
+    // Подсказки для слотов
+    QList<QString> slotsPlaceholders;
+    // Колбэки для получения списка элементов для combobox-сов
+    QList<std::function<QList<QPair<QString, QVariant>>()>> comboBoxCallCurrentList;
     QString group = "defaultGroup";
 
     QJsonObject toJson() const;
     static BlockData fromJson(const QJsonObject &obj);
+};
+
+struct BlockConstructor
+{
+    BlockConstructor(QString group,
+                     int type,
+                     bool hasInput = true,
+                     bool hasOutput = true,
+                     QString bodyColor = "#bfcdd9",
+                     QString textColor = "black");
+
+    BlockConstructor &text(const QString &text);
+    BlockConstructor &slot(const QString &placeholder);
+    BlockConstructor &addContainer();
+    BlockConstructor &comboBox(std::function<QList<QPair<QString, QVariant>>()> callCurrentList);
+
+    operator BlockData() { return data; }
+
+private:
+    BlockData data;
+    int currentRow = 0;
+};
+
+struct ReporterConstructor
+{
+    ReporterConstructor(QString group,
+                        int type,
+                        QString bodyColor = "#bfcdd9",
+                        QString textColor = "black");
+
+    ReporterConstructor &text(const QString &text);
+    ReporterConstructor &slot(const QString &placeholder);
+    ReporterConstructor &comboBox(std::function<QList<QPair<QString, QVariant>>()> callCurrentList);
+
+    operator BlockData() { return data; }
+
+private:
+    BlockData data;
+    int currentRow = 0;
 };
 
 class EditorWatcher : public QObject
@@ -34,12 +79,15 @@ public:
 
 public slots:
     void handleResponse(QJsonValue response);
+    QJsonValue qml_query(const QString &method, QJsonValue data);
+
 signals:
     void qml_signal(const QString &method, QJsonValue data);
 
 private:
     QJsonValue sendCommand(const QString &method, QJsonValue data);
 
+    QMap<qint64, BlockData> m_blocksInfo;
     QList<QJsonValue> m_responses;
 };
 

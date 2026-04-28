@@ -121,6 +121,7 @@ Item {
     BlockTitle {
         id: view
         rootParent: root
+        ownerBlock: root
         viewText: root.viewText
         x: props.margins
         y: props.margins

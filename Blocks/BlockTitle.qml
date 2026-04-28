@@ -1,8 +1,13 @@
 import QtQuick
+import QtQuick.Window
+
+// $$ - обычный слот со значением
+// ?? - выпадающий список
 
 Item {
     id: root
     property Item rootParent: null
+    property Item ownerBlock: null
 
     property string viewText: ""
     property string color: ""
@@ -34,6 +39,8 @@ Item {
             }
         }
 
+        let slotCounter = 0
+        let comboBoxCounter = 0
         for (let i = 0; i < viewText.length; i++) {
             let pair = viewText[i] + (viewText[i + 1] ? viewText[i + 1] : "")
 
@@ -42,8 +49,23 @@ Item {
 
                 check()
                 temp.push({
-                    "type": "slot"
+                    "index": slotCounter,
+                    "type": "slot",
+                    "placeholder": Utils.qmlQuery("slotPlaceholder", {
+                        "type": root.ownerBlock.top,
+                        "index": slotCounter
+                    })
                 })
+                slotCounter++
+            } else if (pair == "??") {
+                i += 2
+
+                check()
+                temp.push({
+                    "index": comboBoxCounter,
+                    "type": "comboBoxSlot"
+                })
+                comboBoxCounter++
             }
 
             if (i < viewText.length)
@@ -59,6 +81,7 @@ Item {
         spacing: 2
 
         Repeater {
+
             model: props.items
             delegate: DelegateChooser {
                 role: "type"
@@ -77,6 +100,21 @@ Item {
                     delegate: Slot {
                         rootParent: root
                         anchors.verticalCenter: container.verticalCenter
+                        placeholderText: modelData.placeholder
+                    }
+                }
+
+                DelegateChoice {
+                    roleValue: "comboBoxSlot"
+                    delegate: ComboBoxSlot {
+                        rootParent: root
+                        anchors.verticalCenter: container.verticalCenter
+                        updateItemMethod: function () {
+                            return Utils.qmlQuery("comboBoxList", {
+                                "type": root.ownerBlock.type,
+                                "index": modelData.index
+                            })
+                        }
                     }
                 }
             }

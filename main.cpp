@@ -12,31 +12,19 @@ int main(int argc, char *argv[])
 
     auto watcher = scene.watcher();
 
-    BlockData if_;
-    if_.type = 0;
-    if_.viewTexts = {"Если $$ тогда", "Иначе", ""};
-    if_.group = "Управление";
-    watcher->registerBlock(if_);
+    BlockConstructor if__("Управление", 0);
+    if__.text("Если").slot("условие").text("тогда").addContainer().text("Иначе").addContainer();
 
-    BlockData if2_;
-    if2_.type = 1;
-    if2_.viewTexts = {"Если $$ тогда", ""};
-    if2_.group = "Управление";
-    watcher->registerBlock(if2_);
+    std::function<QList<QPair<QString, QVariant>>()> c1 = []() {
+        QList<QPair<QString, QVariant>> ret = {{"One", 1}, {"Two", 2}, {"Three", 3}, {"Four", 4}};
+        return ret;
+    };
 
-    BlockData while_;
-    while_.type = 2;
-    while_.viewTexts = {"Повторять пока $$", ""};
-    while_.group = "Управление";
-    watcher->registerBlock(while_);
+    ReporterConstructor var_("Данные", 1);
+    var_.text("Значение").comboBox(c1);
 
-    BlockData test;
-    test.type = 3;
-    test.viewTexts = {"Вернуть $$"};
-    test.blockShape = 1;
-    test.group = "Репортеры";
-    test.bodyColor = "cyan";
-    watcher->registerBlock(test);
+    watcher->registerBlock(if__);
+    watcher->registerBlock(var_);
 
     return app.exec();
 }

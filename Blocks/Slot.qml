@@ -1,11 +1,18 @@
 import QtQuick
+import QtQuick.Controls
 
 Rectangle {
     id: root
 
-    // --- Настройки размеров ---
     property int margins: 6
     property Item reporter: null
+
+    property var rootParent: null
+    property bool candidate: false
+    property bool busy: false
+    readonly property bool isSlot: true
+
+    property string placeholderText: ""
 
     // Высота фиксированная или от репортера
     height: reporter === null ? 20 : reporter.height
@@ -31,8 +38,9 @@ Rectangle {
         antialiasing: true
     }
 
-    TextInput {
+    TextField {
         id: input
+        placeholderText: root.placeholderText
         anchors.centerIn: parent // Центрируем по всему овалу
         text: "" // Для теста
         font.pixelSize: 12
@@ -42,12 +50,9 @@ Rectangle {
         color: "#333333"
         width: implicitWidth > 18 ? implicitWidth : 18
         visible: !root.busy
-    }
 
-    property var rootParent: null
-    property bool candidate: false
-    property bool busy: false
-    readonly property bool isSlot: true
+        background: Item {}
+    }
 
     function setReporter(target) {
         if (target == null) {

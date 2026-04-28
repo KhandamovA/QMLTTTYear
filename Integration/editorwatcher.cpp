@@ -9,12 +9,39 @@ EditorWatcher::EditorWatcher(QObject *parent)
 
 void EditorWatcher::registerBlock(BlockData data)
 {
+    m_blocksInfo[data.type] = data;
     sendCommand("registerBlock", data.toJson());
 }
 
 void EditorWatcher::handleResponse(QJsonValue response)
 {
     m_responses.append(response);
+}
+
+QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
+{
+    if (method == "slotPlaceholder") {
+        auto type = data["type"].toInteger();
+        auto index = data["index"].toInteger();
+        auto text = m_blocksInfo[type].slotsPlaceholders[index];
+
+        return text;
+    } else if (method == "comboBoxList") {
+        QJsonArray ret;
+        auto type = data["type"].toInteger();
+        auto index = data["index"].toInteger();
+        auto list = m_blocksInfo[type].comboBoxCallCurrentList[index]();
+
+        for (auto &i : list) {
+            QJsonObject entry;
+            entry["key"] = i.first;
+            entry["value"] = i.second.toJsonValue();
+            ret.append(entry);
+        }
+
+        return ret;
+    }
+    return {};
 }
 
 QJsonValue EditorWatcher::sendCommand(const QString &method, QJsonValue data)
@@ -72,4 +99,82 @@ BlockData BlockData::fromJson(const QJsonObject &obj)
         data.group = obj["group"].toString();
 
     return data;
+}
+
+BlockConstructor::BlockConstructor(
+    QString group, int type, bool hasInput, bool hasOutput, QString bodyColor, QString textColor)
+{
+    data.group = group;
+
+    data.type = type;
+    data.blockShape = BlockData::Block;
+    data.hasInput = hasInput;
+    data.hasOutput = hasOutput;
+    data.bodyColor = bodyColor;
+    data.textColor = textColor;
+
+    data.viewTexts.append("");
+}
+
+BlockConstructor &BlockConstructor::text(const QString &text)
+{
+    data.viewTexts[currentRow].append(text);
+    return (*this);
+}
+
+BlockConstructor &BlockConstructor::slot(const QString &placeholder)
+{
+    data.viewTexts[currentRow] += " $$ ";
+    data.slotsPlaceholders.append(placeholder);
+    return (*this);
+}
+
+BlockConstructor &BlockConstructor::addContainer()
+{
+    currentRow++;
+    data.viewTexts.append("");
+    return (*this);
+}
+
+BlockConstructor &BlockConstructor::comboBox(
+    std::function<QList<QPair<QString, QVariant> >()> callCurrentList)
+{
+    data.viewTexts[currentRow] += " ?? ";
+    data.comboBoxCallCurrentList.append(callCurrentList);
+    return (*this);
+}
+
+ReporterConstructor::ReporterConstructor(QString group,
+                                         int type,
+                                         QString bodyColor,
+                                         QString textColor)
+{
+    data.type = type;
+    data.blockShape = BlockData::Reporter;
+    data.group = group;
+    data.bodyColor = bodyColor;
+    data.textColor = textColor;
+
+    data.viewTexts.append("");
+}
+
+ReporterConstructor &ReporterConstructor::text(const QString &text)
+{
+    data.viewTexts[currentRow].append(text);
+    return (*this);
+}
+
+ReporterConstructor &ReporterConstructor::slot(const QString &placeholder)
+{
+    data.viewTexts[currentRow].append(" $$ ");
+    data.slotsPlaceholders.append(placeholder);
+    return (*this);
+}
+
+ReporterConstructor &ReporterConstructor::comboBox(
+    std::function<QList<QPair<QString, QVariant> >()> callCurrentList)
+{
+    data.viewTexts[currentRow] += " ?? ";
+    data.comboBoxCallCurrentList.append(callCurrentList);
+    return (*this);
 }

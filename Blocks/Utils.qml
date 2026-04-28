@@ -8,7 +8,12 @@ QtObject {
     property int objectsGridSize: 250
     // Сама сцена
     property var sceneContainer: null
+
+    // Боковая панель с блоками
     property var blocksShop: null
+
+    // EditorWatcher собственной персоной
+    property var watcher: null
 
     // Список со всеми элементами, uid должен быть уникальным
     property var sceneItems: ({})
@@ -72,6 +77,10 @@ QtObject {
         let parent = target.parent
         target.parent = null
         target.parent = parent
+    }
+
+    function qmlQuery(method, data) {
+        return watcher.qml_query(method, data)
     }
 
     // При создании нового элемента его требуется зарегистрировать на сцены для пересчета положения и оптимизации поиска

@@ -403,6 +403,7 @@ Item {
     BlockTitle {
         id: view
         rootParent: root
+        ownerBlock: root
         viewText: root.viewTexts.length > 0 ? root.viewTexts[0] : ""
         x: props.margins
         y: props.margins + props.arrowHeight
