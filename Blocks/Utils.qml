@@ -20,6 +20,7 @@ QtObject {
 
     property var candidateSlot: null
     property var candidateConnector: null
+    property var hoverHelper: null
 
     // Инициализация, обязательно указывается виджет в роли холста на котором будут распологаться все элементы
     function init(sceneContainer_, blocksShop_) {

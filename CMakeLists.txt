@@ -50,6 +50,7 @@ qt_add_qml_module(apptttYear
     Integration/editorscene.h Integration/editorscene.cpp
     QML_FILES
     QML_FILES Blocks/ButtonSlot.qml
+    QML_FILES
 
 
 

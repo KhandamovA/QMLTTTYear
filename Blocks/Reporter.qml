@@ -54,6 +54,21 @@ Item {
             }
         }
 
+        HoverHandler {
+
+            onHoveredChanged: {
+                let scene = Utils.sceneContainer.rootParent
+                // При масштабировании может DragHandler не работать, для обхода проблемы у сцены отключаем интерактивность
+                if (hovered) {
+                    Utils.hoverHelper = root
+                    scene.interactive = false
+                } else {
+                    if (Utils.hoverHelper === root)
+                        scene.interactive = true
+                }
+            }
+        }
+
         TapHandler {
             id: tapHandler
             onTapped: console.log("Работает!")
