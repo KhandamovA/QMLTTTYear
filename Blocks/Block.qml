@@ -10,10 +10,15 @@ Item {
     height: shape.height
 
     property int uid: -1
+
+    // Этот тип указывается если блок зарегистрирован
     property int type: 0
+    // Этот тип указывается если блок динамически созданный
+    property int dynamicType: -1
+
     readonly property bool isBlock: true
 
-    property var viewTexts: ["Если $$", "Иначе", ""]
+    property var viewTexts: ["Тест $$"]
     property bool hasInput: true
     property bool hasOutput: true
     property string textColor: "black"
@@ -347,8 +352,10 @@ Item {
         containsMode: Shape.FillContains
 
         ShapePath {
+            // strokeWidth: (hoverHandle.hovered ? 2.5 : 1) / Utils.sceneContainer.rootParent.zoomScale
+            // strokeColor: hoverHandle.hovered ? Qt.darker("black", 1.0) : Qt.darker(root.bodyColor, 1.4)
             strokeWidth: 1 / Utils.sceneContainer.rootParent.zoomScale
-            strokeColor: "#888888"
+            strokeColor: Qt.darker(root.bodyColor, 1.4)
             fillColor: root.bodyColor
 
             PathPolyline {
@@ -358,7 +365,7 @@ Item {
         }
 
         HoverHandler {
-
+            id: hoverHandle
             onHoveredChanged: {
                 let scene = Utils.sceneContainer.rootParent
                 // При масштабировании может DragHandler не работать, для обхода проблемы у сцены отключаем интерактивность

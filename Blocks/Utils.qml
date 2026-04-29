@@ -81,7 +81,9 @@ QtObject {
     }
 
     function qmlQuery(method, data) {
-        return watcher.qml_query(method, data)
+        if (watcher)
+            return watcher.qml_query(method, data)
+        return {}
     }
 
     // При создании нового элемента его требуется зарегистрировать на сцены для пересчета положения и оптимизации поиска

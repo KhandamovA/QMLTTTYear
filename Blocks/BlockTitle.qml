@@ -110,7 +110,7 @@ Item {
                     delegate: Slot {
                         rootParent: root
                         anchors.verticalCenter: container.verticalCenter
-                        placeholderText: modelData.placeholder
+                        placeholderText: typeof modelData.placeholder === "string" ? modelData.placeholder : ""
                     }
                 }
 

@@ -6,7 +6,11 @@ Item {
     property Item rootParent: null
 
     property int uid: -1
+
+    // Этот тип указывается если блок зарегистрирован
     property int type: 0
+    // Этот тип указывается если блок динамически созданный
+    property int dynamicType: -1
 
     property string viewText: "Значение переменной $$ $$"
     property string textColor: "black"

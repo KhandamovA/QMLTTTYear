@@ -23,8 +23,13 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
     if (method == "slotPlaceholder") {
         auto type = data["type"].toInteger();
         auto index = data["index"].toInteger();
-        auto text = m_blocksInfo[type].slotsPlaceholders[index];
 
+        auto find = m_blocksInfo.find(type);
+        QString text;
+        if (find != m_blocksInfo.end()) {
+            if (index >= 0 && index < find->slotsPlaceholders.count())
+                text = find->slotsPlaceholders[index];
+        }
         return text;
     } else if (method == "comboBoxList") {
         QJsonArray ret;
@@ -32,13 +37,19 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         auto index = data["index"].toInteger();
         auto lastKey = data["key"].toString();
         auto lastValue = data["value"].toVariant();
-        auto list = m_blocksInfo[type].comboBoxCallCurrentList[index]({lastKey, lastValue});
+        auto find = m_blocksInfo.find(type);
 
-        for (auto &i : list) {
-            QJsonObject entry;
-            entry["key"] = i.first;
-            entry["value"] = i.second.toJsonValue();
-            ret.append(entry);
+        if (find != m_blocksInfo.end()) {
+            if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
+                auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
+
+                for (auto &i : list) {
+                    QJsonObject entry;
+                    entry["key"] = i.first;
+                    entry["value"] = i.second.toJsonValue();
+                    ret.append(entry);
+                }
+            }
         }
 
         return ret;

@@ -85,6 +85,7 @@ class EditorWatcher : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
+    friend class BlockEditor;
 
 public:
     EditorWatcher(QObject *parent = nullptr);

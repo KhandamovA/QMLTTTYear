@@ -1,49 +1,52 @@
 #include <QApplication>
 #include "Integration/editorscene.h"
+#include "blockeditor.h"
+
+QList<BlockData> standartKitBlocks(int startTypeWith = 0)
+{
+    QList<BlockData> ret;
+
+    BlockConstructor while_("Управление", startTypeWith + 0);
+    while_.text("Повторять пока").slot("true").addContainer();
+    ret.append(while_);
+
+    BlockConstructor while_2("Управление", startTypeWith + 1);
+    while_2.text("Повторить").slot("count").text("раз").addContainer();
+    ret.append(while_2);
+
+    BlockConstructor if_1("Управление", startTypeWith + 2);
+    if_1.text("Если").slot("true").text("тогда").addContainer().text("Иначе").addContainer();
+    ret.append(if_1);
+
+    BlockConstructor if_2("Управление", startTypeWith + 3);
+    if_2.text("Если").slot("true").text("тогда").addContainer();
+    ret.append(if_2);
+
+    BlockConstructor debug_("Отладка", startTypeWith + 4);
+    debug_.text("Вывод в консоль").slot("text");
+    ret.append(debug_);
+
+    return ret;
+}
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    EditorScene scene;
-    scene.addImportPath("qrc:/qt/qml");
-    scene.setSource("qrc:/qt/qml/tttYear/Main.qml");
-    scene.show();
+    // EditorScene scene;
+    // scene.addImportPath("qrc:/qt/qml");
+    // scene.setSource("qrc:/qt/qml/tttYear/Main.qml");
+    // // scene.setSource("qrc:/qt/qml/tttYear/UIElements/ConstructorScene.qml");
+    // scene.show();
 
-    auto watcher = scene.watcher();
+    // auto watcher = scene.watcher();
 
-    BlockConstructor if__("Управление", 0);
-    if__.text("Если").slot("true").text("тогда").addContainer().text("Иначе").addContainer();
+    // for (auto &i : standartKitBlocks()) {
+    //     watcher->registerBlock(i);
+    // }
 
-    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> c1 =
-        [](QPair<QString, QVariant> lastValue) {
-            QList<QPair<QString, QVariant>> ret = {{"One", 1},
-                                                   {"Two", 2},
-                                                   {"Three", 3},
-                                                   {"Four", 4}};
-            qDebug() << lastValue;
-            return ret;
-        };
-
-    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> b1 =
-        [](QPair<QString, QVariant> lastValue) {
-            qDebug() << lastValue;
-            QPair<QString, QVariant> ret;
-            if (lastValue.second.isNull()) {
-                ret = {"Joy", 1000};
-            } else {
-                ret = {"Joy_" + QString::number(lastValue.second.toInt()),
-                       lastValue.second.toInt() + 1};
-            }
-
-            return ret;
-        };
-
-    ReporterConstructor var_("Данные", 1);
-    var_.text("Значение").comboBox(c1).button(b1);
-
-    watcher->registerBlock(if__);
-    watcher->registerBlock(var_);
+    BlockEditor editor;
+    editor.show();
 
     return app.exec();
 }
