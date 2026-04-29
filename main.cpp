@@ -33,20 +33,20 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    // EditorScene scene;
-    // scene.addImportPath("qrc:/qt/qml");
-    // scene.setSource("qrc:/qt/qml/tttYear/Main.qml");
-    // // scene.setSource("qrc:/qt/qml/tttYear/UIElements/ConstructorScene.qml");
-    // scene.show();
+    EditorScene scene;
+    scene.addImportPath("qrc:/qt/qml");
+    scene.setSource("qrc:/qt/qml/tttYear/Main.qml");
+    // scene.setSource("qrc:/qt/qml/tttYear/UIElements/ConstructorScene.qml");
+    scene.show();
 
-    // auto watcher = scene.watcher();
+    auto watcher = scene.watcher();
 
-    // for (auto &i : standartKitBlocks()) {
-    //     watcher->registerBlock(i);
-    // }
+    for (auto &i : standartKitBlocks()) {
+        watcher->registerBlock(i);
+    }
 
-    BlockEditor editor;
-    editor.show();
+    // BlockEditor editor;
+    // editor.show();
 
     return app.exec();
 }

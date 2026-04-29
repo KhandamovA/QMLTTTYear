@@ -54,7 +54,8 @@ Item {
                     "type": "slot",
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
                         "type": root.ownerBlock.type,
-                        "index": slotCounter
+                        "index": slotCounter,
+                        "isDynamicBlock": root.ownerBlock.isDynamicBlock
                     })
                 })
                 slotCounter++
@@ -124,7 +125,8 @@ Item {
                                 "type": root.ownerBlock.type,
                                 "index": modelData.index,
                                 "key": selectedValue.key,
-                                "value": selectedValue.value
+                                "value": selectedValue.value,
+                                "isDynamicBlock": root.ownerBlock.isDynamicBlock
                             })
                         }
                     }

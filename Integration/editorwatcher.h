@@ -11,6 +11,7 @@ struct BlockData
     enum Shape { Block = 0, Reporter = 1 };
 
     int type = 0;
+    bool isDynamicBlock = false;
     QList<QString> viewTexts;
     bool hasInput = true;
     bool hasOutput = true;
@@ -100,9 +101,11 @@ signals:
     void qml_signal(const QString &method, QJsonValue data);
 
 private:
+    int getUniqDynamicBlockType(int id);
     QJsonValue sendCommand(const QString &method, QJsonValue data);
 
     QMap<qint64, BlockData> m_blocksInfo;
+    QMap<qint64, BlockData> m_DynamicsBlocksInfo;
     QList<QJsonValue> m_responses;
 };
 

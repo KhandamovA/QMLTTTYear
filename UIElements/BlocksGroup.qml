@@ -22,7 +22,7 @@ Item {
         Rectangle {
             id: header
             // Ширина заголовка: текст + отступ + стрелочка + запас
-            width: column.implicitWidth + 14
+            width: Math.max(column.implicitWidth, groupTitle.width) + 14
             height: groupTitle.implicitHeight + 14
             color: groupRoot.isOpen ? Qt.darker(groupRoot.bodyColor, 1.3) : groupRoot.bodyColor
             radius: 6

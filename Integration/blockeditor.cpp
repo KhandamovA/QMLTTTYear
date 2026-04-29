@@ -109,11 +109,13 @@ BlockEditor::BlockEditor(QWidget *parent)
 
 void BlockEditor::onSave()
 {
+    mIsAccepted = true;
     accept(); // Закрываем диалог с кодом Accepted
 }
 
 void BlockEditor::onCancel()
 {
+    mIsAccepted = false;
     reject(); // Закрываем диалог с кодом Rejected
 }
 
@@ -362,4 +364,9 @@ void BlockEditor::updateBlock()
 {
     auto watcher = scene->watcher();
     watcher->sendCommand("setConstructorBlock", data.toJson());
+}
+
+bool BlockEditor::isAccepted() const
+{
+    return mIsAccepted;
 }

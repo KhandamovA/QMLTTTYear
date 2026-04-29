@@ -19,6 +19,7 @@ public:
     void load(const BlockData &blockData);
 
     void updateBlock();
+    bool isAccepted() const;
 
 private slots:
     void onAddText();
@@ -48,6 +49,7 @@ private:
 
     EditorScene *scene;
     BlockData data;
+    bool mIsAccepted = false;
 
     QTableWidget *pieceTable;
     QComboBox *blockTypeCombo;
