@@ -56,7 +56,7 @@ Item {
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
                         "type": root.ownerBlock.type,
                         "index": slotCounter,
-                        "isDynamicBlock": root.ownerBlock.isDynamicBlock
+                        "origin": root.ownerBlock.origin
                     })
                 })
                 slotCounter++
@@ -88,7 +88,7 @@ Item {
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
                         "type": root.ownerBlock.type,
                         "index": slotCounter,
-                        "isDynamicBlock": root.ownerBlock.isDynamicBlock
+                        "origin": root.ownerBlock.origin
                     })
                 })
                 replicaCounter++
@@ -141,7 +141,7 @@ Item {
                                 "index": modelData.index,
                                 "key": selectedValue.key,
                                 "value": selectedValue.value,
-                                "isDynamicBlock": root.ownerBlock.isDynamicBlock
+                                "origin": root.ownerBlock.origin
                             })
                         }
                     }
@@ -177,7 +177,7 @@ Item {
                                 "viewTexts": [slotName],
                                 "bodyColor": root.ownerBlock.bodyColor,
                                 "textColor": root.ownerBlock.textColor,
-                                "isDynamicBlock": true
+                                "origin": root.ownerBlock.origin
                             }
                             return replica
                         }

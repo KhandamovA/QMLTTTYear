@@ -55,6 +55,8 @@ qt_add_qml_module(apptttYear
     SOURCES Integration/blockeditor.h Integration/blockeditor.cpp
     QML_FILES UIElements/ShopButton.qml
     QML_FILES Blocks/ReplicaSlot.qml
+    SOURCES Integration/datacontext.h Integration/datacontext.cpp
+    SOURCES Integration/dialogwithlist.h Integration/dialogwithlist.cpp
 
 
 

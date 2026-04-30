@@ -19,6 +19,7 @@ Item {
 
     property var model: []
     property var blocksData: ({})
+    property var standartItems: []
 
     onModelChanged: {
         blocksData = ({})
@@ -31,7 +32,9 @@ Item {
 
         let actualGroups = ({})
         let counter = 0
-        for (let i of model) {
+        let copyModel = [...model, ...standartItems]
+
+        for (let i of copyModel) {
             counter++
             let groupName = i["group"]
             let bodyColor = i["bodyColor"]
@@ -79,7 +82,16 @@ Item {
             ShopButton {
                 text: "Создать переменную"
                 onClicked: function () {
-                    console.log("clicked!")
+                    let varName = Utils.qmlQuery("createNewVar", {})
+
+                    if (varName === "")
+                        return
+                }
+            }
+            ShopButton {
+                text: "Удалить переменную"
+                onClicked: function () {
+                    Utils.qmlQuery("deleteVar", {})
                 }
             }
         }
@@ -95,5 +107,89 @@ Item {
                 spacing: 12
             }
         }
+    }
+
+    Component.onCompleted: {
+
+        // Инициализация стандартных блоков
+        standartItems.push({
+            "origin": 2,
+            "type": 0,
+            "viewTexts": ["Значение переменной ??"],
+            "blockShape": 1,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 1,
+            "viewTexts": ["Установить переменную ?? в значение $$"],
+            "blockShape": 0,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 2,
+            "viewTexts": ["Очистить массив ??"],
+            "blockShape": 0,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 3,
+            "viewTexts": ["Добавить в массив ?? значение $$"],
+            "blockShape": 0,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 6,
+            "viewTexts": ["Удалить элемент #$$ из массива ??"],
+            "blockShape": 0,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 4,
+            "viewTexts": ["Значение элемента #$$ из массива ??"],
+            "blockShape": 1,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 7,
+            "viewTexts": ["Позиция элемента $$ в массиве ??"],
+            "blockShape": 1,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 5,
+            "viewTexts": ["Кол-во элементов массива ??"],
+            "blockShape": 1,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
     }
 }

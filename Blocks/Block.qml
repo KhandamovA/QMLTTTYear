@@ -14,7 +14,7 @@ Item {
     // Этот тип указывается если блок зарегистрирован
     property int type: 0
     // Этот тип указывается если блок динамически созданный
-    property bool isDynamicBlock: false
+    property int origin: 0
 
     readonly property bool isBlock: true
 

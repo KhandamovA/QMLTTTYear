@@ -87,8 +87,8 @@ Rectangle {
                 temp.push(data)
                 blocksShop.model = temp
 
-                let isDynamicBlock = data["isDynamicBlock"]
-                if (isDynamicBlock) {
+                let origin = data["origin"]
+                if (origin === 1) {
                     Utils.checkDefineForDynamicBlock(data.type)
                 }
             }

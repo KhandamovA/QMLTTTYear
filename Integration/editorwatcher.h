@@ -5,13 +5,15 @@
 #include <QObject>
 #include <QQuickItem>
 #include <QtQml>
+#include "datacontext.h"
 
 struct BlockData
 {
     enum Shape { Block = 0, Reporter = 1 };
+    enum Origin { Custom = 0, Dynamic = 1, System = 2 };
 
     int type = 0;
-    bool isDynamicBlock = false;
+    int origin = 0;
     QList<QString> viewTexts;
     bool hasInput = true;
     bool hasOutput = true;
@@ -109,6 +111,14 @@ private:
     QMap<qint64, BlockData> m_blocksInfo;
     QMap<qint64, BlockData> m_DynamicsBlocksInfo;
     QList<QJsonValue> m_responses;
+    DataContext m_dataContext;
+
+private:
+    void createNewBlock();
+    void deleteVariable();
+    QString createNewVar(const QString &oldName = "");
+
+    QJsonArray comboBoxListVariablesNames() const;
 };
 
 #endif // EDITORWATCHER_H

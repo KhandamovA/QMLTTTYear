@@ -80,7 +80,7 @@ QtObject {
         let exists = false
         for (let i of uids) {
             let item = sceneItems[i]
-            if (!item.isDynamicBlock)
+            if (item.origin !== 1)
                 continue
             let tags = Object.keys(item.tags)
             let itemType = item.type
