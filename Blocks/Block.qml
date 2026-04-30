@@ -36,6 +36,7 @@ Item {
     property var objectsGridPos: ({})
     property alias shape: shape
     property alias shapePath: shapePath
+    property alias containers: containers
 
     onViewTextsChanged: {
         let texts = viewTexts

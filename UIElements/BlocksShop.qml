@@ -122,6 +122,7 @@ Item {
 
     Component.onCompleted: {
 
+        // origin = 2 - Системные блоки
         // Инициализация стандартных блоков
         standartItems.push({
             "origin": 2,

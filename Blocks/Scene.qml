@@ -25,6 +25,7 @@ Flickable {
     property rect selectionRect: Qt.rect(0, 0, 0, 0)
     property alias menuModel: contextMenu.menuModel
     property point contextMenuPos: Qt.point(0, 0)
+    property var targetBlock: null
 
     signal selectionChanged(int uid, bool isSelected, int type)
     signal itemRemoved(Item item)
@@ -104,13 +105,27 @@ Flickable {
             ctrlPressed = e.modifiers & Qt.ControlModifier
 
             if (e.button === Qt.RightButton) {
-
                 // Откроется в позиции курсора
+                let contentPos = mapToItem(contentContainer, e.x, e.y)
+                let items = Utils.getItemsForGridByPoint(contentPos.x, contentPos.y)
+                let item = null
+
+                for (let i of items) {
+                    if ("isBlock" in i || "isReporter" in i) {
+                        item = i
+                        break
+                    }
+                }
+
+                if (item) {
+                    scene.targetBlock = item
+                    contextMenu.popup()
+                }
             } else if (ctrlPressed && e.button === Qt.LeftButton) {
                 // *** ВЫКЛЮЧАЕМ FLICKABLE ***
                 scene.interactive = false
 
-                var contentPos = mapToItem(contentContainer, e.x, e.y)
+                let contentPos = mapToItem(contentContainer, e.x, e.y)
                 dragStart = Qt.point(contentPos.x, contentPos.y)
                 scene.selectionRect.x = contentPos.x
                 scene.selectionRect.y = contentPos.y
@@ -344,10 +359,6 @@ Flickable {
                         onTriggered: {
                             let type = modelData.type
 
-                            if (type == "custom") {
-                                root.globalWatcher.handleActionTriggered(modelData.index, scene.contextMenuPos)
-                            }
-
                             scene.actionTriggered(type, modelData.index)
                             // Теперь схлопнется само, но для верности:
                             contextMenu.close()
@@ -355,6 +366,57 @@ Flickable {
                     }
                 }
             }
+        }
+    }
+
+    Component.onCompleted: {
+        contextMenu.menuModel = []
+        let actions = [
+            {
+                "text": "Удалить",
+                "index": 0,
+                "type": "system",
+                "condition": function () {
+                    let keys = Object.keys(scene.targetBlock.tags)
+                    if (keys.includes("define")) {
+                        return false
+                    }
+                    return true
+                }
+            },
+            {
+                "text": "Дублировать",
+                "index": 1,
+                "type": "system",
+                "condition": function () {
+                    let keys = Object.keys(scene.targetBlock.tags)
+                    if (keys.includes("define")) {
+                        return false
+                    }
+                    return true
+                }
+            }
+        ]
+        contextMenu.menuModel = actions
+    }
+
+    onActionTriggered: (type, index) => {
+        if (index === 0) {
+            removeSelectedDialog.open()
+        } else if (index === 1) {}
+    }
+
+    Dialog {
+        id: removeSelectedDialog
+        title: "Вы действительно хотите удалить цепочку блоков?"
+        modal: true
+        standardButtons: Dialog.Yes | Dialog.No
+        anchors.centerIn: parent
+
+        Component.onCompleted: {
+            standardButton(Dialog.Yes).clicked.connect(() => {
+                Utils.destroySceneItem(scene.targetBlock)
+            })
         }
     }
 }

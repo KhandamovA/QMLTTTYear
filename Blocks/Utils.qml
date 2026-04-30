@@ -148,6 +148,44 @@ QtObject {
             target.updateBlockConnectors()
     }
 
+    function destroySceneItem(target) {
+        Utils.removeFromGrid(target)
+        delete Utils.sceneItems[target.uid]
+        target.destroy()
+    }
+
+    // Удалить с виртуальной сетки
+    function removeFromGrid(target) {
+        let uid = target.uid
+
+        if (uid == -1)
+            return
+        let oldEndX = target.objectsGridPos.oldX + target.objectsGridPos.oldW
+        let oldEndY = target.objectsGridPos.oldY + target.objectsGridPos.oldH
+
+        // console.log("OLD:", target.objectsGridPos.oldX, target.objectsGridPos.oldY, "w:", target.objectsGridPos.oldW, "h:", target.objectsGridPos.oldH)
+
+        for (let col = target.objectsGridPos.oldX; col < oldEndX; col++) {
+            if (objectsGrid[col]) {
+                for (let row = target.objectsGridPos.oldY; row < oldEndY; row++) {
+                    if (objectsGrid[col][row]) {
+                        const index = objectsGrid[col][row].indexOf(uid)
+                        if (index !== -1) {
+                            objectsGrid[col][row].splice(index, 1);
+                            // console.log("REMOVE:", col, row)
+                        }
+
+                        if (objectsGrid[col][row].length === 0) {
+                            delete objectsGrid[col][row]
+                            if (Object.keys(objectsGrid[col]).length === 0) {
+                                delete objectsGrid[col]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     // Метод перезаписи положения на виртуальной сетке сцены
     function changeGridPos(target) {
         let uid = target.uid
@@ -175,31 +213,7 @@ QtObject {
         // console.log("NEW:", newStartX, newStartY, "w:", cellsW, "h:", cellsH);
 
         // 1. УДАЛЕНИЕ СТАРОГО
-        let oldEndX = target.objectsGridPos.oldX + target.objectsGridPos.oldW
-        let oldEndY = target.objectsGridPos.oldY + target.objectsGridPos.oldH
-
-        // console.log("OLD:", target.objectsGridPos.oldX, target.objectsGridPos.oldY, "w:", target.objectsGridPos.oldW, "h:", target.objectsGridPos.oldH)
-
-        for (let col = target.objectsGridPos.oldX; col < oldEndX; col++) {
-            if (objectsGrid[col]) {
-                for (let row = target.objectsGridPos.oldY; row < oldEndY; row++) {
-                    if (objectsGrid[col][row]) {
-                        const index = objectsGrid[col][row].indexOf(uid)
-                        if (index !== -1) {
-                            objectsGrid[col][row].splice(index, 1);
-                            // console.log("REMOVE:", col, row)
-                        }
-
-                        if (objectsGrid[col][row].length === 0) {
-                            delete objectsGrid[col][row]
-                            if (Object.keys(objectsGrid[col]).length === 0) {
-                                delete objectsGrid[col]
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        removeFromGrid(target);
 
         // 2. ЗАПИСЬ В НОВЫЕ КЛЕТКИ
         for (let col = newStartX; col < newEndX; col++) {
@@ -228,6 +242,26 @@ QtObject {
         // console.log("newPos ", uid, " ", Object.keys(target.objectsGridPos), Object.values(target.objectsGridPos))
     }
 
+    function sceneItemToJson(target) {
+        let containers = []
+
+        if ("containers" in target) {}
+
+        let json = {
+            "type": target.type,
+            "origin": target.origin,
+            "tags": target.tags,
+            "containers": containers
+        }
+    }
+
+    function chainToJson(target) {
+        let chain = []
+        target
+    }
+
+    function jsonChainAddToScene(json) {
+    }
     // Получение списка элементов по позиции на сцене
     function getItemsForGridByPoint(x, y) {
         // 1. Определяем клетку по координатам
