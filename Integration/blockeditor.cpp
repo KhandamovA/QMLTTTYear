@@ -7,13 +7,15 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QVBoxLayout>
 
-BlockEditor::BlockEditor(QWidget *parent)
-    : QDialog(parent)
+BlockEditor::BlockEditor(EditorWatcher *parent)
+    : QDialog()
+    , watcher{parent}
 {
     resize(1000, 700);
 
@@ -109,6 +111,31 @@ BlockEditor::BlockEditor(QWidget *parent)
 
 void BlockEditor::onSave()
 {
+    bool exists = false;
+    auto target = save().viewTexts[0].trimmed();
+    for (auto &i : watcher->m_DynamicsBlocksInfo) {
+        auto text = i.viewTexts[0].trimmed();
+        if (target == text) {
+            exists = true;
+            break;
+        }
+    }
+
+    for (auto &i : watcher->m_blocksInfo) {
+        auto text = i.viewTexts[0].trimmed();
+        if (target == text) {
+            exists = true;
+            break;
+        }
+    }
+
+    if (exists) {
+        QMessageBox::information(this,
+                                 "Внимание",
+                                 "Блок с таким описанием уже существует, измените описание блока");
+        return;
+    }
+
     mIsAccepted = true;
     accept(); // Закрываем диалог с кодом Accepted
 }

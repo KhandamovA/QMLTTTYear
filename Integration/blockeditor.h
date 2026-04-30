@@ -13,7 +13,7 @@ class BlockEditor : public QDialog
 {
     Q_OBJECT
 public:
-    BlockEditor(QWidget *parent = nullptr);
+    BlockEditor(EditorWatcher *parent);
 
     BlockData save() const;
     void load(const BlockData &blockData);
@@ -47,6 +47,7 @@ private:
     void updateBlockDataFromUI();
     void loadPiecesFromBlockData(const BlockData &blockData);
 
+    EditorWatcher *watcher;
     EditorScene *scene;
     BlockData data;
     bool mIsAccepted = false;

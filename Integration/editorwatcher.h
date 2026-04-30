@@ -18,6 +18,7 @@ struct BlockData
     QString textColor = "black";
     QString bodyColor = "#bfcdd9";
     int blockShape = 0; ///< 0 - обычный блок, 1 - репортер
+    QJsonObject tags;
 
     // Подсказки для слотов
     QList<QString> slotsPlaceholders;
@@ -27,6 +28,7 @@ struct BlockData
     // Колбэки для получения установки значения и текста в слот с кнопкой, lastValue приходит последнее значение
     QList<std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>>
         buttonSettersNewValue;
+
     QString group = "defaultGroup";
 
     QJsonObject toJson() const;

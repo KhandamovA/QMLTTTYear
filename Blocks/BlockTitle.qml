@@ -42,6 +42,7 @@ Item {
         let slotCounter = 0
         let comboBoxCounter = 0
         let buttonCounter = 0
+        let replicaCounter = 0
         for (let i = 0; i < viewText.length; i++) {
             let pair = viewText[i] + (viewText[i + 1] ? viewText[i + 1] : "")
 
@@ -77,6 +78,20 @@ Item {
                     "type": "buttonSlot"
                 })
                 buttonCounter++
+            } else if (pair == "~~") {
+                i += 2
+
+                check()
+                temp.push({
+                    "index": replicaCounter,
+                    "type": "replicaSlot",
+                    "placeholder": Utils.qmlQuery("slotPlaceholder", {
+                        "type": root.ownerBlock.type,
+                        "index": slotCounter,
+                        "isDynamicBlock": root.ownerBlock.isDynamicBlock
+                    })
+                })
+                replicaCounter++
             }
 
             if (i < viewText.length)
@@ -139,6 +154,33 @@ Item {
                         ownerBlock: root.ownerBlock
                         index: modelData.index
                         anchors.verticalCenter: container.verticalCenter
+                    }
+                }
+
+                DelegateChoice {
+                    roleValue: "replicaSlot"
+                    delegate: ReplicaSlot {
+                        rootParent: root
+                        ownerBlock: root.ownerBlock
+                        index: modelData.index
+                        anchors.verticalCenter: container.verticalCenter
+                        blockData: {
+                            // Создаем реплику
+                            let slotName = modelData.placeholder
+                            let replica = {
+                                "type": root.ownerBlock.type,
+                                "tags": {
+                                    "replica": true,
+                                    "slotName": slotName
+                                },
+                                "blockShape": 1,
+                                "viewTexts": [slotName],
+                                "bodyColor": root.ownerBlock.bodyColor,
+                                "textColor": root.ownerBlock.textColor,
+                                "isDynamicBlock": true
+                            }
+                            return replica
+                        }
                     }
                 }
             }

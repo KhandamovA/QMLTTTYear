@@ -19,10 +19,13 @@ Item {
     width: shape.width
     height: shape.height
 
+    // Вспомогательные свойства
+    property var tags: ({})
     property var slots: []
     property var currentSlot: null
     property var objectsGridPos: ({})
     property alias shape: shape
+    property alias shapePath: shapePath
 
     readonly property bool isReporter: true
 
@@ -43,6 +46,7 @@ Item {
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
+            id: shapePath
             strokeWidth: 1 / Utils.sceneContainer.rootParent.zoomScale
             strokeColor: "#888888"
             fillColor: root.bodyColor

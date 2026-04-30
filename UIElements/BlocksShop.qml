@@ -65,24 +65,29 @@ Item {
         anchors.margins: 10
         spacing: 10
 
-        ShopButton {
-            text: "Создать новый блок"
-            onClicked: function () {
-                Utils.qmlQuery("createNewBlock", {})
-            }
-        }
+        Column {
+            id: buttonsCol
+            spacing: 10
 
-        ShopButton {
-            text: "Создать переменную"
-            onClicked: function () {
-                console.log("clicked!")
+            ShopButton {
+                text: "Создать новый блок"
+                onClicked: function () {
+                    Utils.qmlQuery("createNewBlock", {})
+                }
+            }
+
+            ShopButton {
+                text: "Создать переменную"
+                onClicked: function () {
+                    console.log("clicked!")
+                }
             }
         }
 
         ScrollView {
             id: scrollView
             width: parent.width
-            height: parent.height
+            height: parent.height - buttonsCol.height
             clip: true
 
             Column {

@@ -21,6 +21,7 @@ QtObject {
     property var candidateSlot: null
     property var candidateConnector: null
     property var hoverHelper: null
+    property var zoomScale: sceneContainer ? sceneContainer.rootParent.zoomScale : 1
 
     // Инициализация, обязательно указывается виджет в роли холста на котором будут распологаться все элементы
     function init(sceneContainer_, blocksShop_) {
@@ -70,6 +71,37 @@ QtObject {
         if ("isBlock" in obj) {
             obj.checkCandidateBlock()
             obj.applyCandidateBlock()
+        }
+    }
+
+    // Проверка либо создания определителя блока который пользователь создал
+    function checkDefineForDynamicBlock(type) {
+        let uids = Object.keys(sceneItems)
+        let exists = false
+        for (let i of uids) {
+            let item = sceneItems[i]
+            if (!item.isDynamicBlock)
+                continue
+            let tags = Object.keys(item.tags)
+            let itemType = item.type
+
+            if (itemType === type && tags.includes("define")) {
+                exists = true
+                break
+            }
+        }
+
+        if (!exists) {
+            let scene = sceneContainer.rootParent
+
+            let blockData = JSON.parse(JSON.stringify(blocksShop.blocksData[type]))
+            blockData.hasInput = false
+            blockData.tags["define"] = true
+            blockData.blockShape = 0
+            let text = "Определить: " + blockData.viewTexts[0].replace(/\$\$/g, "~~")
+            blockData.viewTexts[0] = text
+
+            addSceneItemFromData(scene.contentX + 10, scene.contentY + 10, blockData)
         }
     }
 

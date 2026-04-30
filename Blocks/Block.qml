@@ -24,16 +24,18 @@ Item {
     property string textColor: "black"
     property string bodyColor: "#bfcdd9"
 
+    // Вспомогательные свойства
+    property var tags: ({})
     property var prevConnector: null
     property var prevContainer: null
     property var prevBlock: null
     property var nextBlock: null
     property int chainHeight: nextBlock ? root.height + nextBlock.chainHeight - props.arrowHeight : root.height - props.arrowHeight
     property var lastBlock: nextBlock ? nextBlock.lastBlock : root
-
     property var blockConnectors: []
     property var objectsGridPos: ({})
     property alias shape: shape
+    property alias shapePath: shapePath
 
     onViewTextsChanged: {
         let texts = viewTexts
@@ -352,9 +354,10 @@ Item {
         containsMode: Shape.FillContains
 
         ShapePath {
+            id: shapePath
             // strokeWidth: (hoverHandle.hovered ? 2.5 : 1) / Utils.sceneContainer.rootParent.zoomScale
             // strokeColor: hoverHandle.hovered ? Qt.darker("black", 1.0) : Qt.darker(root.bodyColor, 1.4)
-            strokeWidth: 1 / Utils.sceneContainer.rootParent.zoomScale
+            strokeWidth: 1 / Utils.zoomScale
             strokeColor: Qt.darker(root.bodyColor, 1.4)
             fillColor: root.bodyColor
 

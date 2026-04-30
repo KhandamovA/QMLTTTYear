@@ -54,6 +54,7 @@ qt_add_qml_module(apptttYear
     QML_FILES UIElements/ConstructorScene.qml
     SOURCES Integration/blockeditor.h Integration/blockeditor.cpp
     QML_FILES UIElements/ShopButton.qml
+    QML_FILES Blocks/ReplicaSlot.qml
 
 
 

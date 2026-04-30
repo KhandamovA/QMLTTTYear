@@ -1,34 +1,37 @@
 import QtQuick 2.15
-import QtQuick.Controls 2.15 // Для Overlay
+import QtQuick.Controls 2.15
 
 Item {
     id: root
 
-    // Сохраняем оригинальные данные отдельно, чтобы не портить их делейтами
     property var originalData: ({})
     property var blockData: ({})
+    property bool isDragging: false
 
     onBlockDataChanged: {
         originalData = blockData
-        // Сохраняем для Drag
-        updateImageFromData(blockData)
+        createPreviewObject()
     }
 
-    function updateImageFromData(data) {
-        // 1. Делаем копию данных специально для рендеринга
-        let renderData = Object.assign({}, data);
+    // Живой превью-объект
+    property var previewObject: null
 
-        // Извлекаем то, что нужно для логики выбора компонента
-        let shape = renderData["blockShape"];
+    function createPreviewObject() {
+        // Очищаем старый объект
+        if (previewObject) {
+            previewObject.destroy()
+            previewObject = null
+        }
 
-        // 2. УДАЛЯЕМ лишнее из копии, чтобы createObject не ругался
+        let renderData = Object.assign({}, blockData)
+        let shape = renderData["blockShape"]
+
         delete renderData["blockShape"]
         delete renderData["group"]
 
         let componentPath = ""
         if (shape === 1) {
             componentPath = "../Blocks/Reporter.qml"
-            // Специфика для репортера
             renderData["viewText"] = renderData["viewTexts"][0]
             delete renderData["viewTexts"]
             delete renderData["hasInput"]
@@ -44,85 +47,172 @@ Item {
             return
         }
 
-        let container = Qt.createQmlObject('import QtQuick; Item { visible: false; opacity: 1 }', root);
-        // 3. Создаем объект, передавая ОЧИЩЕННУЮ копию
-        let obj = component.createObject(container, renderData)
+        // Создаем объект прямо в корне
+        previewObject = component.createObject(root, renderData)
 
-        obj.x += 2
-        obj.y += 2
-        if (!obj) {
-            console.error("Не удалось создать объект для рендера. Проверь оставшиеся свойства в renderData")
+        if (!previewObject) {
+            console.error("Не удалось создать объект")
             return
         }
 
-        obj.opacity = 1.0
-        let targetSize = Qt.size(obj.width + 2, obj.height + 2)
+        // Блокируем все интерактивные элементы для превью
+        blockInteraction(previewObject);
 
-        container.width = targetSize.width
-        container.height = targetSize.height
-        root.width = targetSize.width
-        root.height = targetSize.height
+        // Устанавливаем размеры корня под объект
+        root.width = previewObject.width + 4
+        root.height = previewObject.height + 4
+        previewObject.x = 2
+        previewObject.y = 2
+        previewObject.shapePath.strokeWidth = 1;
 
-        container.grabToImage(function (result) {
-            previewImage.source = ""
-            previewImage.source = result.url
-            obj.destroy()
-            container.destroy()
-        }, targetSize)
+        // Делаем полупрозрачным для визуального отличия
+        previewObject.opacity = 0.9
     }
 
-    // Основное изображение в магазине
-    Image {
-        id: previewImage
-        anchors.fill: parent
-        fillMode: Image.PreserveAspectFit
+    // Рекурсивно блокируем все интерактивные элементы
+    function blockInteraction(item) {
+        if (!item)
+            return
 
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
+        // Блокируем MouseArea
+        if (item.isInteractive !== undefined) {
+            item.isInteractive = false
+        }
 
-            // Включаем Drag
-            drag.target: ghostItem
+        // Отключаем enabled у всех MouseArea и детей
+        if (item.children) {
+            for (let i = 0; i < item.children.length; i++) {
+                let child = item.children[i]
 
-            onPressed: {
-                // Вычисляем начальную позицию призрака на экране
-                let globalPos = previewImage.mapToItem(Overlay.overlay, 0, 0)
-                ghostItem.x = globalPos.x
-                ghostItem.y = globalPos.y
+                if (child.hasOwnProperty("enabled")) {
+                    child.enabled = false
+                }
 
-                ghostItem.Drag.active = true
-            }
+                if (child.hasOwnProperty("acceptedButtons")) {
+                    child.acceptedButtons = Qt.NoButton
+                }
 
-            onReleased: {
-                ghostItem.Drag.drop()
-                ghostItem.Drag.active = false
+                // Рекурсивно обрабатываем детей
+                if (child.children) {
+                    blockInteraction(child)
+                }
             }
         }
     }
 
-    // Этот элемент будет летать ПОВЕРХ всего интерфейса
+    // Живой превью объект
+    Item {
+        id: previewContainer
+        anchors.fill: parent
+
+        // Пустой контейнер, объект добавляется динамически
+    }
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        preventStealing: true
+        hoverEnabled: true
+        drag.target: root.isDragging ? ghostItem : null
+
+        onPressed: event => {
+            if (!root.previewObject)
+                return
+            root.isDragging = true;
+
+            // Вычисляем начальную позицию призрака
+            let globalPos = mapToItem(Overlay.overlay, 0, 0)
+            ghostItem.x = globalPos.x
+            ghostItem.y = globalPos.y;
+
+            // Создаем копию для перетаскивания
+            root.createGhostCopy()
+
+            ghostItem.Drag.active = true
+            event.accepted = true
+        }
+
+        onReleased: {
+            if (ghostItem.Drag.active) {
+                ghostItem.Drag.drop()
+                ghostItem.Drag.active = false
+            }
+            root.isDragging = false;
+
+            // Удаляем временную копию
+            if (ghostItem.dragObject) {
+                ghostItem.dragObject.destroy()
+                ghostItem.dragObject = null
+            }
+        }
+    }
+
+    function createGhostCopy() {
+        if (!previewObject)
+            return
+
+        // Создаем точную копию данных
+        let copyData = Object.assign({}, originalData)
+        let shape = copyData["blockShape"]
+
+        delete copyData["blockShape"]
+        delete copyData["group"]
+
+        let componentPath = shape === 1 ? "../Blocks/Reporter.qml" : "../Blocks/Block.qml"
+
+        if (shape === 1) {
+            copyData["viewText"] = copyData["viewTexts"][0]
+            delete copyData["viewTexts"]
+            delete copyData["hasInput"]
+            delete copyData["hasOutput"]
+        }
+
+        let component = Qt.createComponent(componentPath)
+
+        if (component.status === Component.Error) {
+            console.error("Ошибка создания копии:", component.errorString())
+            return
+        }
+
+        let copy = component.createObject(ghostItem, copyData)
+
+        if (copy) {
+            copy.opacity = 0.7
+            copy.shapePath.strokeWidth = 1
+
+            copy.scale = Utils.zoomScale
+
+            ghostItem.dragObject = copy
+            ghostItem.width = root.width
+            ghostItem.height = root.height
+        }
+    }
+
     Item {
         id: ghostItem
-        parent: Overlay.overlay // Выносим в слой поверх всех окон
-        width: root.width
-        height: root.height
-        visible: Drag.active
+        parent: Overlay.overlay
+        visible: root.isDragging && Drag.active
 
-        // Свойства Drag
+        property Item dragObject: null
+
         Drag.active: mouseArea.drag.active
         Drag.keys: ["block"]
-        // Передаем полные данные для сцены
         Drag.mimeData: {
             "blockData": root.originalData
         }
         Drag.hotSpot.x: width / 2
         Drag.hotSpot.y: height / 2
 
-        // Сама картинка, которая следует за мышью
-        Image {
+        // Отображаем живой объект вместо картинки
+        Item {
             anchors.fill: parent
-            source: previewImage.source
-            opacity: 0.8
+        }
+    }
+
+    // Следим за изменениями previewObject
+    onPreviewObjectChanged: {
+        if (previewObject) {
+            previewObject.parent = previewContainer
         }
     }
 }

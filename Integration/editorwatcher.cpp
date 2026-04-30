@@ -98,7 +98,7 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
         return QJsonObject{{"key", newValue.first}, {"value", newValue.second.toJsonValue()}};
     } else if (method == "createNewBlock") {
-        BlockEditor editor;
+        BlockEditor editor(this);
         editor.exec();
 
         if (editor.isAccepted()) {
@@ -113,7 +113,7 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
 int EditorWatcher::getUniqDynamicBlockType(int id)
 {
-    while (m_DynamicsBlocksInfo.contains(id)) {
+    while (m_DynamicsBlocksInfo.contains(id) || m_blocksInfo.contains(id)) {
         id++;
     }
     return id;
@@ -144,6 +144,7 @@ QJsonObject BlockData::toJson() const
     obj["blockShape"] = blockShape;
     obj["group"] = group;
     obj["isDynamicBlock"] = isDynamicBlock;
+    obj["tags"] = tags;
     return obj;
 }
 
@@ -175,6 +176,9 @@ BlockData BlockData::fromJson(const QJsonObject &obj)
         data.group = obj["group"].toString();
     if (obj.contains("isDynamicBlock"))
         data.isDynamicBlock = obj["isDynamicBlock"].toBool();
+    if (obj.contains("tags")) {
+        data.tags = obj["tags"].toObject();
+    }
     return data;
 }
 

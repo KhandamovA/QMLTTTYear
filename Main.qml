@@ -86,6 +86,11 @@ Rectangle {
                 blocksShop.model = []
                 temp.push(data)
                 blocksShop.model = temp
+
+                let isDynamicBlock = data["isDynamicBlock"]
+                if (isDynamicBlock) {
+                    Utils.checkDefineForDynamicBlock(data.type)
+                }
             }
 
             // Обязательный вызов, перед выходом из функции иначе зависнет
