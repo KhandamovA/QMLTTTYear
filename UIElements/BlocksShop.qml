@@ -21,6 +21,17 @@ Item {
     property var blocksData: ({})
     property var standartItems: []
 
+    function getBlock(origin, type) {
+        for (let i of model) {
+            if (i.origin === origin) {
+                if (i.type === type) {
+                    return i
+                }
+            }
+        }
+        return null
+    }
+
     onModelChanged: {
         blocksData = ({})
         let previewComponent = Qt.createComponent("BlockPreview.qml")

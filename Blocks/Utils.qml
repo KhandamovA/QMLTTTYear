@@ -94,8 +94,11 @@ QtObject {
         if (!exists) {
             let scene = sceneContainer.rootParent
 
-            let blockData = JSON.parse(JSON.stringify(blocksShop.blocksData[type]))
+            // 1 - Динамический блок
+            let blockData = JSON.parse(JSON.stringify(blocksShop.getBlock(1, type)))
+
             blockData.hasInput = false
+            blockData.tags = ({})
             blockData.tags["define"] = true
             blockData.blockShape = 0
             let text = "Определить: " + blockData.viewTexts[0].replace(/\$\$/g, "~~")
