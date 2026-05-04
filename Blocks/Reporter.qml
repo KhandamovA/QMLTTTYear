@@ -26,6 +26,7 @@ Item {
     property var objectsGridPos: ({})
     property alias shape: shape
     property alias shapePath: shapePath
+    property alias title: view
 
     readonly property bool isReporter: true
 

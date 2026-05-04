@@ -6,8 +6,8 @@ import QtQuick.Window
 
 Item {
     id: root
-    property Item rootParent: null
-    property Item ownerBlock: null
+    property var rootParent: null
+    property var ownerBlock: null
 
     property string viewText: ""
     property string color: ""
@@ -125,6 +125,7 @@ Item {
                     roleValue: "slot"
                     delegate: Slot {
                         rootParent: root
+                        ownerBlock: root.ownerBlock
                         anchors.verticalCenter: container.verticalCenter
                         placeholderText: typeof modelData.placeholder === "string" ? modelData.placeholder : ""
                     }
@@ -134,13 +135,14 @@ Item {
                     roleValue: "comboBoxSlot"
                     delegate: ComboBoxSlot {
                         rootParent: root
+                        ownerBlock: root.ownerBlock
                         anchors.verticalCenter: container.verticalCenter
                         updateItemMethod: function () {
                             return Utils.qmlQuery("comboBoxList", {
                                 "type": root.ownerBlock.type,
                                 "index": modelData.index,
-                                "key": selectedValue.key,
-                                "value": selectedValue.value,
+                                "key": currentValue.key,
+                                "value": currentValue.value,
                                 "origin": root.ownerBlock.origin
                             })
                         }

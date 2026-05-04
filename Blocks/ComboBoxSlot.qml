@@ -18,16 +18,18 @@ Item {
 
     property var updateItemMethod: ({})
 
-    property var selectedValue: ({})
+    property var currentValue: ({})
     property int maxItemWidth: 0
 
     property var rootParent: null
+    property var ownerBlock: null
+
     readonly property bool isComboBoxSlot: true
 
     // Функция для восстановления последнего значения
     function restoreLastValue() {
         if (inputField) {
-            inputField.text = selectedValue.key ? selectedValue.key : ""
+            inputField.text = currentValue.key ? currentValue.key : ""
             inputField.cursorPosition = 0
         }
     }
@@ -222,7 +224,7 @@ Item {
                 highlighted: listView.currentIndex === index
 
                 onClicked: {
-                    root.selectedValue = modelData
+                    root.currentValue = modelData
                     popup.close()
                 }
             }

@@ -11,6 +11,7 @@ Item {
     property var nextBlock: null
     readonly property bool isContainer: true
     property alias output_: output_
+    property alias title: view
 
     width: view.width + (margins * 2)
     height: view.height + (margins * 2) + arrowHeight + container.actualHeight

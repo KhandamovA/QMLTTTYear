@@ -37,6 +37,7 @@ Item {
     property alias shape: shape
     property alias shapePath: shapePath
     property alias containers: containers
+    property alias title: view
 
     onViewTextsChanged: {
         let texts = viewTexts
@@ -451,6 +452,7 @@ Item {
 
             delegate: Container {
                 rootParent: root
+
                 viewText: modelData
                 textColor: root.textColor
 

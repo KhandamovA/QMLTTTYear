@@ -105,6 +105,28 @@ Item {
                     Utils.qmlQuery("deleteVar", {})
                 }
             }
+
+            ShopButton {
+                text: "Test"
+                onClicked: function () {
+                    console.log(JSON.stringify(Resources.sceneChainsToJson(), null, 4))
+                }
+            }
+
+            ShopButton {
+                text: "Save"
+                onClicked: function () {
+                    Utils.saveToFile("temp.json", Resources.sceneChainsToJson())
+                }
+            }
+
+            ShopButton {
+                text: "Load"
+                onClicked: function () {
+                    let chains = Utils.loadFromFile("temp.json")
+                    console.log("loaded", JSON.stringify(chains, null, 4))
+                }
+            }
         }
 
         ScrollView {

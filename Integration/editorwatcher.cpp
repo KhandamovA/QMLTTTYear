@@ -135,13 +135,17 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         return createNewVar();
     } else if (method == "deleteVar") {
         deleteVariable();
+    } else if (method == "saveToFile") {
+        return saveToFile(data);
+    } else if (method == "loadFromFile") {
+        return loadFromFile(data.toString());
     }
     return {};
 }
 
 int EditorWatcher::getUniqDynamicBlockType(int id)
 {
-    while (m_DynamicsBlocksInfo.contains(id) || m_blocksInfo.contains(id)) {
+    while (m_DynamicsBlocksInfo.contains(id)) {
         id++;
     }
     return id;
@@ -187,6 +191,47 @@ void EditorWatcher::deleteVariable()
     if (!selected.isEmpty()) {
         m_dataContext.variables.remove(selected);
     }
+}
+
+bool EditorWatcher::saveToFile(QJsonValue data)
+{
+    auto obj = data.toObject();
+    auto path = obj["path"].toString();
+    auto data2 = obj["data"];
+    QByteArray data_;
+    if (data2.isArray()) {
+        QJsonDocument doc(data2.toArray());
+        data_ = doc.toJson();
+    } else if (data2.isObject()) {
+        QJsonDocument doc(data2.toObject());
+        data_ = doc.toJson();
+    }
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+
+    file.write(data_);
+    return true;
+}
+
+QJsonValue EditorWatcher::loadFromFile(const QString &pathToFile)
+{
+    QFile file(pathToFile);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return "";
+    }
+
+    auto data = file.readAll();
+
+    auto doc = QJsonDocument::fromJson(data);
+    if (doc.isArray()) {
+        return doc.array();
+    } else if (doc.isObject()) {
+        return doc.object();
+    }
+    return "";
 }
 
 QString EditorWatcher::createNewVar(const QString &oldName)

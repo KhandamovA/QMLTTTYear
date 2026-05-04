@@ -8,11 +8,13 @@ Rectangle {
     property Item reporter: null
 
     property var rootParent: null
+    property var ownerBlock: null
     property bool candidate: false
     property bool busy: false
     readonly property bool isSlot: true
 
     property string placeholderText: ""
+    property alias inputValue: input.text
 
     // Высота фиксированная или от репортера
     height: reporter === null ? 20 : reporter.height

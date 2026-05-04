@@ -23,7 +23,7 @@ QtObject {
     property var hoverHelper: null
     property var zoomScale: sceneContainer ? sceneContainer.rootParent.zoomScale : 1
 
-    // Инициализация, обязательно указывается виджет в роли холста на котором будут распологаться все элементы
+    // Инициализация, обязательно указывается виджет в роли холста на котором будут располагаться все элементы
     function init(sceneContainer_, blocksShop_) {
         sceneContainer = sceneContainer_
         blocksShop = blocksShop_
@@ -119,6 +119,17 @@ QtObject {
         if (watcher)
             return watcher.qml_query(method, data)
         return {}
+    }
+
+    function saveToFile(path, data) {
+        return qmlQuery("saveToFile", {
+            "path": path,
+            "data": data
+        })
+    }
+
+    function loadFromFile(path) {
+        return qmlQuery("loadFromFile", path)
     }
 
     // При создании нового элемента его требуется зарегистрировать на сцены для пересчета положения и оптимизации поиска
@@ -242,26 +253,6 @@ QtObject {
         // console.log("newPos ", uid, " ", Object.keys(target.objectsGridPos), Object.values(target.objectsGridPos))
     }
 
-    function sceneItemToJson(target) {
-        let containers = []
-
-        if ("containers" in target) {}
-
-        let json = {
-            "type": target.type,
-            "origin": target.origin,
-            "tags": target.tags,
-            "containers": containers
-        }
-    }
-
-    function chainToJson(target) {
-        let chain = []
-        target
-    }
-
-    function jsonChainAddToScene(json) {
-    }
     // Получение списка элементов по позиции на сцене
     function getItemsForGridByPoint(x, y) {
         // 1. Определяем клетку по координатам
@@ -475,7 +466,11 @@ QtObject {
     }
 
     /// Поиск элемента который содержит указанное свойство
-    function _findChildWithProp(target, propName) {
+    function _findChildWithProp(target, propName, maxDepth = -1, currentDepth = 0) {
+        return _findChildWithProps(target, [propName], maxDepth, currentDepth)
+    }
+
+    function _findChildWithProps(target, propsNames, maxDepth = -1, currentDepth = 0) {
         let ret = [];
 
         // 1. Проверка на существование объекта
@@ -483,8 +478,18 @@ QtObject {
             return ret
 
         // 2. Проверка наличия свойства (propName in target)
-        if (propName in target) {
-            ret.push(target)
+        for (let i of propsNames) {
+            if (i in target) {
+                ret.push(target)
+                break
+            }
+        }
+
+        if (maxDepth > 0) {
+            currentDepth++
+            if (currentDepth >= maxDepth) {
+                return ret
+            }
         }
 
         // 3. Безопасный обход детей
@@ -494,7 +499,7 @@ QtObject {
                 let child = target.children[i];
 
                 // Рекурсивный вызов с ОБОРУИМЯ аргументами
-                let result = _findChildWithProp(child, propName);
+                let result = _findChildWithProps(child, propsNames, maxDepth, currentDepth);
 
                 // Склеиваем массивы
                 if (result.length > 0) {

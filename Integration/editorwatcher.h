@@ -116,6 +116,8 @@ private:
 private:
     void createNewBlock();
     void deleteVariable();
+    bool saveToFile(QJsonValue data);
+    QJsonValue loadFromFile(const QString &pathToFile);
     QString createNewVar(const QString &oldName = "");
 
     QJsonArray comboBoxListVariablesNames() const;
