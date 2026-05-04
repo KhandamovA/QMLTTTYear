@@ -57,6 +57,7 @@ qt_add_qml_module(apptttYear
     QML_FILES Blocks/ReplicaSlot.qml
     SOURCES Integration/datacontext.h Integration/datacontext.cpp
     SOURCES Integration/dialogwithlist.h Integration/dialogwithlist.cpp
+    SOURCES Workflow/baseworkflow.h Workflow/baseworkflow.cpp
 
 
 

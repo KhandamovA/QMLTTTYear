@@ -96,14 +96,17 @@ Rectangle {
             if (method == "registerBlock") {
                 let data_ = data.data
                 let checkDefine = data.checkDefine
+                let origin = data_["origin"]
 
-                // console.log("registerBlock", data_.origin, data_.type)
                 let temp = blocksShop.model
                 blocksShop.model = []
-                temp.push(data_)
+                if (origin === 2) {
+                    blocksShop.standartItems.push(data_)
+                } else {
+                    temp.push(data_)
+                }
                 blocksShop.model = temp
 
-                let origin = data_["origin"]
                 if (checkDefine) {
                     if (origin === 1) {
                         Utils.checkDefineForDynamicBlock(data_.type)

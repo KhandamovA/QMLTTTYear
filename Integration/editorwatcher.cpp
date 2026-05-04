@@ -11,11 +11,20 @@ EditorWatcher::EditorWatcher(QObject *parent)
     : QObject{parent}
 {}
 
+void EditorWatcher::init()
+{
+    for (auto &i : m_dataContext.systemBlocksInfo) {
+        registerBlock(i);
+    }
+}
+
 void EditorWatcher::registerBlock(BlockData data, bool checkDefine)
 {
     if (data.origin == 1) {
         data.type = getUniqDynamicBlockType(data.type);
         m_dataContext.dynamicsBlocksInfo[data.type] = data;
+    } else if (data.origin == 2) {
+        m_dataContext.systemBlocksInfo[data.type] = data;
     } else {
         m_dataContext.blocksInfo[data.type] = data;
     }
@@ -103,32 +112,10 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
                     text = find->slotsPlaceHolders[index];
             }
         } else if (origin == BlockData::System) {
-            if (type == 0 || type == 1 || type == 2 || type == 3 || type == 6) {
-                return "any";
-            }
-
-            if (type == 4 || type == 5 || type == 12) {
-                return "index";
-            }
-
-            if (type == 8) {
-                if (index == 0) {
-                    return "index";
-                } else {
-                    return "any";
-                }
-            }
-
-            if (type == 9) {
-                if (index == 0) {
-                    return "key";
-                } else {
-                    return "any";
-                }
-            }
-
-            if (type == 13 || type == 14) {
-                return "key";
+            auto find = m_dataContext.systemBlocksInfo.find(type);
+            if (find != m_dataContext.systemBlocksInfo.end()) {
+                if (index >= 0 && index < find->slotsPlaceHolders.count())
+                    text = find->slotsPlaceHolders[index];
             }
         }
         return text;
@@ -140,6 +127,17 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         auto lastValue = data["value"].toVariant();
         auto origin = data["origin"].toInt();
 
+        auto toArray = [](QList<QPair<QString, QVariant>> list) {
+            QJsonArray ret;
+            for (auto &i : list) {
+                QJsonObject entry;
+                entry["key"] = i.first;
+                entry["value"] = i.second.toJsonValue();
+                ret.append(entry);
+            }
+            return ret;
+        };
+
         if (origin == BlockData::Custom) {
             auto find = m_dataContext.blocksInfo.find(type);
 
@@ -147,12 +145,7 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
                 if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
                     auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
 
-                    for (auto &i : list) {
-                        QJsonObject entry;
-                        entry["key"] = i.first;
-                        entry["value"] = i.second.toJsonValue();
-                        ret.append(entry);
-                    }
+                    ret = toArray(list);
                 }
             }
         } else if (origin == BlockData::Dynamic) {
@@ -162,18 +155,18 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
                 if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
                     auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
 
-                    for (auto &i : list) {
-                        QJsonObject entry;
-                        entry["key"] = i.first;
-                        entry["value"] = i.second.toJsonValue();
-                        ret.append(entry);
-                    }
+                    ret = toArray(list);
                 }
             }
         } else if (origin == BlockData::System) {
-            // Значение переменной ??
-            if ((type >= 0 && type <= 7) && index == 0) {
-                return comboBoxListVariablesNames();
+            auto find = m_dataContext.systemBlocksInfo.find(type);
+
+            if (find != m_dataContext.systemBlocksInfo.end()) {
+                if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
+                    auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
+
+                    ret = toArray(list);
+                }
             }
         }
 
@@ -187,7 +180,7 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         auto origin = data["origin"].toInt();
         QPair<QString, QVariant> newValue;
 
-        if (origin != 1) {
+        if (origin == BlockData::Custom) {
             auto find = m_dataContext.blocksInfo.find(type);
 
             if (find != m_dataContext.blocksInfo.end()) {
@@ -195,10 +188,18 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
                     newValue = find->buttonSettersNewValue[index]({lastKey, lastValue});
                 }
             }
-        } else {
+        } else if (origin == BlockData::Dynamic) {
             auto find = m_dataContext.dynamicsBlocksInfo.find(type);
 
             if (find != m_dataContext.dynamicsBlocksInfo.end()) {
+                if (index >= 0 && index < find->buttonSettersNewValue.count()) {
+                    newValue = find->buttonSettersNewValue[index]({lastKey, lastValue});
+                }
+            }
+        } else if (origin == BlockData::System) {
+            auto find = m_dataContext.systemBlocksInfo.find(type);
+
+            if (find != m_dataContext.systemBlocksInfo.end()) {
                 if (index >= 0 && index < find->buttonSettersNewValue.count()) {
                     newValue = find->buttonSettersNewValue[index]({lastKey, lastValue});
                 }
@@ -351,100 +352,6 @@ QJsonArray EditorWatcher::comboBoxListVariablesNames() const
         ret.append(v);
     }
     return ret;
-}
-
-BlockConstructor::BlockConstructor(
-    QString group, int type, bool hasInput, bool hasOutput, QString bodyColor, QString textColor)
-{
-    data.group = group;
-
-    data.type = type;
-    data.blockShape = BlockData::Block;
-    data.hasInput = hasInput;
-    data.hasOutput = hasOutput;
-    data.bodyColor = bodyColor;
-    data.textColor = textColor;
-
-    data.viewTexts.append("");
-}
-
-BlockConstructor &BlockConstructor::text(const QString &text)
-{
-    data.viewTexts[currentRow].append(text);
-    return (*this);
-}
-
-BlockConstructor &BlockConstructor::slot(const QString &placeholder)
-{
-    data.viewTexts[currentRow] += " $$ ";
-    data.slotsPlaceHolders.append(placeholder);
-    return (*this);
-}
-
-BlockConstructor &BlockConstructor::addContainer()
-{
-    currentRow++;
-    data.viewTexts.append("");
-    return (*this);
-}
-
-BlockConstructor &BlockConstructor::comboBox(
-    std::function<QList<QPair<QString, QVariant> >(QPair<QString, QVariant>)> callCurrentList)
-{
-    data.viewTexts[currentRow] += " ?? ";
-    data.comboBoxCallCurrentList.append(callCurrentList);
-    return (*this);
-}
-
-BlockConstructor &BlockConstructor::button(
-    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue)
-{
-    data.viewTexts[currentRow] += " ** ";
-    data.buttonSettersNewValue.append(callSetterNewValue);
-    return (*this);
-}
-
-ReporterConstructor::ReporterConstructor(QString group,
-                                         int type,
-                                         QString bodyColor,
-                                         QString textColor)
-{
-    data.type = type;
-    data.blockShape = BlockData::Reporter;
-    data.group = group;
-    data.bodyColor = bodyColor;
-    data.textColor = textColor;
-
-    data.viewTexts.append("");
-}
-
-ReporterConstructor &ReporterConstructor::text(const QString &text)
-{
-    data.viewTexts[currentRow].append(text);
-    return (*this);
-}
-
-ReporterConstructor &ReporterConstructor::slot(const QString &placeholder)
-{
-    data.viewTexts[currentRow].append(" $$ ");
-    data.slotsPlaceHolders.append(placeholder);
-    return (*this);
-}
-
-ReporterConstructor &ReporterConstructor::comboBox(
-    std::function<QList<QPair<QString, QVariant> >(QPair<QString, QVariant>)> callCurrentList)
-{
-    data.viewTexts[currentRow] += " ?? ";
-    data.comboBoxCallCurrentList.append(callCurrentList);
-    return (*this);
-}
-
-ReporterConstructor &ReporterConstructor::button(
-    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue)
-{
-    data.viewTexts[currentRow] += " ** ";
-    data.buttonSettersNewValue.append(callSetterNewValue);
-    return (*this);
 }
 
 QJsonValue QmlMessagePack::exec()

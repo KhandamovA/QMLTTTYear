@@ -7,56 +7,6 @@
 #include <QtQml>
 #include "datacontext.h"
 
-
-struct BlockConstructor
-{
-    BlockConstructor(QString group,
-                     int type,
-                     bool hasInput = true,
-                     bool hasOutput = true,
-                     QString bodyColor = "#bfcdd9",
-                     QString textColor = "black");
-
-    BlockConstructor &text(const QString &text);
-    BlockConstructor &slot(const QString &placeholder);
-    BlockConstructor &addContainer();
-    BlockConstructor &comboBox(
-        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
-            callCurrentList);
-    BlockConstructor &button(
-        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
-            callSetterNewValue);
-
-    operator BlockData() { return data; }
-
-private:
-    BlockData data;
-    int currentRow = 0;
-};
-
-struct ReporterConstructor
-{
-    ReporterConstructor(QString group,
-                        int type,
-                        QString bodyColor = "#bfcdd9",
-                        QString textColor = "black");
-
-    ReporterConstructor &text(const QString &text);
-    ReporterConstructor &slot(const QString &placeholder);
-    ReporterConstructor &comboBox(
-        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
-            callCurrentList);
-    ReporterConstructor &button(
-        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
-            callSetterNewValue);
-
-    operator BlockData() { return data; }
-
-private:
-    BlockData data;
-    int currentRow = 0;
-};
-
 class QmlMessagePack : public QObject
 {
     Q_OBJECT
@@ -80,6 +30,7 @@ class EditorWatcher : public QObject
 
 public:
     EditorWatcher(QObject *parent = nullptr);
+    void init();
 
     ///
     /// \brief registerBlock Регистрация блока

@@ -67,15 +67,72 @@ struct BlockData
     static BlockData fromJson(const QJsonObject &obj);
 };
 
+struct BlockConstructor
+{
+    BlockConstructor(QString group,
+                     int type,
+                     bool hasInput = true,
+                     bool hasOutput = true,
+                     QString bodyColor = "#bfcdd9",
+                     QString textColor = "black");
+
+    BlockConstructor &text(const QString &text);
+    BlockConstructor &slot(const QString &placeholder);
+    BlockConstructor &addContainer();
+    BlockConstructor &comboBox(
+        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
+            callCurrentList);
+    BlockConstructor &button(
+        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
+            callSetterNewValue);
+
+    operator BlockData() { return data; }
+
+private:
+    BlockData data;
+    int currentRow = 0;
+};
+
+struct ReporterConstructor
+{
+    ReporterConstructor(QString group,
+                        int type,
+                        QString bodyColor = "#bfcdd9",
+                        QString textColor = "black");
+
+    ReporterConstructor &text(const QString &text);
+    ReporterConstructor &slot(const QString &placeholder);
+    ReporterConstructor &comboBox(
+        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
+            callCurrentList);
+    ReporterConstructor &button(
+        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
+            callSetterNewValue);
+
+    operator BlockData() { return data; }
+
+private:
+    BlockData data;
+    int currentRow = 0;
+};
+
 class DataContext : public QObject
 {
     Q_OBJECT
 public:
     explicit DataContext(QObject *parent = nullptr);
 
+    // Переменные, массивы, словари
     QMap<varName, ctxVariable> variables;
+    // Блоки которые создаются после компиляции origin = 0, ключ = тип
     QMap<qint64, BlockData> blocksInfo;
+    // Блоки которые создаются динамически во время редактирования кода origin = 1, ключ = тип
     QMap<qint64, BlockData> dynamicsBlocksInfo;
+    // Блоки которые существуют всегда origin = 2, ключ = тип, к ним относятся блоки для работы с данными
+    QMap<qint64, BlockData> systemBlocksInfo;
+
+private:
+    void addStandartBlocks();
 };
 
 #endif // DATACONTEXT_H

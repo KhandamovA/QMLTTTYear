@@ -28,8 +28,10 @@ void EditorScene::setSource(const QString &src)
 
     //Установка после подгрузки сорсов
     QQuickItem *rootObject = view->rootObject();
-    if (rootObject)
+    if (rootObject) {
         rootObject->setProperty("watcher", QVariant::fromValue(m_watcher));
+        m_watcher->init();
+    }
 }
 
 void EditorScene::addImportPath(const QString &impPath)
