@@ -430,14 +430,17 @@ Flickable {
         Component.onCompleted: {
             standardButton(Dialog.Yes).clicked.connect(() => {
                 if (scene.targetBlock.origin === 1) {
-                    //Удаляем отовсюду в том числе и в блоках
-                    Utils.qmlQuery("removeDynamicBlock", scene.targetBlock.type)
-                    Utils.blocksShop.deleteDynamicBlock(scene.targetBlock.type)
-                    let uids = Object.keys(Utils.sceneItems)
-                    for (let i of uids) {
-                        let item = Utils.sceneItems[i]
-                        if (item.origin === 1 && item.type === scene.targetBlock.type) {
-                            Utils.destroySceneItem(item)
+                    let tagsKeys = Object.keys(scene.targetBlock.tags)
+                    if (tagsKeys.includes("define")) {
+                        //Удаляем отовсюду в том числе и в блоках
+                        Utils.qmlQuery("removeDynamicBlock", scene.targetBlock.type)
+                        Utils.blocksShop.deleteDynamicBlock(scene.targetBlock.type)
+                        let uids = Object.keys(Utils.sceneItems)
+                        for (let i of uids) {
+                            let item = Utils.sceneItems[i]
+                            if (item.origin === 1 && item.type === scene.targetBlock.type) {
+                                Utils.destroySceneItem(item)
+                            }
                         }
                     }
                 }
