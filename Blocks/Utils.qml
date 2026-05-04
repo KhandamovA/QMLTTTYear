@@ -39,6 +39,7 @@ QtObject {
 
         delete renderData["blockShape"]
         delete renderData["group"]
+        delete renderData["slotsPlaceHolders"]
 
         let componentPath = ""
 
@@ -65,8 +66,7 @@ QtObject {
         obj.x = x
         obj.y = y
 
-        registerSceneItem(obj);
-
+        registerSceneItem(obj)
 
         return obj
     }

@@ -18,7 +18,6 @@ Item {
     // ]
 
     property var model: []
-    property var blocksData: ({})
     property var standartItems: []
 
     function getBlock(origin, type) {
@@ -33,8 +32,15 @@ Item {
         return null
     }
 
+    function deleteDynamicBlocks() {
+        let temp = [...root.model]
+        temp = temp.filter(x => {
+            return x.origin !== 1
+        })
+        root.model = temp
+    }
+
     onModelChanged: {
-        blocksData = ({})
         let previewComponent = Qt.createComponent("BlockPreview.qml")
         let groupComponent = Qt.createComponent("BlocksGroup.qml")
         let childs = groups.children
@@ -53,8 +59,6 @@ Item {
             let keys = Object.keys(actualGroups)
             let currGroup = null
             let type = i["type"]
-
-            blocksData[type] = i
 
             if (keys.includes(groupName)) {
                 currGroup = actualGroups[groupName]
@@ -117,15 +121,17 @@ Item {
             ShopButton {
                 text: "Save"
                 onClicked: function () {
-                    Utils.saveToFile("temp.json", Resources.sceneChainsToJson())
+                    let data = Utils.watcher.saveScript()
+                    Utils.saveToFile("temp.json", data)
                 }
             }
 
             ShopButton {
                 text: "Load"
                 onClicked: function () {
-                    let chains = Utils.loadFromFile("temp.json")
-                    Resources.loadChainsToScene(chains)
+                    let data = Utils.loadFromFile("temp.json")
+
+                    Utils.watcher.loadScript(data)
                 }
             }
         }
@@ -226,5 +232,9 @@ Item {
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })
+
+        let temp = model
+        model = []
+        temp = model
     }
 }

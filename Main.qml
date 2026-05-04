@@ -76,25 +76,56 @@ Rectangle {
     Connections {
         target: win.watcher
 
-        function onQml_signal(method: string, data: variant) {
+        function onQml_signal(method: string, data: variant, signalId: int) {
             // console.log("call:", method)
             // helper.printValues(data)
             // console.log("")
 
             if (method == "registerBlock") {
+                let data_ = data.data
+                let checkDefine = data.checkDefine
+
+                // console.log("registerBlock", data_.origin, data_.type)
                 let temp = blocksShop.model
                 blocksShop.model = []
-                temp.push(data)
+                temp.push(data_)
                 blocksShop.model = temp
 
-                let origin = data["origin"]
-                if (origin === 1) {
-                    Utils.checkDefineForDynamicBlock(data.type)
+                let origin = data_["origin"]
+                if (checkDefine) {
+                    if (origin === 1) {
+                        Utils.checkDefineForDynamicBlock(data_.type)
+                    }
                 }
+            } else if (method == "saveScript") {
+                let chains = Resources.sceneChainsToJson()
+                let scenePosX = scene.contentX
+                let scenePosY = scene.contentY
+                let zoomScale = scene.zoomScale
+
+                win.watcher.handleResponse({
+                    "chains": chains,
+                    "scenePosX": scenePosX,
+                    "scenePosY": scenePosY,
+                    "zoomScale": zoomScale
+                }, signalId)
+
+                return
+            } else if (method == "loadScript") {
+                scene.zoomScale = data.zoomScale
+                scene.contentX = data.scenePosX
+                scene.contentY = data.scenePosY
+                let chains = data.chains
+                Resources.loadChainsToScene(chains)
+            } else if (method == "clearScript") {
+                Resources.clearScene();
+                // Удаление всех динамических блоков
+                Utils.blocksShop.deleteDynamicBlocks()
+                console.log("deleteDynamicBlocks")
             }
 
             // Обязательный вызов, перед выходом из функции иначе зависнет
-            win.watcher.handleResponse({})
+            win.watcher.handleResponse({}, signalId)
         }
     }
 }

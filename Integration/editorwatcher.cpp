@@ -11,7 +11,7 @@ EditorWatcher::EditorWatcher(QObject *parent)
     : QObject{parent}
 {}
 
-void EditorWatcher::registerBlock(BlockData data)
+void EditorWatcher::registerBlock(BlockData data, bool checkDefine)
 {
     if (data.origin == 1) {
         data.type = getUniqDynamicBlockType(data.type);
@@ -19,12 +19,67 @@ void EditorWatcher::registerBlock(BlockData data)
     } else {
         m_blocksInfo[data.type] = data;
     }
-    sendCommand("registerBlock", data.toJson());
+    sendCommand("registerBlock", QJsonObject{{"data", data.toJson()}, {"checkDefine", checkDefine}});
 }
 
-void EditorWatcher::handleResponse(QJsonValue response)
+QJsonObject EditorWatcher::saveScript()
 {
-    m_responses.append(response);
+    QJsonObject ret = sendCommand("saveScript", {}).toObject();
+
+    // Сохранение динамически созданных блоков
+    auto dynBlocksTypes = m_DynamicsBlocksInfo.keys();
+    QJsonArray dynBlocksInfo;
+    for (const auto &i : std::as_const(dynBlocksTypes)) {
+        dynBlocksInfo.append(m_DynamicsBlocksInfo[i].toJson());
+    }
+    ret["dynamicBlocks"] = dynBlocksInfo;
+
+    // Сохранение переменных
+    QJsonArray variables;
+    for (const auto &i : std::as_const(m_dataContext.variables)) {
+        variables.append(i.name);
+    }
+    ret["variables"] = variables;
+
+    return ret;
+}
+
+void EditorWatcher::clear()
+{
+    sendCommand("clearScript", {});
+}
+
+void EditorWatcher::loadScript(QJsonObject data)
+{
+    clear();
+
+    auto dynamicBlocks = data["dynamicBlocks"].toArray();
+    auto variables = data["variables"].toArray();
+
+    data.remove("variables");
+    data.remove("dynamicBlocks");
+
+    m_DynamicsBlocksInfo.clear();
+
+    for (const auto &i : std::as_const(dynamicBlocks)) {
+        auto data = i.toObject();
+        registerBlock(BlockData::fromJson(data), false);
+    }
+    qDebug() << "dynamicsBlocksAdded";
+
+    m_dataContext.variables.clear();
+    for (const auto &i : std::as_const(variables)) {
+        auto name = i.toString();
+        m_dataContext.variables[name] = "";
+        m_dataContext.variables[name].name = name;
+    }
+
+    sendCommand("loadScript", data);
+}
+
+void EditorWatcher::handleResponse(QJsonValue response, qint64 signalId)
+{
+    emit messageGet(signalId, response);
 }
 
 QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
@@ -153,15 +208,14 @@ int EditorWatcher::getUniqDynamicBlockType(int id)
 
 QJsonValue EditorWatcher::sendCommand(const QString &method, QJsonValue data)
 {
-    emit qml_signal(method, data);
+    QmlMessagePack *msg = new QmlMessagePack;
+    msg->id = signalId;
+    signalId++;
+    connect(this, &EditorWatcher::messageGet, msg, &QmlMessagePack::messageGet);
 
-    while (m_responses.isEmpty()) {
-        QApplication::processEvents();
-    }
+    emit qml_signal(method, data, msg->id);
 
-    auto response = m_responses[0];
-    m_responses.clear();
-    return response;
+    return msg->exec();
 }
 
 void EditorWatcher::createNewBlock()
@@ -258,6 +312,8 @@ QString EditorWatcher::createNewVar(const QString &oldName)
     }
 
     m_dataContext.variables[varName] = "";
+    m_dataContext.variables[varName].name = varName;
+
     return varName;
 }
 
@@ -286,6 +342,7 @@ QJsonObject BlockData::toJson() const
     obj["group"] = group;
     obj["origin"] = origin;
     obj["tags"] = tags;
+    obj["slotsPlaceHolders"] = QJsonArray::fromStringList(slotsPlaceholders);
     return obj;
 }
 
@@ -303,6 +360,14 @@ BlockData BlockData::fromJson(const QJsonObject &obj)
         }
     }
 
+    if (obj.contains("slotsPlaceHolders")) {
+        data.slotsPlaceholders.clear();
+        QJsonArray arr = obj["slotsPlaceHolders"].toArray();
+        for (const auto &val : std::as_const(arr)) {
+            data.slotsPlaceholders.append(val.toString());
+        }
+    }
+
     if (obj.contains("hasInput"))
         data.hasInput = obj["hasInput"].toBool();
     if (obj.contains("hasOutput"))
@@ -315,7 +380,7 @@ BlockData BlockData::fromJson(const QJsonObject &obj)
         data.blockShape = obj["blockShape"].toInt();
     if (obj.contains("group"))
         data.group = obj["group"].toString();
-    if (obj.contains("isDynamicBlock"))
+    if (obj.contains("origin"))
         data.origin = obj["origin"].toInt();
     if (obj.contains("tags")) {
         data.tags = obj["tags"].toObject();
@@ -415,4 +480,22 @@ ReporterConstructor &ReporterConstructor::button(
     data.viewTexts[currentRow] += " ** ";
     data.buttonSettersNewValue.append(callSetterNewValue);
     return (*this);
+}
+
+QJsonValue QmlMessagePack::exec()
+{
+    while (!stop) {
+        QApplication::processEvents();
+    }
+    disconnect();
+    deleteLater();
+    return returnValue;
+}
+
+void QmlMessagePack::messageGet(qint64 id, QJsonValue value)
+{
+    if (id == this->id) {
+        returnValue = value;
+        stop = true;
+    }
 }

@@ -49,7 +49,7 @@ Item {
     Connections {
         target: root.watcher
 
-        function onQml_signal(method: string, data: variant) {
+        function onQml_signal(method: string, data: variant, signalId) {
             if (method == "setConstructorBlock") {
                 root.blockShape = data.blockShape
 
@@ -64,7 +64,7 @@ Item {
                 }
             }
             // Обязательный вызов, перед выходом из функции иначе зависнет
-            root.watcher.handleResponse({})
+            root.watcher.handleResponse({}, signalId)
         }
     }
 }

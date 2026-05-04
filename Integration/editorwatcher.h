@@ -86,6 +86,21 @@ private:
     int currentRow = 0;
 };
 
+class QmlMessagePack : public QObject
+{
+    Q_OBJECT
+public:
+    QJsonValue exec();
+    qint64 id = 0;
+
+public slots:
+    void messageGet(qint64 id, QJsonValue value);
+
+private:
+    QJsonValue returnValue;
+    bool stop = false;
+};
+
 class EditorWatcher : public QObject
 {
     Q_OBJECT
@@ -95,14 +110,29 @@ class EditorWatcher : public QObject
 public:
     EditorWatcher(QObject *parent = nullptr);
 
-    void registerBlock(BlockData data);
+    ///
+    /// \brief registerBlock Регистрация блока
+    /// \param data Данные блока
+    /// \param checkDefine Если это динамический блок, включать ли
+    /// проверку на существование определителя блока
+    /// (этот параметр требуется ставить false если загружается сохраненный
+    /// скрипт во избежание ошибок от двойного создания определителя)
+    ///
+    void registerBlock(BlockData data, bool checkDefine = true);
 
 public slots:
-    void handleResponse(QJsonValue response);
+
+    QJsonObject saveScript();
+    void loadScript(QJsonObject data);
+    void clear();
+
+    void handleResponse(QJsonValue response, qint64 signalId);
     QJsonValue qml_query(const QString &method, QJsonValue data);
 
 signals:
-    void qml_signal(const QString &method, QJsonValue data);
+    void messageGet(qint64 signalId, QJsonValue value);
+
+    void qml_signal(const QString &method, QJsonValue data, qint64 signalId);
 
 private:
     int getUniqDynamicBlockType(int id);
@@ -110,8 +140,9 @@ private:
 
     QMap<qint64, BlockData> m_blocksInfo;
     QMap<qint64, BlockData> m_DynamicsBlocksInfo;
-    QList<QJsonValue> m_responses;
+
     DataContext m_dataContext;
+    qint64 signalId = 0;
 
 private:
     void createNewBlock();
