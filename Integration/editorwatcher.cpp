@@ -106,7 +106,7 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
             if (type == 2 || type == 3 || type == 7) {
                 return "any";
             } else if (type == 4 || type == 6) {
-                return "index";
+                return "index/key";
             }
         }
         return text;

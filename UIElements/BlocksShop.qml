@@ -161,7 +161,7 @@ Item {
         standartItems.push({
             "origin": 2,
             "type": 0,
-            "viewTexts": ["Значение переменной ??"],
+            "viewTexts": ["Значение ??"],
             "blockShape": 1,
             "group": "Данные",
             "bodyColor": "#bfcdd9",
@@ -171,7 +171,7 @@ Item {
         standartItems.push({
             "origin": 2,
             "type": 1,
-            "viewTexts": ["Установить переменную ?? в значение $$"],
+            "viewTexts": ["Установить ?? в значение $$"],
             "blockShape": 0,
             "group": "Данные",
             "bodyColor": "#bfcdd9",
@@ -181,7 +181,7 @@ Item {
         standartItems.push({
             "origin": 2,
             "type": 2,
-            "viewTexts": ["Очистить массив ??"],
+            "viewTexts": ["Очистить ключи/индексы ??"],
             "blockShape": 0,
             "group": "Данные",
             "bodyColor": "#bfcdd9",
@@ -191,7 +191,7 @@ Item {
         standartItems.push({
             "origin": 2,
             "type": 3,
-            "viewTexts": ["Добавить в массив ?? значение $$"],
+            "viewTexts": ["Добавить в ?? значение $$"],
             "blockShape": 0,
             "group": "Данные",
             "bodyColor": "#bfcdd9",
@@ -201,7 +201,7 @@ Item {
         standartItems.push({
             "origin": 2,
             "type": 6,
-            "viewTexts": ["Удалить элемент #$$ из массива ??"],
+            "viewTexts": ["Удалить элемент #$$ из ??"],
             "blockShape": 0,
             "group": "Данные",
             "bodyColor": "#bfcdd9",
@@ -211,7 +211,7 @@ Item {
         standartItems.push({
             "origin": 2,
             "type": 4,
-            "viewTexts": ["Значение элемента #$$ из массива ??"],
+            "viewTexts": ["Значение элемента #$$ из ??"],
             "blockShape": 1,
             "group": "Данные",
             "bodyColor": "#bfcdd9",
@@ -221,7 +221,7 @@ Item {
         standartItems.push({
             "origin": 2,
             "type": 7,
-            "viewTexts": ["Позиция элемента $$ в массиве ??"],
+            "viewTexts": ["Ключ/индекс элемента $$ в ??"],
             "blockShape": 1,
             "group": "Данные",
             "bodyColor": "#bfcdd9",
@@ -231,8 +231,18 @@ Item {
         standartItems.push({
             "origin": 2,
             "type": 5,
-            "viewTexts": ["Кол-во элементов массива ??"],
+            "viewTexts": ["Кол-во элементов в ??"],
             "blockShape": 1,
+            "group": "Данные",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 8,
+            "viewTexts": ["Установить ?? по ключу/индексу $$ в значение $$"],
+            "blockShape": 0,
             "group": "Данные",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
