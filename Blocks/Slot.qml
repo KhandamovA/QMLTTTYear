@@ -62,6 +62,7 @@ Rectangle {
                 busy = false
                 let scenePos = Utils._rectFromScene(reporter)
                 reporter.parent = Utils.sceneContainer
+                reporter.currentSlot = null
                 reporter.x = scenePos.x
                 reporter.y = scenePos.y
                 Utils.changeGridPos(reporter)
@@ -91,6 +92,7 @@ Rectangle {
 
         reporter = target
         reporter.parent = root
+        reporter.currentSlot = root
         reporter.x = 0
         reporter.y = 0
         busy = true

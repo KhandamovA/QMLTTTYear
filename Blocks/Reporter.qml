@@ -135,7 +135,6 @@ Item {
         if (slot !== null) {
             if (root.currentSlot) {
                 root.currentSlot.setReporter(null)
-                root.currentSlot = null
             }
 
             slot.setReporter(root)
@@ -145,7 +144,6 @@ Item {
         } else {
             if (root.currentSlot) {
                 root.currentSlot.setReporter(null)
-                root.currentSlot = null
             }
         }
     }
