@@ -407,7 +407,17 @@ Flickable {
     onActionTriggered: (type, index) => {
         if (index === 0) {
             removeSelectedDialog.open()
-        } else if (index === 1) {}
+        } else if (index === 1) {
+            dublicateBlocks(targetBlock)
+        }
+    }
+
+    function dublicateBlocks(target) {
+        let chain = Resources.chainToJson(target)
+        let rect = Utils._rectFromScene(target)
+        let firstItem = Resources.chainFromJson(chain)
+        firstItem.x = rect.x + 25
+        firstItem.y = rect.y + 25
     }
 
     Dialog {

@@ -124,13 +124,6 @@ Item {
             }
 
             ShopButton {
-                text: "Test"
-                onClicked: function () {
-                    console.log(JSON.stringify(Resources.sceneChainsToJson(), null, 4))
-                }
-            }
-
-            ShopButton {
                 text: "Save"
                 onClicked: function () {
                     let data = Utils.watcher.saveScript()
