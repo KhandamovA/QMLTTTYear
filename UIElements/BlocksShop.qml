@@ -151,6 +151,39 @@ Item {
                 id: groups
                 spacing: 12
             }
+
+            Component.onCompleted: {
+                if (contentItem) {
+                    contentItem.maximumFlickVelocity = 0
+                    contentItem.flickDeceleration = 0
+                }
+            }
+
+            WheelHandler {
+                // Указываем, что обработчик работает для контента ScrollView
+                target: scrollView.contentItem
+
+                // Настраиваем скорость (чем выше, тем быстрее)
+                rotationScale: 5.0
+
+                // Настраиваем ориентацию (вертикально)
+                orientation: Qt.Vertical
+
+                // Важный момент: чтобы скролл физически двигался,
+                // WheelHandler должен менять contentY через свойство point.
+                // Но в QML проще всего это сделать через обработчик onWheel:
+                onWheel: event => {
+                    let speed = 100
+                    // Базовая скорость (пиксели)
+                    let delta = event.angleDelta.y > 0 ? -speed : speed
+
+                    let newY = scrollView.contentItem.contentY + delta
+
+                    // Ограничиваем в пределах контента
+                    let maxY = scrollView.contentItem.contentHeight - scrollView.contentItem.height
+                    scrollView.contentItem.contentY = Math.max(0, Math.min(newY, maxY))
+                }
+            }
         }
     }
 
