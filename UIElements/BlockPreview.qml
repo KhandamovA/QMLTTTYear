@@ -158,7 +158,7 @@ Item {
 
         delete copyData["blockShape"]
         delete copyData["group"]
-        delete copyData["slotsPlaceholders"]
+        delete copyData["slotsPlaceHolders"]
 
         let componentPath = shape === 1 ? "../Blocks/Reporter.qml" : "../Blocks/Block.qml"
 

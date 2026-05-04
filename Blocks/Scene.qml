@@ -280,6 +280,11 @@ Flickable {
                     item.applyCandidateBlock()
                 }
 
+                if ("isReporter" in item) {
+                    item.checkCandidateSlot()
+                    item.applyCandidateSlot()
+                }
+
                 // 4. Подтверждаем системе, что дроп принят успешно
                 drop.accept()
             }
@@ -381,14 +386,7 @@ Flickable {
             {
                 "text": "Удалить",
                 "index": 0,
-                "type": "system",
-                "condition": function () {
-                    let keys = Object.keys(scene.targetBlock.tags)
-                    if (keys.includes("define")) {
-                        return false
-                    }
-                    return true
-                }
+                "type": "system"
             },
             {
                 "text": "Дублировать",
@@ -421,6 +419,18 @@ Flickable {
 
         Component.onCompleted: {
             standardButton(Dialog.Yes).clicked.connect(() => {
+                if (scene.targetBlock.origin === 1) {
+                    //Удаляем отовсюду в том числе и в блоках
+                    Utils.qmlQuery("removeDynamicBlock", scene.targetBlock.type)
+                    Utils.blocksShop.deleteDynamicBlock(scene.targetBlock.type)
+                    let uids = Object.keys(Utils.sceneItems)
+                    for (let i of uids) {
+                        let item = Utils.sceneItems[i]
+                        if (item.origin === 1 && item.type === scene.targetBlock.type) {
+                            Utils.destroySceneItem(item)
+                        }
+                    }
+                }
                 Utils.destroySceneItem(scene.targetBlock)
             })
         }

@@ -152,7 +152,7 @@ BlockData BlockEditor::save() const
 
     // Собираем viewTexts и slotsPlaceholders из pieces
     result.viewTexts.clear();
-    result.slotsPlaceholders.clear();
+    result.slotsPlaceHolders.clear();
 
     QString currentRow;
 
@@ -161,7 +161,7 @@ BlockData BlockEditor::save() const
             currentRow += p.text;
         } else if (p.type == Piece::Slot) {
             currentRow += " $$ ";
-            result.slotsPlaceholders.append(p.placeholder);
+            result.slotsPlaceHolders.append(p.placeholder);
         }
     }
 
@@ -225,8 +225,8 @@ void BlockEditor::loadPiecesFromBlockData(const BlockData &blockData)
         if (i < parts.size() - 1) {
             Piece slotPiece;
             slotPiece.type = Piece::Slot;
-            if (slotIndex < blockData.slotsPlaceholders.size()) {
-                slotPiece.placeholder = blockData.slotsPlaceholders[slotIndex];
+            if (slotIndex < blockData.slotsPlaceHolders.size()) {
+                slotPiece.placeholder = blockData.slotsPlaceHolders[slotIndex];
             } else {
                 slotPiece.placeholder = "slot";
             }
@@ -239,8 +239,8 @@ void BlockEditor::loadPiecesFromBlockData(const BlockData &blockData)
     if (viewText.startsWith(" $$ ")) {
         Piece slotPiece;
         slotPiece.type = Piece::Slot;
-        slotPiece.placeholder = slotIndex < blockData.slotsPlaceholders.size()
-                                    ? blockData.slotsPlaceholders[slotIndex]
+        slotPiece.placeholder = slotIndex < blockData.slotsPlaceHolders.size()
+                                    ? blockData.slotsPlaceHolders[slotIndex]
                                     : "slot";
         pieces.prepend(slotPiece);
     }
@@ -249,8 +249,8 @@ void BlockEditor::loadPiecesFromBlockData(const BlockData &blockData)
     if (viewText.endsWith(" $$ ")) {
         Piece slotPiece;
         slotPiece.type = Piece::Slot;
-        slotPiece.placeholder = slotIndex < blockData.slotsPlaceholders.size()
-                                    ? blockData.slotsPlaceholders[slotIndex]
+        slotPiece.placeholder = slotIndex < blockData.slotsPlaceHolders.size()
+                                    ? blockData.slotsPlaceHolders[slotIndex]
                                     : "slot";
         pieces.append(slotPiece);
     }
@@ -366,7 +366,7 @@ void BlockEditor::rebuildPreview()
 void BlockEditor::updateBlockDataFromUI()
 {
     data.viewTexts.clear();
-    data.slotsPlaceholders.clear();
+    data.slotsPlaceHolders.clear();
     data.comboBoxCallCurrentList.clear();
 
     QString currentRow;
@@ -376,7 +376,7 @@ void BlockEditor::updateBlockDataFromUI()
             currentRow += p.text;
         } else if (p.type == Piece::Slot) {
             currentRow += " $$ ";
-            data.slotsPlaceholders.append(p.placeholder);
+            data.slotsPlaceHolders.append(p.placeholder);
         }
     }
 

@@ -32,6 +32,18 @@ Item {
         return null
     }
 
+    function deleteDynamicBlock(type) {
+        let temp = [...root.model]
+        let filter = []
+        for (let x of temp) {
+            if (x.type === type && x.origin === 1) {
+                continue
+            }
+            filter.push(x)
+        }
+        root.model = filter
+    }
+
     function deleteDynamicBlocks() {
         let temp = [...root.model]
         temp = temp.filter(x => {

@@ -91,31 +91,7 @@ Item {
 
             onActiveChanged: {
                 if (!active) {
-                    let rect = Utils._rectFromScene(root)
-                    let slot = Utils.getCandidateSlotByRect(rect, root.slots)
-                    let allSlots = Utils.getSlotsForGridByRect(rect)
-
-                    if (root.currentSlot && allSlots.includes(root.currentSlot)) {
-                        root.x = 0
-                        root.y = 0
-                    }
-
-                    if (slot !== null) {
-                        if (root.currentSlot) {
-                            root.currentSlot.setReporter(null)
-                            root.currentSlot = null
-                        }
-
-                        slot.setReporter(root)
-                        Utils.candidateSlot.candidate = false
-                        Utils.candidateSlot = null
-                        root.currentSlot = slot
-                    } else {
-                        if (root.currentSlot) {
-                            root.currentSlot.setReporter(null)
-                            root.currentSlot = null
-                        }
-                    }
+                    root.applyCandidateSlot()
 
                     if (root.x < 0)
                         root.x = 0
@@ -133,11 +109,43 @@ Item {
                 if (dragHandler.active) {
                     // console.log("reporter", root.x, root.y)
 
-                    let rect = Utils._rectFromScene(root)
-                    Utils.getCandidateSlotByRect(rect, root.slots);
+                    root.checkCandidateSlot();
 
                     // console.log(rect)
                 }
+            }
+        }
+    }
+
+    function checkCandidateSlot() {
+        let rect = Utils._rectFromScene(root)
+        Utils.getCandidateSlotByRect(rect, root.slots)
+    }
+
+    function applyCandidateSlot() {
+        let rect = Utils._rectFromScene(root)
+        let slot = Utils.getCandidateSlotByRect(rect, root.slots)
+        let allSlots = Utils.getSlotsForGridByRect(rect)
+
+        if (root.currentSlot && allSlots.includes(root.currentSlot)) {
+            root.x = 0
+            root.y = 0
+        }
+
+        if (slot !== null) {
+            if (root.currentSlot) {
+                root.currentSlot.setReporter(null)
+                root.currentSlot = null
+            }
+
+            slot.setReporter(root)
+            Utils.candidateSlot.candidate = false
+            Utils.candidateSlot = null
+            root.currentSlot = slot
+        } else {
+            if (root.currentSlot) {
+                root.currentSlot.setReporter(null)
+                root.currentSlot = null
             }
         }
     }

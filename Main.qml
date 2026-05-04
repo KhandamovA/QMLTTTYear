@@ -123,7 +123,7 @@ Rectangle {
                 Resources.clearScene();
                 // Удаление всех динамических блоков
                 Utils.blocksShop.deleteDynamicBlocks()
-                console.log("deleteDynamicBlocks")
+                // console.log("deleteDynamicBlocks")
             }
 
             // Обязательный вызов, перед выходом из функции иначе зависнет

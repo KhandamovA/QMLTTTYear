@@ -157,6 +157,23 @@ QtObject {
     }
 
     function destroySceneItem(target) {
+        if ("isBlock" in target) {
+            if (target.prevBlock) {
+                let prevBlock = target.prevBlock
+                prevBlock.setNextBlock(null)
+            }
+            if (target.prevContainer) {
+                let prevBlock = target.prevContainer
+                prevBlock.setNextBlock(null)
+            }
+        }
+
+        if ("isReporter" in target) {
+            let currentSlot = target.currentSlot
+            if (currentSlot) {
+                currentSlot.setReporter(null)
+            }
+        }
         Utils.removeFromGrid(target)
         delete Utils.sceneItems[target.uid]
         target.destroy()

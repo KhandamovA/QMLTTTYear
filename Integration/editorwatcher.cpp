@@ -65,7 +65,7 @@ void EditorWatcher::loadScript(QJsonObject data)
         auto data = i.toObject();
         registerBlock(BlockData::fromJson(data), false);
     }
-    qDebug() << "dynamicsBlocksAdded";
+    // qDebug() << "dynamicsBlocksAdded";
 
     m_dataContext.variables.clear();
     for (const auto &i : std::as_const(variables)) {
@@ -93,14 +93,14 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         if (origin == BlockData::Custom) {
             auto find = m_blocksInfo.find(type);
             if (find != m_blocksInfo.end()) {
-                if (index >= 0 && index < find->slotsPlaceholders.count())
-                    text = find->slotsPlaceholders[index];
+                if (index >= 0 && index < find->slotsPlaceHolders.count())
+                    text = find->slotsPlaceHolders[index];
             }
         } else if (origin == BlockData::Dynamic) {
             auto find = m_DynamicsBlocksInfo.find(type);
             if (find != m_DynamicsBlocksInfo.end()) {
-                if (index >= 0 && index < find->slotsPlaceholders.count())
-                    text = find->slotsPlaceholders[index];
+                if (index >= 0 && index < find->slotsPlaceHolders.count())
+                    text = find->slotsPlaceHolders[index];
             }
         } else if (origin == BlockData::System) {
             if (type == 2 || type == 3 || type == 7) {
@@ -194,6 +194,8 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         return saveToFile(data);
     } else if (method == "loadFromFile") {
         return loadFromFile(data.toString());
+    } else if (method == "removeDynamicBlock") {
+        m_DynamicsBlocksInfo.remove(data.toInteger());
     }
     return {};
 }
@@ -342,7 +344,7 @@ QJsonObject BlockData::toJson() const
     obj["group"] = group;
     obj["origin"] = origin;
     obj["tags"] = tags;
-    obj["slotsPlaceHolders"] = QJsonArray::fromStringList(slotsPlaceholders);
+    obj["slotsPlaceHolders"] = QJsonArray::fromStringList(slotsPlaceHolders);
     return obj;
 }
 
@@ -361,10 +363,10 @@ BlockData BlockData::fromJson(const QJsonObject &obj)
     }
 
     if (obj.contains("slotsPlaceHolders")) {
-        data.slotsPlaceholders.clear();
+        data.slotsPlaceHolders.clear();
         QJsonArray arr = obj["slotsPlaceHolders"].toArray();
         for (const auto &val : std::as_const(arr)) {
-            data.slotsPlaceholders.append(val.toString());
+            data.slotsPlaceHolders.append(val.toString());
         }
     }
 
@@ -412,7 +414,7 @@ BlockConstructor &BlockConstructor::text(const QString &text)
 BlockConstructor &BlockConstructor::slot(const QString &placeholder)
 {
     data.viewTexts[currentRow] += " $$ ";
-    data.slotsPlaceholders.append(placeholder);
+    data.slotsPlaceHolders.append(placeholder);
     return (*this);
 }
 
@@ -462,7 +464,7 @@ ReporterConstructor &ReporterConstructor::text(const QString &text)
 ReporterConstructor &ReporterConstructor::slot(const QString &placeholder)
 {
     data.viewTexts[currentRow].append(" $$ ");
-    data.slotsPlaceholders.append(placeholder);
+    data.slotsPlaceHolders.append(placeholder);
     return (*this);
 }
 

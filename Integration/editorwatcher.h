@@ -23,7 +23,7 @@ struct BlockData
     QJsonObject tags;
 
     // Подсказки для слотов
-    QList<QString> slotsPlaceholders;
+    QList<QString> slotsPlaceHolders;
     // Колбэки для получения списка элементов для combobox-сов
     QList<std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>>
         comboBoxCallCurrentList;
