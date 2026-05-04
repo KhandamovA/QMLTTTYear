@@ -272,7 +272,13 @@ Flickable {
                 // console.log("Приняли блок:", data.type, "в координаты:", xPos, yPos);
 
                 // 3. Вызываем твою логику создания реального блока
-                Utils.addSceneItemFromData(finalX, finalY, data);
+                let item = Utils.addSceneItemFromData(finalX, finalY, data);
+
+                // После попадания на сцену принудительно просим чекнуть нет ли там чего к чему можно присосаться
+                if ("isBlock" in item) {
+                    item.checkCandidateBlock()
+                    item.applyCandidateBlock()
+                }
 
                 // 4. Подтверждаем системе, что дроп принят успешно
                 drop.accept()

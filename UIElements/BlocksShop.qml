@@ -22,7 +22,8 @@ Item {
     property var standartItems: []
 
     function getBlock(origin, type) {
-        for (let i of model) {
+        let copyModel = [...model, ...standartItems]
+        for (let i of copyModel) {
             if (i.origin === origin) {
                 if (i.type === type) {
                     return i
@@ -124,7 +125,7 @@ Item {
                 text: "Load"
                 onClicked: function () {
                     let chains = Utils.loadFromFile("temp.json")
-                    console.log("loaded", JSON.stringify(chains, null, 4))
+                    Resources.loadChainsToScene(chains)
                 }
             }
         }

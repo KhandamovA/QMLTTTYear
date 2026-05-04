@@ -57,7 +57,7 @@ QtObject {
 
         if (component.status === Component.Error) {
             console.error("Ошибка загрузки:", component.errorString())
-            return
+            return null
         }
 
         let obj = component.createObject(sceneContainer, renderData)
@@ -67,11 +67,8 @@ QtObject {
 
         registerSceneItem(obj);
 
-        // После попадания на сцену принудительно просим чекнуть нет ли там чего к чему можно присосаться
-        if ("isBlock" in obj) {
-            obj.checkCandidateBlock()
-            obj.applyCandidateBlock()
-        }
+
+        return obj
     }
 
     // Проверка либо создания определителя блока который пользователь создал
