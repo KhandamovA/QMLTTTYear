@@ -101,7 +101,7 @@ QtObject {
             let text = "Определить: " + blockData.viewTexts[0].replace(/\$\$/g, "~~")
             blockData.viewTexts[0] = text
 
-            addSceneItemFromData(scene.contentX + 10, scene.contentY + 10, blockData)
+            addSceneItemFromData(scene.contentX / scene.zoomScale + 2, scene.contentY / scene.zoomScale + 2, blockData)
         }
     }
 

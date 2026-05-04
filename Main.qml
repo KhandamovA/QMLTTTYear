@@ -103,6 +103,8 @@ Rectangle {
                 let scenePosY = scene.contentY
                 let zoomScale = scene.zoomScale
 
+                // console.log("posWithScale", scenePosX / zoomScale, scenePosY / zoomScale)
+
                 win.watcher.handleResponse({
                     "chains": chains,
                     "scenePosX": scenePosX,
