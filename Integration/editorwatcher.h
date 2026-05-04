@@ -7,35 +7,6 @@
 #include <QtQml>
 #include "datacontext.h"
 
-struct BlockData
-{
-    enum Shape { Block = 0, Reporter = 1 };
-    enum Origin { Custom = 0, Dynamic = 1, System = 2 };
-
-    int type = 0;
-    int origin = 0;
-    QList<QString> viewTexts;
-    bool hasInput = true;
-    bool hasOutput = true;
-    QString textColor = "black";
-    QString bodyColor = "#bfcdd9";
-    int blockShape = 0; ///< 0 - обычный блок, 1 - репортер
-    QJsonObject tags;
-
-    // Подсказки для слотов
-    QList<QString> slotsPlaceHolders;
-    // Колбэки для получения списка элементов для combobox-сов
-    QList<std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>>
-        comboBoxCallCurrentList;
-    // Колбэки для получения установки значения и текста в слот с кнопкой, lastValue приходит последнее значение
-    QList<std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>>
-        buttonSettersNewValue;
-
-    QString group = "defaultGroup";
-
-    QJsonObject toJson() const;
-    static BlockData fromJson(const QJsonObject &obj);
-};
 
 struct BlockConstructor
 {
@@ -137,9 +108,6 @@ signals:
 private:
     int getUniqDynamicBlockType(int id);
     QJsonValue sendCommand(const QString &method, QJsonValue data);
-
-    QMap<qint64, BlockData> m_blocksInfo;
-    QMap<qint64, BlockData> m_DynamicsBlocksInfo;
 
     DataContext m_dataContext;
     qint64 signalId = 0;

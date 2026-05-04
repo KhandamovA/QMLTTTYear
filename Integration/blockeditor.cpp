@@ -113,7 +113,7 @@ void BlockEditor::onSave()
 {
     bool exists = false;
     auto target = save().viewTexts[0].trimmed();
-    for (auto &i : watcher->m_DynamicsBlocksInfo) {
+    for (auto &i : watcher->m_dataContext.dynamicsBlocksInfo) {
         auto text = i.viewTexts[0].trimmed();
         if (target == text) {
             exists = true;
@@ -121,7 +121,7 @@ void BlockEditor::onSave()
         }
     }
 
-    for (auto &i : watcher->m_blocksInfo) {
+    for (auto &i : watcher->m_dataContext.blocksInfo) {
         auto text = i.viewTexts[0].trimmed();
         if (target == text) {
             exists = true;

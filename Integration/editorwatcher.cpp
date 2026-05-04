@@ -15,9 +15,9 @@ void EditorWatcher::registerBlock(BlockData data, bool checkDefine)
 {
     if (data.origin == 1) {
         data.type = getUniqDynamicBlockType(data.type);
-        m_DynamicsBlocksInfo[data.type] = data;
+        m_dataContext.dynamicsBlocksInfo[data.type] = data;
     } else {
-        m_blocksInfo[data.type] = data;
+        m_dataContext.blocksInfo[data.type] = data;
     }
     sendCommand("registerBlock", QJsonObject{{"data", data.toJson()}, {"checkDefine", checkDefine}});
 }
@@ -27,10 +27,10 @@ QJsonObject EditorWatcher::saveScript()
     QJsonObject ret = sendCommand("saveScript", {}).toObject();
 
     // Сохранение динамически созданных блоков
-    auto dynBlocksTypes = m_DynamicsBlocksInfo.keys();
+    auto dynBlocksTypes = m_dataContext.dynamicsBlocksInfo.keys();
     QJsonArray dynBlocksInfo;
     for (const auto &i : std::as_const(dynBlocksTypes)) {
-        dynBlocksInfo.append(m_DynamicsBlocksInfo[i].toJson());
+        dynBlocksInfo.append(m_dataContext.dynamicsBlocksInfo[i].toJson());
     }
     ret["dynamicBlocks"] = dynBlocksInfo;
 
@@ -59,7 +59,7 @@ void EditorWatcher::loadScript(QJsonObject data)
     data.remove("variables");
     data.remove("dynamicBlocks");
 
-    m_DynamicsBlocksInfo.clear();
+    m_dataContext.dynamicsBlocksInfo.clear();
 
     for (const auto &i : std::as_const(dynamicBlocks)) {
         auto data = i.toObject();
@@ -91,14 +91,14 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
         QString text;
         if (origin == BlockData::Custom) {
-            auto find = m_blocksInfo.find(type);
-            if (find != m_blocksInfo.end()) {
+            auto find = m_dataContext.blocksInfo.find(type);
+            if (find != m_dataContext.blocksInfo.end()) {
                 if (index >= 0 && index < find->slotsPlaceHolders.count())
                     text = find->slotsPlaceHolders[index];
             }
         } else if (origin == BlockData::Dynamic) {
-            auto find = m_DynamicsBlocksInfo.find(type);
-            if (find != m_DynamicsBlocksInfo.end()) {
+            auto find = m_dataContext.dynamicsBlocksInfo.find(type);
+            if (find != m_dataContext.dynamicsBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsPlaceHolders.count())
                     text = find->slotsPlaceHolders[index];
             }
@@ -141,9 +141,9 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         auto origin = data["origin"].toInt();
 
         if (origin == BlockData::Custom) {
-            auto find = m_blocksInfo.find(type);
+            auto find = m_dataContext.blocksInfo.find(type);
 
-            if (find != m_blocksInfo.end()) {
+            if (find != m_dataContext.blocksInfo.end()) {
                 if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
                     auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
 
@@ -156,9 +156,9 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
                 }
             }
         } else if (origin == BlockData::Dynamic) {
-            auto find = m_DynamicsBlocksInfo.find(type);
+            auto find = m_dataContext.dynamicsBlocksInfo.find(type);
 
-            if (find != m_DynamicsBlocksInfo.end()) {
+            if (find != m_dataContext.dynamicsBlocksInfo.end()) {
                 if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
                     auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
 
@@ -188,17 +188,17 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         QPair<QString, QVariant> newValue;
 
         if (origin != 1) {
-            auto find = m_blocksInfo.find(type);
+            auto find = m_dataContext.blocksInfo.find(type);
 
-            if (find != m_blocksInfo.end()) {
+            if (find != m_dataContext.blocksInfo.end()) {
                 if (index >= 0 && index < find->buttonSettersNewValue.count()) {
                     newValue = find->buttonSettersNewValue[index]({lastKey, lastValue});
                 }
             }
         } else {
-            auto find = m_DynamicsBlocksInfo.find(type);
+            auto find = m_dataContext.dynamicsBlocksInfo.find(type);
 
-            if (find != m_DynamicsBlocksInfo.end()) {
+            if (find != m_dataContext.dynamicsBlocksInfo.end()) {
                 if (index >= 0 && index < find->buttonSettersNewValue.count()) {
                     newValue = find->buttonSettersNewValue[index]({lastKey, lastValue});
                 }
@@ -217,14 +217,14 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
     } else if (method == "loadFromFile") {
         return loadFromFile(data.toString());
     } else if (method == "removeDynamicBlock") {
-        m_DynamicsBlocksInfo.remove(data.toInteger());
+        m_dataContext.dynamicsBlocksInfo.remove(data.toInteger());
     }
     return {};
 }
 
 int EditorWatcher::getUniqDynamicBlockType(int id)
 {
-    while (m_DynamicsBlocksInfo.contains(id)) {
+    while (m_dataContext.dynamicsBlocksInfo.contains(id)) {
         id++;
     }
     return id;
@@ -351,65 +351,6 @@ QJsonArray EditorWatcher::comboBoxListVariablesNames() const
         ret.append(v);
     }
     return ret;
-}
-
-QJsonObject BlockData::toJson() const
-{
-    QJsonObject obj;
-    obj["type"] = type;
-    obj["viewTexts"] = QJsonArray::fromStringList(viewTexts);
-    obj["hasInput"] = hasInput;
-    obj["hasOutput"] = hasOutput;
-    obj["textColor"] = textColor;
-    obj["bodyColor"] = bodyColor;
-    obj["blockShape"] = blockShape;
-    obj["group"] = group;
-    obj["origin"] = origin;
-    obj["tags"] = tags;
-    obj["slotsPlaceHolders"] = QJsonArray::fromStringList(slotsPlaceHolders);
-    return obj;
-}
-
-BlockData BlockData::fromJson(const QJsonObject &obj)
-{
-    BlockData data;
-    if (obj.contains("type"))
-        data.type = obj["type"].toInt();
-
-    if (obj.contains("viewTexts")) {
-        data.viewTexts.clear();
-        QJsonArray arr = obj["viewTexts"].toArray();
-        for (const auto &val : std::as_const(arr)) {
-            data.viewTexts.append(val.toString());
-        }
-    }
-
-    if (obj.contains("slotsPlaceHolders")) {
-        data.slotsPlaceHolders.clear();
-        QJsonArray arr = obj["slotsPlaceHolders"].toArray();
-        for (const auto &val : std::as_const(arr)) {
-            data.slotsPlaceHolders.append(val.toString());
-        }
-    }
-
-    if (obj.contains("hasInput"))
-        data.hasInput = obj["hasInput"].toBool();
-    if (obj.contains("hasOutput"))
-        data.hasOutput = obj["hasOutput"].toBool();
-    if (obj.contains("textColor"))
-        data.textColor = obj["textColor"].toString();
-    if (obj.contains("bodyColor"))
-        data.bodyColor = obj["bodyColor"].toString();
-    if (obj.contains("blockShape"))
-        data.blockShape = obj["blockShape"].toInt();
-    if (obj.contains("group"))
-        data.group = obj["group"].toString();
-    if (obj.contains("origin"))
-        data.origin = obj["origin"].toInt();
-    if (obj.contains("tags")) {
-        data.tags = obj["tags"].toObject();
-    }
-    return data;
 }
 
 BlockConstructor::BlockConstructor(
