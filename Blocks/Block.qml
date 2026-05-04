@@ -18,7 +18,7 @@ Item {
 
     readonly property bool isBlock: true
 
-    property var viewTexts: ["Тест $$"]
+    property var viewTexts: [""]
     property bool hasInput: true
     property bool hasOutput: true
     property string textColor: "black"
@@ -202,6 +202,8 @@ Item {
         let b_ = null
         if (block) {
             block.prevBlock = root
+            block.prevConnector = root.blockConnectors[root.blockConnectors.length - 1].connector
+            block.prevConnector.busy = true
             root.nextBlock = block
 
             block.parent = root
@@ -215,6 +217,8 @@ Item {
                 let rect = Utils._rectFromScene(next)
                 next.parent = Utils.sceneContainer
                 next.prevBlock = null
+                next.prevConnector.busy = false
+                next.prevConnector = null
                 next.x = rect.x
                 next.y = rect.y
                 root.nextBlock = null
@@ -301,9 +305,6 @@ Item {
             } else {
                 if (root.prevBlock)
                     root.prevBlock.setNextBlock(null)
-
-                root.prevConnector.busy = false
-                root.prevConnector = null
             }
         }
 
@@ -317,9 +318,6 @@ Item {
             } else {
                 if (root.prevContainer)
                     root.prevContainer.setNextBlock(null)
-
-                root.prevConnector.busy = false
-                root.prevConnector = null
             }
         }
 

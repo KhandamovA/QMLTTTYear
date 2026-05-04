@@ -87,7 +87,7 @@ Item {
                     "type": "replicaSlot",
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
                         "type": root.ownerBlock.type,
-                        "index": slotCounter,
+                        "index": replicaCounter,
                         "origin": root.ownerBlock.origin
                     })
                 })

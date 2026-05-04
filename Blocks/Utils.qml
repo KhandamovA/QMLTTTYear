@@ -95,9 +95,9 @@ QtObject {
             let blockData = JSON.parse(JSON.stringify(blocksShop.getBlock(1, type)))
 
             blockData.hasInput = false
+            blockData.blockShape = 0
             blockData.tags = ({})
             blockData.tags["define"] = true
-            blockData.blockShape = 0
             let text = "Определить: " + blockData.viewTexts[0].replace(/\$\$/g, "~~")
             blockData.viewTexts[0] = text
 

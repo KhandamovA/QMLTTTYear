@@ -65,6 +65,8 @@ Item {
     function setNextBlock(block) {
         if (block) {
             block.prevContainer = root
+            block.prevConnector = output_
+            block.prevConnector.busy = true
             root.nextBlock = block
 
             block.parent = root
@@ -77,6 +79,8 @@ Item {
                 let rect = Utils._rectFromScene(next)
                 next.parent = Utils.sceneContainer
                 next.prevContainer = null
+                next.prevConnector.busy = false
+                next.prevConnector = null
                 next.x = rect.x
                 next.y = rect.y
                 root.nextBlock = null

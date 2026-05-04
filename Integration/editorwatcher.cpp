@@ -171,9 +171,12 @@ void EditorWatcher::createNewBlock()
 
     if (editor.isAccepted()) {
         auto data = editor.save();
-        data.origin = 1;
-        data.group = "Пользовательские блоки";
-        registerBlock(data);
+        auto viewText = data.viewTexts[0].trimmed();
+        if (!viewText.isEmpty()) {
+            data.origin = 1;
+            data.group = "Пользовательские блоки";
+            registerBlock(data);
+        }
     }
 }
 

@@ -90,8 +90,16 @@ QtObject {
         json.origin = target.origin
         json.tags = target.tags
         json.slots = slotsToJson(target)
-        json.debug = debug
-        if (!("isReporter" in target)) {
+        // json.debug = debug
+
+        if ("isReporter" in target) {
+            if (!target.currentSlot) {
+                json.x = Math.round(target.x)
+                json.y = Math.round(target.y)
+            }
+        }
+
+        if ("isBlock" in target) {
             if (!target.prevBlock) {
                 json.x = Math.round(target.x)
                 json.y = Math.round(target.y)
@@ -173,15 +181,6 @@ QtObject {
 
     // Создание блока
     function sceneItemFromJson(data) {
-
-        // json.type = target.type
-        // json.origin = target.origin
-        // json.tags = target.tags
-        // json.slots = slotsToJson(target)
-        // json.debug = debug
-        // json.x = target.x
-        // json.y = target.y
-
         let type = data.type
         let origin = data.origin
         let x = data.x ? data.x : 0
@@ -193,6 +192,24 @@ QtObject {
         let containers = data.containers
 
         let renderData = JSON.parse(JSON.stringify(Utils.blocksShop.getBlock(origin, type)))
+
+        let tagsKeys = Object.keys(tags);
+
+        // Модификация в определитель блока
+        if (tagsKeys.includes("define")) {
+            let text = "Определить: " + renderData.viewTexts[0].replace(/\$\$/g, "~~")
+            renderData.viewTexts = [text]
+            renderData.hasInput = false
+            renderData.blockShape = 0
+        }
+
+        // Модификация в реплику
+        if (tagsKeys.includes("replica")) {
+            let slotName = tags.slotName
+            renderData.viewTexts = [slotName]
+            renderData.blockShape = 1
+        }
+
         let sceneItem = Utils.addSceneItemFromData(x, y, renderData)
         sceneItem.tags = tags
 
