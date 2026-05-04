@@ -103,10 +103,32 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
                     text = find->slotsPlaceHolders[index];
             }
         } else if (origin == BlockData::System) {
-            if (type == 2 || type == 3 || type == 7) {
+            if (type == 0 || type == 1 || type == 2 || type == 3 || type == 6) {
                 return "any";
-            } else if (type == 4 || type == 6) {
-                return "index/key";
+            }
+
+            if (type == 4 || type == 5 || type == 12) {
+                return "index";
+            }
+
+            if (type == 8) {
+                if (index == 0) {
+                    return "index";
+                } else {
+                    return "any";
+                }
+            }
+
+            if (type == 9) {
+                if (index == 0) {
+                    return "key";
+                } else {
+                    return "any";
+                }
+            }
+
+            if (type == 13 || type == 14) {
+                return "key";
             }
         }
         return text;

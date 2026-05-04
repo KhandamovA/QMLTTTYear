@@ -158,92 +158,170 @@ Item {
 
         // origin = 2 - Системные блоки
         // Инициализация стандартных блоков
+        // ==================== 1. ОБЫЧНЫЕ ПЕРЕМЕННЫЕ (origin: 2 - переменная, но без индексов/ключей) ====================
         standartItems.push({
             "origin": 2,
-            "type": 0,
+            "type": 0 // Значение
+            ,
             "viewTexts": ["Значение ??"],
             "blockShape": 1,
-            "group": "Данные",
+            "group": "Переменные",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })
 
         standartItems.push({
             "origin": 2,
-            "type": 1,
+            "type": 1 // Установить
+            ,
             "viewTexts": ["Установить ?? в значение $$"],
             "blockShape": 0,
-            "group": "Данные",
+            "group": "Переменные",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
-        })
+        });
 
+        // ==================== 2. МАССИВЫ ====================
         standartItems.push({
             "origin": 2,
-            "type": 2,
-            "viewTexts": ["Очистить ключи/индексы ??"],
+            "type": 2 // Очистить массив
+            ,
+            "viewTexts": ["Очистить массив ??"],
             "blockShape": 0,
-            "group": "Данные",
+            "group": "Массивы",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })
 
         standartItems.push({
             "origin": 2,
-            "type": 3,
-            "viewTexts": ["Добавить в ?? значение $$"],
+            "type": 3 // Добавить в конец
+            ,
+            "viewTexts": ["Добавить в массив ?? значение $$"],
             "blockShape": 0,
-            "group": "Данные",
+            "group": "Массивы",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })
 
         standartItems.push({
             "origin": 2,
-            "type": 6,
-            "viewTexts": ["Удалить элемент #$$ из ??"],
+            "type": 4 // Удалить по индексу
+            ,
+            "viewTexts": ["Удалить из массива ?? элемент #$$"],
             "blockShape": 0,
-            "group": "Данные",
+            "group": "Массивы",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })
 
         standartItems.push({
             "origin": 2,
-            "type": 4,
-            "viewTexts": ["Значение элемента #$$ из ??"],
+            "type": 5 // Значение по индексу
+            ,
+            "viewTexts": ["Значение элемента #$$ из массива ??"],
             "blockShape": 1,
-            "group": "Данные",
+            "group": "Массивы",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })
 
         standartItems.push({
             "origin": 2,
-            "type": 7,
-            "viewTexts": ["Ключ/индекс элемента $$ в ??"],
+            "type": 6 // Индекс по значению (позиция)
+            ,
+            "viewTexts": ["Индекс элемента $$ в массиве ??"],
             "blockShape": 1,
-            "group": "Данные",
+            "group": "Массивы",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })
 
         standartItems.push({
             "origin": 2,
-            "type": 5,
-            "viewTexts": ["Кол-во элементов в ??"],
+            "type": 7 // Количество элементов
+            ,
+            "viewTexts": ["Длина массива ??"],
             "blockShape": 1,
-            "group": "Данные",
+            "group": "Массивы",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })
 
         standartItems.push({
             "origin": 2,
-            "type": 8,
-            "viewTexts": ["Установить ?? по ключу/индексу $$ в значение $$"],
+            "type": 8 // Заменить по индексу (новый тип)
+            ,
+            "viewTexts": ["Заменить в массиве ?? элемент #$$ на значение $$"],
             "blockShape": 0,
-            "group": "Данные",
+            "group": "Массивы",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        });
+
+        // ==================== 3. MAP (Словари/Объекты) ====================
+        standartItems.push({
+            "origin": 2,
+            "type": 9 // Установить по ключу
+            ,
+            "viewTexts": ["Установить в словарь ?? по ключу $$ значение $$"],
+            "blockShape": 0,
+            "group": "Словари",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 10 // Очистить словарь
+            ,
+            "viewTexts": ["Очистить словарь ??"],
+            "blockShape": 0,
+            "group": "Словари",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 11 // Количество ключей
+            ,
+            "viewTexts": ["Кол-во ключей в словаре ??"],
+            "blockShape": 1,
+            "group": "Словари",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 12 // Ключ по индексу
+            ,
+            "viewTexts": ["Ключ по индексу #$$ из словаря ??"],
+            "blockShape": 1,
+            "group": "Словари",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 13 // Значение по ключу
+            ,
+            "viewTexts": ["Значение по ключу $$ из словаря ??"],
+            "blockShape": 1,
+            "group": "Словари",
+            "bodyColor": "#bfcdd9",
+            "textColor": "black"
+        })
+
+        standartItems.push({
+            "origin": 2,
+            "type": 14 // Удалить по ключу
+            ,
+            "viewTexts": ["Удалить из словаря ?? ключ $$"],
+            "blockShape": 0,
+            "group": "Словари",
             "bodyColor": "#bfcdd9",
             "textColor": "black"
         })

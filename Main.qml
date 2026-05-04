@@ -31,6 +31,18 @@ Rectangle {
         anchors.fill: parent
         orientation: Qt.Horizontal  // Горизонтальное расположение панелей
 
+        handle: Rectangle {
+            implicitWidth: 8       // Ширина тянучки
+            color: "#cccccc"
+
+            Rectangle {
+                width: 2
+                height: 30
+                color: "#999999"
+                anchors.centerIn: parent
+            }
+        }
+
         // --- Левая панель (магазин блоков) ---
         BlocksShop {
             id: blocksShop
