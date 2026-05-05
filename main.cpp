@@ -1,13 +1,15 @@
 #include <QApplication>
 #include "Integration/editorscene.h"
+#include "Workflow/baseworkflow.h"
 #include "blockeditor.h"
 
-QList<BlockData> standartKitBlocks(int startTypeWith = 0)
+class MyWorkFlow : public BaseWorkFlow
 {
-    QList<BlockData> ret;
-
-    return ret;
-}
+public:
+    MyWorkFlow(DataContext *context)
+        : BaseWorkFlow{context}
+    {}
+};
 
 int main(int argc, char *argv[])
 {
@@ -16,17 +18,21 @@ int main(int argc, char *argv[])
     EditorScene scene;
     scene.addImportPath("qrc:/qt/qml");
     scene.setSource("qrc:/qt/qml/tttYear/Main.qml");
-    // scene.setSource("qrc:/qt/qml/tttYear/UIElements/ConstructorScene.qml");
     scene.show();
-
     auto watcher = scene.watcher();
+    return app.exec();
 
-    for (auto &i : standartKitBlocks()) {
-        watcher->registerBlock(i);
-    }
+    // DataContext context;
+    // MyWorkFlow flow(&context);
 
-    // BlockEditor editor;
-    // editor.show();
+    // QFile f("temp.json");
+
+    // if (f.open(QIODevice::ReadOnly)) {
+    //     flow.loadScript(QJsonDocument::fromJson(f.readAll()).object());
+    // }
+    // f.close();
+
+    // auto chains = flow.getChainWithType(BlockData::System, 6);
 
     return app.exec();
 }

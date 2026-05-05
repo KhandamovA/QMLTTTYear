@@ -23,10 +23,10 @@ BlockConstructor &BlockConstructor::text(const QString &text)
     return (*this);
 }
 
-BlockConstructor &BlockConstructor::slot(const QString &placeholder)
+BlockConstructor &BlockConstructor::slot(const QString &name)
 {
     data.viewTexts[currentRow] += " $$ ";
-    data.slotsPlaceHolders.append(placeholder);
+    data.slotsInfo.append(slotInfo{.type = slotInfo::Plain, .name = name});
     return (*this);
 }
 
@@ -38,18 +38,22 @@ BlockConstructor &BlockConstructor::addContainer()
 }
 
 BlockConstructor &BlockConstructor::comboBox(
-    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> callCurrentList)
+    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> callCurrentList,
+    const QString &name)
 {
     data.viewTexts[currentRow] += " ?? ";
-    data.comboBoxCallCurrentList.append(callCurrentList);
+    data.slotsInfo.append(
+        slotInfo{.type = slotInfo::ComboBox, .name = name, .getterList = callCurrentList});
     return (*this);
 }
 
 BlockConstructor &BlockConstructor::button(
-    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue)
+    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue,
+    const QString &name)
 {
     data.viewTexts[currentRow] += " ** ";
-    data.buttonSettersNewValue.append(callSetterNewValue);
+    data.slotsInfo.append(
+        slotInfo{.type = slotInfo::Button, .name = name, .getterButtonValue = callSetterNewValue});
     return (*this);
 }
 
@@ -73,26 +77,30 @@ ReporterConstructor &ReporterConstructor::text(const QString &text)
     return (*this);
 }
 
-ReporterConstructor &ReporterConstructor::slot(const QString &placeholder)
+ReporterConstructor &ReporterConstructor::slot(const QString &name)
 {
-    data.viewTexts[currentRow].append(" $$ ");
-    data.slotsPlaceHolders.append(placeholder);
+    data.viewTexts[currentRow] += " $$ ";
+    data.slotsInfo.append(slotInfo{.type = slotInfo::Plain, .name = name});
     return (*this);
 }
 
 ReporterConstructor &ReporterConstructor::comboBox(
-    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> callCurrentList)
+    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> callCurrentList,
+    const QString &name)
 {
     data.viewTexts[currentRow] += " ?? ";
-    data.comboBoxCallCurrentList.append(callCurrentList);
+    data.slotsInfo.append(
+        slotInfo{.type = slotInfo::ComboBox, .name = name, .getterList = callCurrentList});
     return (*this);
 }
 
 ReporterConstructor &ReporterConstructor::button(
-    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue)
+    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue,
+    const QString &name)
 {
     data.viewTexts[currentRow] += " ** ";
-    data.buttonSettersNewValue.append(callSetterNewValue);
+    data.slotsInfo.append(
+        slotInfo{.type = slotInfo::Button, .name = name, .getterButtonValue = callSetterNewValue});
     return (*this);
 }
 
@@ -109,7 +117,13 @@ QJsonObject BlockData::toJson() const
     obj["group"] = group;
     obj["origin"] = origin;
     obj["tags"] = tags;
-    obj["slotsPlaceHolders"] = QJsonArray::fromStringList(slotsPlaceHolders);
+
+    QJsonArray slotsInfo;
+    for (auto &i : this->slotsInfo) {
+        slotsInfo.append(QJsonObject{{"name", i.name}, {"type", i.type}});
+    }
+    obj["slotsInfo"] = slotsInfo;
+
     return obj;
 }
 
@@ -127,11 +141,16 @@ BlockData BlockData::fromJson(const QJsonObject &obj)
         }
     }
 
-    if (obj.contains("slotsPlaceHolders")) {
-        data.slotsPlaceHolders.clear();
-        QJsonArray arr = obj["slotsPlaceHolders"].toArray();
+    if (obj.contains("slotsInfo")) {
+        data.slotsInfo.clear();
+        QJsonArray arr = obj["slotsInfo"].toArray();
         for (const auto &val : std::as_const(arr)) {
-            data.slotsPlaceHolders.append(val.toString());
+            auto obj = val.toObject();
+
+            data.slotsInfo.append(slotInfo{
+                .type = static_cast<slotInfo::SlotType>(obj["type"].toInt()),
+                .name = obj["name"].toString(),
+            });
         }
     }
 
@@ -161,6 +180,31 @@ DataContext::DataContext(QObject *parent)
     addStandartBlocks();
 }
 
+BlockData DataContext::getBlockInfo(int origin, int type)
+{
+    switch (origin) {
+    case 0:
+        return blocksInfo[type];
+        break;
+    case 1:
+        return dynamicsBlocksInfo[type];
+        break;
+    case 2:
+        return systemBlocksInfo[type];
+        break;
+    }
+    return {};
+}
+
+QList<BlockData> DataContext::allBlocks() const
+{
+    QList<BlockData> ret;
+    ret.append(blocksInfo.values());
+    ret.append(dynamicsBlocksInfo.values());
+    ret.append(systemBlocksInfo.values());
+    return ret;
+}
+
 void DataContext::addStandartBlocks()
 {
     std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
@@ -176,6 +220,12 @@ void DataContext::addStandartBlocks()
         };
 
     int startControlType = 0;
+
+    systemBlocksInfo
+        .insert(startControlType + 6,
+                BlockConstructor("Управление", startControlType + 6, false, true, "#bfcdd9", "black")
+                    .text("Запуск после загрузки скрипта"));
+
     // Повторять пока (while)
     systemBlocksInfo
         .insert(startControlType + 0,
@@ -238,14 +288,14 @@ void DataContext::addStandartBlocks()
         .insert(startControlType + 0,
                 ReporterConstructor("Переменные", startControlType + 0, "#bfcdd9", "black")
                     .text("Значение ")
-                    .comboBox(comboBoxListVariablesNames));
+                    .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Установить (блок)
     systemBlocksInfo
         .insert(startControlType + 1,
                 BlockConstructor("Переменные", startControlType + 1, true, true, "#bfcdd9", "black")
                     .text("Установить ")
-                    .comboBox(comboBoxListVariablesNames)
+                    .comboBox(comboBoxListVariablesNames, "c1")
                     .text(" в значение ")
                     .slot("any"));
 
@@ -256,14 +306,14 @@ void DataContext::addStandartBlocks()
         .insert(startControlType + 2,
                 BlockConstructor("Массивы", startControlType + 2, true, true, "#bfcdd9", "black")
                     .text("Очистить массив ")
-                    .comboBox(comboBoxListVariablesNames));
+                    .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Добавить в конец
     systemBlocksInfo
         .insert(startControlType + 3,
                 BlockConstructor("Массивы", startControlType + 3, true, true, "#bfcdd9", "black")
                     .text("Добавить в массив ")
-                    .comboBox(comboBoxListVariablesNames)
+                    .comboBox(comboBoxListVariablesNames, "c1")
                     .text(" значение ")
                     .slot("any"));
 
@@ -272,7 +322,7 @@ void DataContext::addStandartBlocks()
         .insert(startControlType + 4,
                 BlockConstructor("Массивы", startControlType + 4, true, true, "#bfcdd9", "black")
                     .text("Удалить из массива ")
-                    .comboBox(comboBoxListVariablesNames)
+                    .comboBox(comboBoxListVariablesNames, "c1")
                     .text(" элемент ")
                     .slot("index"));
 
@@ -282,7 +332,7 @@ void DataContext::addStandartBlocks()
                                 .text("Значение элемента ")
                                 .slot("index")
                                 .text(" из массива ")
-                                .comboBox(comboBoxListVariablesNames));
+                                .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Индекс по значению (позиция)
     systemBlocksInfo.insert(startControlType + 6,
@@ -290,20 +340,20 @@ void DataContext::addStandartBlocks()
                                 .text("Индекс элемента ")
                                 .slot("any")
                                 .text(" в массиве ")
-                                .comboBox(comboBoxListVariablesNames));
+                                .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Количество элементов (длина)
     systemBlocksInfo.insert(startControlType + 7,
                             ReporterConstructor("Массивы", startControlType + 7, "#bfcdd9", "black")
                                 .text("Длина массива ")
-                                .comboBox(comboBoxListVariablesNames));
+                                .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Заменить по индексу
     systemBlocksInfo
         .insert(startControlType + 8,
                 BlockConstructor("Массивы", startControlType + 8, true, true, "#bfcdd9", "black")
                     .text("Заменить в массиве ")
-                    .comboBox(comboBoxListVariablesNames)
+                    .comboBox(comboBoxListVariablesNames, "c1")
                     .text(" элемент ")
                     .slot("index")
                     .text(" на значение ")
@@ -316,7 +366,7 @@ void DataContext::addStandartBlocks()
         .insert(startControlType + 9,
                 BlockConstructor("Словари", startControlType + 9, true, true, "#bfcdd9", "black")
                     .text("Установить в словарь ")
-                    .comboBox(comboBoxListVariablesNames)
+                    .comboBox(comboBoxListVariablesNames, "c1")
                     .text(" по ключу ")
                     .slot("key")
                     .text(" значение ")
@@ -327,13 +377,13 @@ void DataContext::addStandartBlocks()
         .insert(startControlType + 10,
                 BlockConstructor("Словари", startControlType + 10, true, true, "#bfcdd9", "black")
                     .text("Очистить словарь ")
-                    .comboBox(comboBoxListVariablesNames));
+                    .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Количество ключей
     systemBlocksInfo.insert(startControlType + 11,
                             ReporterConstructor("Словари", startControlType + 11, "#bfcdd9", "black")
                                 .text("Кол-во ключей в словаре ")
-                                .comboBox(comboBoxListVariablesNames));
+                                .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Ключ по индексу
     systemBlocksInfo.insert(startControlType + 12,
@@ -341,7 +391,7 @@ void DataContext::addStandartBlocks()
                                 .text("Ключ по индексу ")
                                 .slot("index")
                                 .text(" из словаря ")
-                                .comboBox(comboBoxListVariablesNames));
+                                .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Значение по ключу
     systemBlocksInfo.insert(startControlType + 13,
@@ -349,14 +399,14 @@ void DataContext::addStandartBlocks()
                                 .text("Значение по ключу ")
                                 .slot("key")
                                 .text(" из словаря ")
-                                .comboBox(comboBoxListVariablesNames));
+                                .comboBox(comboBoxListVariablesNames, "c1"));
 
     // Удалить по ключу
     systemBlocksInfo
         .insert(startControlType + 14,
                 BlockConstructor("Словари", startControlType + 14, true, true, "#bfcdd9", "black")
                     .text("Удалить из словаря ")
-                    .comboBox(comboBoxListVariablesNames)
+                    .comboBox(comboBoxListVariablesNames, "c1")
                     .text(" ключ ")
                     .slot("key"));
 

@@ -39,10 +39,8 @@ Item {
             }
         }
 
-        let slotCounter = 0
-        let comboBoxCounter = 0
-        let buttonCounter = 0
-        let replicaCounter = 0
+        let counter = 0
+
         for (let i = 0; i < viewText.length; i++) {
             let pair = viewText[i] + (viewText[i + 1] ? viewText[i + 1] : "")
 
@@ -51,51 +49,49 @@ Item {
 
                 check()
                 temp.push({
-                    "index": slotCounter,
+                    "index": counter,
                     "type": "slot",
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
                         "type": root.ownerBlock.type,
-                        "index": slotCounter,
+                        "index": counter,
                         "origin": root.ownerBlock.origin
                     })
                 })
-                slotCounter++
             } else if (pair == "??") {
                 i += 2
 
                 check()
                 temp.push({
-                    "index": comboBoxCounter,
+                    "index": counter,
                     "type": "comboBoxSlot"
                 })
-                comboBoxCounter++
             } else if (pair == "**") {
                 i += 2
 
                 check()
                 temp.push({
-                    "index": buttonCounter,
+                    "index": counter,
                     "type": "buttonSlot"
                 })
-                buttonCounter++
             } else if (pair == "~~") {
                 i += 2
 
                 check()
                 temp.push({
-                    "index": replicaCounter,
+                    "index": counter,
                     "type": "replicaSlot",
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
                         "type": root.ownerBlock.type,
-                        "index": replicaCounter,
+                        "index": counter,
                         "origin": root.ownerBlock.origin
                     })
                 })
-                replicaCounter++
             }
 
             if (i < viewText.length)
                 buffer += viewText[i]
+
+            counter++
         }
         check()
 

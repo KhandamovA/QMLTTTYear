@@ -15,26 +15,60 @@ public:
     // Методы работы с переменной
     QVariant &operator=(const QVariant &other)
     {
-        value = other;
-        return value;
+        uno = other;
+        return uno;
     }
-    operator QVariant() { return value; }
+    operator QVariant() { return uno; }
 
     // Методы работы с листом
     void append(const QVariant &item) { list.append(item); }
     QVariant operator[](int index) { return list[index]; }
     int count() const { return list.count(); }
+    int indexOf(const QVariant &item) { return list.indexOf(item); }
+
+    // Методы работы со словарем
+    void setValue(const QString &key, const QVariant &value) { map[key] = value; }
+    QVariant value(const QString &key)
+    {
+        auto find = map.find(key);
+        if (find != map.end()) {
+            return *find;
+        }
+        return QVariant();
+    }
+    QStringList keys() const { return map.keys(); }
+    void removeKey(const QString &key) { map.remove(key); }
+
+    // Метод для проверки типа (не самый надежный)
+    int typeId()
+    {
+        return map.count() ? QMetaType::Type::QVariantMap
+                           : (list.count() ? QMetaType::Type::QVariantList : uno.typeId());
+    }
+
+    // Метод очистки для всего
     void clear()
     {
         list.clear();
-        value = QVariant();
+        map.clear();
+        uno = QVariant();
     }
-    int indexOf(const QVariant &item) { return list.indexOf(item); }
-    int typeId() { return list.count() ? QMetaType::Type::QVariantList : value.typeId(); }
 
 private:
-    QVariant value;
+    QVariant uno;
     QList<QVariant> list;
+    QMap<QString, QVariant> map;
+};
+
+struct slotInfo
+{
+    enum SlotType { Plain = 0, ComboBox = 1, Button = 2 };
+
+    SlotType type = Plain;
+    QString name;
+
+    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> getterList;
+    std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)> getterButtonValue;
 };
 
 struct BlockData
@@ -42,7 +76,7 @@ struct BlockData
     enum Shape { Block = 0, Reporter = 1 };
     enum Origin { Custom = 0, Dynamic = 1, System = 2 };
 
-    int type = 0;
+    int type = -1;
     int origin = 0;
     QList<QString> viewTexts;
     bool hasInput = true;
@@ -52,14 +86,7 @@ struct BlockData
     int blockShape = 0; ///< 0 - обычный блок, 1 - репортер
     QJsonObject tags;
 
-    // Подсказки для слотов
-    QList<QString> slotsPlaceHolders;
-    // Колбэки для получения списка элементов для combobox-сов
-    QList<std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>>
-        comboBoxCallCurrentList;
-    // Колбэки для получения установки значения и текста в слот с кнопкой, lastValue приходит последнее значение
-    QList<std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>>
-        buttonSettersNewValue;
+    QList<slotInfo> slotsInfo;
 
     QString group = "defaultGroup";
 
@@ -77,14 +104,17 @@ struct BlockConstructor
                      QString textColor = "black");
 
     BlockConstructor &text(const QString &text);
-    BlockConstructor &slot(const QString &placeholder);
     BlockConstructor &addContainer();
+
+    BlockConstructor &slot(const QString &name);
     BlockConstructor &comboBox(
         std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
-            callCurrentList);
+            callCurrentList,
+        const QString &name);
     BlockConstructor &button(
         std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
-            callSetterNewValue);
+            callSetterNewValue,
+        const QString &name);
 
     operator BlockData() { return data; }
 
@@ -101,13 +131,16 @@ struct ReporterConstructor
                         QString textColor = "black");
 
     ReporterConstructor &text(const QString &text);
-    ReporterConstructor &slot(const QString &placeholder);
+
+    ReporterConstructor &slot(const QString &name);
     ReporterConstructor &comboBox(
         std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
-            callCurrentList);
+            callCurrentList,
+        const QString &name);
     ReporterConstructor &button(
         std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
-            callSetterNewValue);
+            callSetterNewValue,
+        const QString &name);
 
     operator BlockData() { return data; }
 
@@ -130,6 +163,9 @@ public:
     QMap<qint64, BlockData> dynamicsBlocksInfo;
     // Блоки которые существуют всегда origin = 2, ключ = тип, к ним относятся блоки для работы с данными
     QMap<qint64, BlockData> systemBlocksInfo;
+
+    BlockData getBlockInfo(int origin, int type);
+    QList<BlockData> allBlocks() const;
 
 private:
     void addStandartBlocks();

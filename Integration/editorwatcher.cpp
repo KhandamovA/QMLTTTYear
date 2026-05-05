@@ -118,20 +118,20 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         if (origin == BlockData::Custom) {
             auto find = m_dataContext.blocksInfo.find(type);
             if (find != m_dataContext.blocksInfo.end()) {
-                if (index >= 0 && index < find->slotsPlaceHolders.count())
-                    text = find->slotsPlaceHolders[index];
+                if (index >= 0 && index < find->slotsInfo.count())
+                    text = find->slotsInfo[index].name;
             }
         } else if (origin == BlockData::Dynamic) {
             auto find = m_dataContext.dynamicsBlocksInfo.find(type);
             if (find != m_dataContext.dynamicsBlocksInfo.end()) {
-                if (index >= 0 && index < find->slotsPlaceHolders.count())
-                    text = find->slotsPlaceHolders[index];
+                if (index >= 0 && index < find->slotsInfo.count())
+                    text = find->slotsInfo[index].name;
             }
         } else if (origin == BlockData::System) {
             auto find = m_dataContext.systemBlocksInfo.find(type);
             if (find != m_dataContext.systemBlocksInfo.end()) {
-                if (index >= 0 && index < find->slotsPlaceHolders.count())
-                    text = find->slotsPlaceHolders[index];
+                if (index >= 0 && index < find->slotsInfo.count())
+                    text = find->slotsInfo[index].name;
             }
         }
         return text;
@@ -158,9 +158,8 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
             auto find = m_dataContext.blocksInfo.find(type);
 
             if (find != m_dataContext.blocksInfo.end()) {
-                if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
-                    auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
-
+                if (index >= 0 && index < find->slotsInfo.count()) {
+                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue});
                     ret = toArray(list);
                 }
             }
@@ -168,9 +167,8 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
             auto find = m_dataContext.dynamicsBlocksInfo.find(type);
 
             if (find != m_dataContext.dynamicsBlocksInfo.end()) {
-                if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
-                    auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
-
+                if (index >= 0 && index < find->slotsInfo.count()) {
+                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue});
                     ret = toArray(list);
                 }
             }
@@ -178,9 +176,8 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
             auto find = m_dataContext.systemBlocksInfo.find(type);
 
             if (find != m_dataContext.systemBlocksInfo.end()) {
-                if (index >= 0 && index < find->comboBoxCallCurrentList.count()) {
-                    auto list = find->comboBoxCallCurrentList[index]({lastKey, lastValue});
-
+                if (index >= 0 && index < find->slotsInfo.count()) {
+                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue});
                     ret = toArray(list);
                 }
             }
@@ -200,24 +197,24 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
             auto find = m_dataContext.blocksInfo.find(type);
 
             if (find != m_dataContext.blocksInfo.end()) {
-                if (index >= 0 && index < find->buttonSettersNewValue.count()) {
-                    newValue = find->buttonSettersNewValue[index]({lastKey, lastValue});
+                if (index >= 0 && index < find->slotsInfo.count()) {
+                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue});
                 }
             }
         } else if (origin == BlockData::Dynamic) {
             auto find = m_dataContext.dynamicsBlocksInfo.find(type);
 
             if (find != m_dataContext.dynamicsBlocksInfo.end()) {
-                if (index >= 0 && index < find->buttonSettersNewValue.count()) {
-                    newValue = find->buttonSettersNewValue[index]({lastKey, lastValue});
+                if (index >= 0 && index < find->slotsInfo.count()) {
+                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue});
                 }
             }
         } else if (origin == BlockData::System) {
             auto find = m_dataContext.systemBlocksInfo.find(type);
 
             if (find != m_dataContext.systemBlocksInfo.end()) {
-                if (index >= 0 && index < find->buttonSettersNewValue.count()) {
-                    newValue = find->buttonSettersNewValue[index]({lastKey, lastValue});
+                if (index >= 0 && index < find->slotsInfo.count()) {
+                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue});
                 }
             }
         }

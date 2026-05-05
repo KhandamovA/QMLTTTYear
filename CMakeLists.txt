@@ -58,6 +58,9 @@ qt_add_qml_module(apptttYear
     SOURCES Integration/datacontext.h Integration/datacontext.cpp
     SOURCES Integration/dialogwithlist.h Integration/dialogwithlist.cpp
     SOURCES Workflow/baseworkflow.h Workflow/baseworkflow.cpp
+    SOURCES Workflow/blockexecuter.h Workflow/blockexecuter.cpp
+    SOURCES Workflow/standartexecuters.h
+    SOURCES Workflow/runexecuter.h Workflow/runexecuter.cpp
 
 
 
