@@ -33,27 +33,24 @@ struct ExecuteQuery
 class Argument
 {
 public:
-    Argument(DataContext *context,
-             BaseWorkFlow *workFlow,
-             int type,
-             std::function<QVariant()> getter)
+    Argument(DataContext *context, BaseWorkFlow *workFlow, int type, QVariant value)
         : context{context}
         , workFlow{workFlow}
         , m_type{(Argument::Type) type}
-        , getter{getter}
+        , m_value{value}
     {}
     enum Type { Value, Reporter, ComboBox, Button };
     operator QVariant() { return value(); }
 
     QString name;
-    QVariant value() const { return getter(); }
+    QVariant value() const { return m_value; }
     Type type() const;
 
 private:
     DataContext *context;
     BaseWorkFlow *workFlow;
     Type m_type = Value;
-    std::function<QVariant()> getter;
+    QVariant m_value;
 };
 
 struct SlotsData

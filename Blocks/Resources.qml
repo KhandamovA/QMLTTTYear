@@ -5,11 +5,7 @@ QtObject {
     // ============================= СОХРАНЕНИЕ начало =================================
     // Упаковка элементов заголовка
     function titleToJson(owner, title) {
-        let ret = ({})
-
-        let slots = []
-        let buttons = []
-        let comboBoxs = []
+        let ret = []
 
         let childs = Utils._findChildWithProps(title, ["isSlot", "isComboBoxSlot", "isButtonSlot"], 4)
         for (let i of childs) {
@@ -17,25 +13,28 @@ QtObject {
                 continue
             if ("isSlot" in i) {
                 if (i.reporter) {
-                    slots.push(sceneItemToJson(i.reporter))
+                    ret.push({
+                        "type": 0,
+                        "data": sceneItemToJson(i.reporter)
+                    })
                 } else {
-                    slots.push(i.inputValue)
+                    ret.push({
+                        "type": 0,
+                        "data": i.inputValue
+                    })
                 }
             } else if ("isComboBoxSlot" in i) {
-                comboBoxs.push(i.currentValue)
+                ret.push({
+                    "type": 1,
+                    "data": i.currentValue
+                })
             } else if ("isButtonSlot" in i) {
-                buttons.push(i.currentValue)
+                ret.push({
+                    "type": 2,
+                    "data": i.currentValue
+                })
             }
         }
-
-        if (slots.length > 0)
-            ret.slots = slots
-
-        if (comboBoxs.length > 0)
-            ret.comboBoxs = comboBoxs
-
-        if (buttons.length > 0)
-            ret.buttons = buttons
 
         return ret
     }
@@ -54,7 +53,9 @@ QtObject {
         }
 
         for (let i of titles) {
-            slots.push(titleToJson(target, i))
+            titleToJson(target, i).forEach(x => {
+                slots.push(x)
+            })
         }
 
         return slots
@@ -233,7 +234,27 @@ QtObject {
 
         let counter = 0
         for (let i of titles) {
-            titleFromJson(target, i, slots[counter])
+            let tchilds = Utils._findChildWithProps(i, ["isSlot", "isComboBoxSlot", "isButtonSlot"], 4)
+            for (let j of tchilds) {
+                if (j.ownerBlock !== target)
+                    continue
+                if ("isSlot" in j) {
+                    let data = slots[counter].data
+                    if (typeof data === 'object') {
+                        let reporter = sceneItemFromJson(data)
+                        j.setReporter(reporter)
+                    } else {
+                        j.inputValue = String(data)
+                    }
+                } else if ("isComboBoxSlot" in j) {
+                    let data = slots[counter].data
+                    j.currentValue = data
+                    j.restoreLastValue()
+                } else if ("isButtonSlot" in j) {
+                    let data = slots[counter].data
+                    j.currentValue = data
+                }
+            }
             counter++
         }
     }
@@ -251,48 +272,6 @@ QtObject {
                 i.setNextBlock(firstBlock)
             }
             counter++
-        }
-    }
-
-    // Загрузка внутренностей заголовков
-    function titleFromJson(owner, title, slots) {
-        let slots_ = []
-        let comboBoxs_ = []
-        let buttons_ = []
-
-        if ("slots" in slots)
-            slots_ = slots.slots
-        if ("comboBoxs" in slots)
-            comboBoxs_ = slots.comboBoxs
-        if ("buttons" in slots)
-            buttons_ = slots.buttons
-
-        let childs = Utils._findChildWithProps(title, ["isSlot", "isComboBoxSlot", "isButtonSlot"], 4)
-
-        let slotsCounter = 0
-        let comboBoxCounter = 0
-        let buttonsCounter = 0
-        for (let i of childs) {
-            if (i.ownerBlock !== owner)
-                continue
-            if ("isSlot" in i) {
-                let data = slots_[slotsCounter]
-                slotsCounter++
-
-                if (typeof data === 'object') {
-                    let reporter = sceneItemFromJson(data)
-                    i.setReporter(reporter)
-                } else {
-                    i.inputValue = String(data)
-                }
-            } else if ("isComboBoxSlot" in i) {
-                let data = comboBoxs_[comboBoxCounter]
-                i.currentValue = data
-                i.restoreLastValue()
-            } else if ("isButtonSlot" in i) {
-                let data = buttons_[buttonsCounter]
-                i.currentValue = data
-            }
         }
     }
 

@@ -24,17 +24,24 @@ void RunExecuter::run()
 
 void RunExecuter::prepareArgs(BlockExecuter *executer)
 {
+    auto &args = executer->args;
     auto &slotsData = executer->slotsData;
     auto workFlow = executer->workFlow;
     auto context = executer->context;
-    QVariant returnResult;
+    args.clear();
 
     for (const auto &i : slotsData.slots_) {
         if (i.isObject()) {
+            QVariant returnResult;
             auto reporter = workFlow->createExecuter(i.toObject());
             prepareArgs(reporter);
             auto execResult = reporter->exec({}, returnResult);
+
+            Argument arg(context, workFlow, Argument::Value, returnResult);
+            args.append(arg);
         } else {
+            Argument arg(context, workFlow, Argument::Value, i.toVariant());
+            args.append(arg);
         }
     }
 }
