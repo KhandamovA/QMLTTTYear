@@ -8,40 +8,69 @@ RunExecuter::RunExecuter(ChainId id, Chain chain)
 
 void RunExecuter::run()
 {
+    ExecuteResult result;
+
     for (auto &i : m_chain) {
         // Подготовливаем аргументы обрабатывая слоты
-        prepareArgs(i);
+        result = prepareArgs(i);
+
+        if (result.state == ExecuteResult::Error) {
+            qWarning() << "ErrorMsg:" << result.errorMessage;
+            break;
+        }
 
         QVariant returnResult;
-        auto executeResult = i.get()->exec(ExecuteQuery{}, returnResult);
+        result = i.get()->exec(ExecuteQuery{}, returnResult);
 
-        if (executeResult.state == ExecuteResult::Error) {
-            qWarning() << "ErrorMsg:" << executeResult.errorMessage;
+        if (result.state == ExecuteResult::Error) {
+            qWarning() << "ErrorMsg:" << result.errorMessage;
             break;
         }
     }
+
+    deleteLater();
 }
 
-void RunExecuter::prepareArgs(BlockExecuter *executer)
+ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
 {
+    ExecuteResult result;
+
     auto &args = executer->args;
     auto &slotsData = executer->slotsData;
     auto workFlow = executer->workFlow;
     auto context = executer->context;
     args.clear();
 
-    for (const auto &i : slotsData.slots_) {
-        if (i.isObject()) {
-            QVariant returnResult;
-            auto reporter = workFlow->createExecuter(i.toObject());
-            prepareArgs(reporter);
-            auto execResult = reporter->exec({}, returnResult);
+    for (const auto &[type, data] : std::as_const(slotsData.slots_)) {
+        // Обработка обычных слотов
+        if (type == slotInfo::Plain) {
+            if (data.isObject()) {
+                // Если в слоте есть репортер
+                QVariant returnResult;
+                auto reporter = workFlow->createExecuter(data.toObject());
+                result = prepareArgs(reporter);
 
-            Argument arg(context, workFlow, Argument::Value, returnResult);
-            args.append(arg);
-        } else {
-            Argument arg(context, workFlow, Argument::Value, i.toVariant());
-            args.append(arg);
+                if (result.state == ExecuteResult::Error) {
+                    return result;
+                }
+
+                result = reporter->exec({}, returnResult);
+
+                if (result.state == ExecuteResult::Error) {
+                    return result;
+                }
+
+                // Добавляем готовый аргумент
+                Argument arg(context, workFlow, Argument::PlainValue, returnResult);
+                args.append(arg);
+            } else {
+                // Если в слоте репортера нет
+                // Добавляем готовый аргумент
+                Argument arg(context, workFlow, Argument::PlainValue, data.toVariant());
+                args.append(arg);
+            }
         }
     }
+
+    return result;
 }

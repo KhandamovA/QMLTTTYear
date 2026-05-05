@@ -35,6 +35,7 @@ public:
         auto type = data["type"].toInteger();
 
         TypeId typeId = QString::number(origin) + "_" + QString::number(type);
+        // qDebug() << factory.keys();
         auto fac = factory.find(typeId);
         if (fac != factory.end()) {
             auto block = fac.value()();
@@ -42,7 +43,7 @@ public:
             block.get()->fromJson(data);
             return block;
         } else {
-            qWarning() << "Executer с типом" << type << "и происхождением" << origin
+            qWarning() << "Executer с происхождением" << origin << "и типом" << type
                        << "не зарегистрирован и не может быть создан";
         }
         return nullptr;

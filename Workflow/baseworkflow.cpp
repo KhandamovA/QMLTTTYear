@@ -115,5 +115,5 @@ void BaseWorkFlow::runChain(ChainId id)
 void BaseWorkFlow::registerStdExecuters()
 {
     registerBlock<StdExcts::WhenScriptLoaded>(BlockData::System, 6);
-    registerBlock<StdExcts::Debug>(BlockData::System, 2);
+    registerBlock<StdExcts::Debug>(BlockData::System, 4);
 }

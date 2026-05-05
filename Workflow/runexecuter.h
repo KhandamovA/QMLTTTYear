@@ -16,7 +16,7 @@ private:
     ChainId m_id;
     Chain m_chain;
 
-    void prepareArgs(BlockExecuter *executer);
+    ExecuteResult prepareArgs(BlockExecuter *executer);
 signals:
 
 private slots:

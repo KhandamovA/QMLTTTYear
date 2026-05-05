@@ -30,11 +30,12 @@ void BlockExecuter::fromJson(const QJsonObject &data)
         this->containers.append(workFlow->createChain(i.toArray()));
     }
 
-    auto s = data["slots"].toObject();
-
-    slotsData.slots_ = s["slots"].toArray();
-    slotsData.buttons_ = s["buttons"].toArray();
-    slotsData.comboBoxs_ = s["comboBoxs"].toArray();
+    auto s = data["slots"].toArray();
+    slotsData.slots_.clear();
+    for (const auto &i : std::as_const(s)) {
+        auto obj = i.toObject();
+        slotsData.slots_.append({obj["type"].toInt(), obj["data"]});
+    }
 }
 
 Argument::Type Argument::type() const

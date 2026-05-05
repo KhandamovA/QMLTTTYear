@@ -39,7 +39,7 @@ public:
         , m_type{(Argument::Type) type}
         , m_value{value}
     {}
-    enum Type { Value, Reporter, ComboBox, Button };
+    enum Type { PlainValue, ComboBoxValue, ButtonValue };
     operator QVariant() { return value(); }
 
     QString name;
@@ -49,15 +49,13 @@ public:
 private:
     DataContext *context;
     BaseWorkFlow *workFlow;
-    Type m_type = Value;
+    Type m_type = PlainValue;
     QVariant m_value;
 };
 
 struct SlotsData
 {
-    QJsonArray slots_;
-    QJsonArray comboBoxs_;
-    QJsonArray buttons_;
+    QList<QPair<int, QJsonValue>> slots_;
 };
 
 class BlockExecuter : public QObject
