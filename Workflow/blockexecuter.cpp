@@ -3,6 +3,11 @@
 #include "baseworkflow.h"
 #include "datacontext.h"
 
+ExecuteResult BlockExecuter::exec(const ExecuteQuery &query, QVariant &returnResult)
+{
+    return {};
+}
+
 void BlockExecuter::fromJson(const QJsonObject &data)
 {
     origin = data["origin"].toInteger();
@@ -36,9 +41,4 @@ void BlockExecuter::fromJson(const QJsonObject &data)
         auto obj = i.toObject();
         slotsData.slots_.append({obj["type"].toInt(), obj["data"]});
     }
-}
-
-Argument::Type Argument::type() const
-{
-    return m_type;
 }

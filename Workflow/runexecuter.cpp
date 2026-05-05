@@ -61,14 +61,20 @@ ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
                 }
 
                 // Добавляем готовый аргумент
-                Argument arg(context, workFlow, Argument::PlainValue, returnResult);
+                Argument arg(context, workFlow, returnResult);
                 args.append(arg);
             } else {
                 // Если в слоте репортера нет
                 // Добавляем готовый аргумент
-                Argument arg(context, workFlow, Argument::PlainValue, data.toVariant());
+                Argument arg(context, workFlow, data.toVariant());
                 args.append(arg);
             }
+        } else if (type == slotInfo::ComboBox || type == slotInfo::Button) {
+            auto value = data.toObject()["value"];
+            Argument arg(context, workFlow, value.toVariant());
+            args.append(arg);
+        } else {
+            qWarning() << type << "Обработчика данного вида слота не существует";
         }
     }
 

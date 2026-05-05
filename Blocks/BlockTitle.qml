@@ -57,6 +57,7 @@ Item {
                         "origin": root.ownerBlock.origin
                     })
                 })
+                counter++
             } else if (pair == "??") {
                 i += 2
 
@@ -65,6 +66,7 @@ Item {
                     "index": counter,
                     "type": "comboBoxSlot"
                 })
+                counter++
             } else if (pair == "**") {
                 i += 2
 
@@ -73,6 +75,7 @@ Item {
                     "index": counter,
                     "type": "buttonSlot"
                 })
+                counter++
             } else if (pair == "~~") {
                 i += 2
 
@@ -86,12 +89,11 @@ Item {
                         "origin": root.ownerBlock.origin
                     })
                 })
+                counter++
             }
 
             if (i < viewText.length)
                 buffer += viewText[i]
-
-            counter++
         }
         check()
 

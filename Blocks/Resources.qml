@@ -246,16 +246,18 @@ QtObject {
                     } else {
                         j.inputValue = String(data)
                     }
+                    counter++
                 } else if ("isComboBoxSlot" in j) {
                     let data = slots[counter].data
                     j.currentValue = data
                     j.restoreLastValue()
+                    counter++
                 } else if ("isButtonSlot" in j) {
                     let data = slots[counter].data
                     j.currentValue = data
+                    counter++
                 }
             }
-            counter++
         }
     }
 

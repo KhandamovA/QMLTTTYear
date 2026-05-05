@@ -116,4 +116,11 @@ void BaseWorkFlow::registerStdExecuters()
 {
     registerBlock<StdExcts::WhenScriptLoaded>(BlockData::System, 6);
     registerBlock<StdExcts::Debug>(BlockData::System, 4);
+
+    registerBlock<StdExcts::VariableGet>(BlockData::System, 100);
+    registerBlock<StdExcts::VariableSet>(BlockData::System, 101);
+
+    registerBlock<StdExcts::operators::Plus>(BlockData::System, 200);
+    registerBlock<StdExcts::operators::Minus>(BlockData::System, 201);
+    registerBlock<StdExcts::operators::Glue>(BlockData::System, 206);
 }

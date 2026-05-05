@@ -33,23 +33,19 @@ struct ExecuteQuery
 class Argument
 {
 public:
-    Argument(DataContext *context, BaseWorkFlow *workFlow, int type, QVariant value)
+    Argument(DataContext *context, BaseWorkFlow *workFlow, QVariant value)
         : context{context}
         , workFlow{workFlow}
-        , m_type{(Argument::Type) type}
         , m_value{value}
     {}
-    enum Type { PlainValue, ComboBoxValue, ButtonValue };
     operator QVariant() { return value(); }
 
     QString name;
     QVariant value() const { return m_value; }
-    Type type() const;
 
 private:
     DataContext *context;
     BaseWorkFlow *workFlow;
-    Type m_type = PlainValue;
     QVariant m_value;
 };
 
@@ -71,7 +67,7 @@ public:
         , workFlow{workFlow}
     {}
 
-    virtual ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) { return {}; }
+    virtual ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult);
 
     BaseWorkFlow *workFlow;
     DataContext *context;
