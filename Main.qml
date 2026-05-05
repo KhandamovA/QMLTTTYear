@@ -89,11 +89,33 @@ Rectangle {
         target: win.watcher
 
         function onQml_signal(method: string, data: variant, signalId: int) {
-            // console.log("call:", method)
-            // helper.printValues(data)
-            // console.log("")
+            if (method == "registerBlocks") {
+                let data_ = data.data
+                let checkDefine = data.checkDefine
+                let temp = blocksShop.model
+                blocksShop.model = []
 
-            if (method == "registerBlock") {
+                for (let i of data_) {
+                    let origin = i["origin"]
+                    if (origin === 2) {
+                        blocksShop.standartItems.push(i)
+                    } else {
+                        temp.push(i)
+                    }
+                }
+
+                blocksShop.model = temp
+
+                for (let i of data_) {
+                    let origin = i["origin"]
+
+                    if (checkDefine) {
+                        if (origin === 1) {
+                            Utils.checkDefineForDynamicBlock(i.type)
+                        }
+                    }
+                }
+            } else if (method == "registerBlock") {
                 let data_ = data.data
                 let checkDefine = data.checkDefine
                 let origin = data_["origin"]

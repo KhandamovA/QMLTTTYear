@@ -41,6 +41,7 @@ public:
     /// скрипт во избежание ошибок от двойного создания определителя)
     ///
     void registerBlock(BlockData data, bool checkDefine = true);
+    void registerBlocks(QList<BlockData> data, bool checkDefine = true);
 
 public slots:
 

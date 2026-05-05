@@ -13,9 +13,7 @@ EditorWatcher::EditorWatcher(QObject *parent)
 
 void EditorWatcher::init()
 {
-    for (auto &i : m_dataContext.systemBlocksInfo) {
-        registerBlock(i);
-    }
+    registerBlocks(m_dataContext.systemBlocksInfo.values());
 }
 
 void EditorWatcher::registerBlock(BlockData data, bool checkDefine)
@@ -29,6 +27,24 @@ void EditorWatcher::registerBlock(BlockData data, bool checkDefine)
         m_dataContext.blocksInfo[data.type] = data;
     }
     sendCommand("registerBlock", QJsonObject{{"data", data.toJson()}, {"checkDefine", checkDefine}});
+}
+
+void EditorWatcher::registerBlocks(QList<BlockData> data, bool checkDefine)
+{
+    QJsonArray data_;
+    for (auto &i : data) {
+        if (i.origin == 1) {
+            i.type = getUniqDynamicBlockType(i.type);
+            m_dataContext.dynamicsBlocksInfo[i.type] = i;
+        } else if (i.origin == 2) {
+            m_dataContext.systemBlocksInfo[i.type] = i;
+        } else {
+            m_dataContext.blocksInfo[i.type] = i;
+        }
+        data_.append(i.toJson());
+    }
+
+    sendCommand("registerBlocks", QJsonObject{{"data", data_}, {"checkDefine", checkDefine}});
 }
 
 QJsonObject EditorWatcher::saveScript()
