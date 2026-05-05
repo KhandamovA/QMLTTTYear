@@ -3,6 +3,13 @@
 #include "baseworkflow.h"
 #include "datacontext.h"
 
+BlockExecuter::~BlockExecuter()
+{
+    for (auto &i : containers) {
+        qDeleteAll(i);
+    }
+}
+
 ExecuteResult BlockExecuter::exec(const ExecuteQuery &query, QVariant &returnResult)
 {
     return {};

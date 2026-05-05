@@ -19,7 +19,7 @@ struct ExecuteResult
     State state = Success;
     QString errorMessage;
 
-    int containerSelection = 0;
+    QList<int> executableContainers;
 };
 
 struct ExecuteQuery
@@ -66,6 +66,7 @@ public:
         : context{context}
         , workFlow{workFlow}
     {}
+    ~BlockExecuter();
 
     virtual ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult);
 

@@ -20,6 +20,34 @@ public:
     }
 };
 
+class IfElse : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    IfElse(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+    // BlockExecuter interface
+public:
+    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto condition = args[0].value().toDouble();
+
+        if (condition) {
+            // Дает добро на запуск первого контейнера
+            result.executableContainers.append(0);
+        } else {
+            // Дает добро на запуск второго контейнера с иначе
+            result.executableContainers.append(1);
+        }
+
+        return result;
+    }
+};
+
 class Debug : public BlockExecuter
 {
     Q_OBJECT

@@ -6,7 +6,7 @@ RunExecuter::RunExecuter(ChainId id, Chain chain)
     , m_chain{chain}
 {}
 
-void RunExecuter::run()
+ExecuteResult RunExecuter::run()
 {
     ExecuteResult result;
 
@@ -26,9 +26,16 @@ void RunExecuter::run()
             qWarning() << "ErrorMsg:" << result.errorMessage;
             break;
         }
+        result = runContainer(result, i);
+
+        if (result.state == ExecuteResult::Error) {
+            qWarning() << "ErrorMsg:" << result.errorMessage;
+            break;
+        }
     }
 
     deleteLater();
+    return result;
 }
 
 ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
@@ -63,6 +70,8 @@ ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
                 // Добавляем готовый аргумент
                 Argument arg(context, workFlow, returnResult);
                 args.append(arg);
+
+                reporter->deleteLater();
             } else {
                 // Если в слоте репортера нет
                 // Добавляем готовый аргумент
@@ -79,4 +88,20 @@ ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
     }
 
     return result;
+}
+
+ExecuteResult RunExecuter::runContainer(const ExecuteResult &result, BlockExecuter *executer)
+{
+    ExecuteResult ret;
+    for (const auto &i : result.executableContainers) {
+        auto chain = executer->containers[i];
+
+        auto executer = new RunExecuter(m_id, chain);
+        ret = executer->run();
+
+        if (ret.state == ExecuteResult::Error) {
+            break;
+        }
+    }
+    return ret;
 }

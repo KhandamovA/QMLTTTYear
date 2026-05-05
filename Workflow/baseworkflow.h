@@ -16,6 +16,7 @@ class BaseWorkFlow
 
 public:
     BaseWorkFlow(DataContext *context);
+    ~BaseWorkFlow();
 
     // Загрузка скрипта
     bool loadScript(const QJsonObject &script);

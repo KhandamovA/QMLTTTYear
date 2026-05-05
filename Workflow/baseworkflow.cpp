@@ -11,8 +11,18 @@ BaseWorkFlow::BaseWorkFlow(DataContext *context)
     registerStdExecuters();
 }
 
+BaseWorkFlow::~BaseWorkFlow()
+{
+    for (auto &i : chains) {
+        qDeleteAll(i);
+    }
+}
+
 bool BaseWorkFlow::loadScript(const QJsonObject &script)
 {
+    for (auto &i : chains) {
+        qDeleteAll(i);
+    }
     chains.clear();
     variables->clear();
     context->dynamicsBlocksInfo.clear();
@@ -115,6 +125,7 @@ void BaseWorkFlow::runChain(ChainId id)
 void BaseWorkFlow::registerStdExecuters()
 {
     registerBlock<StdExcts::WhenScriptLoaded>(BlockData::System, 6);
+    registerBlock<StdExcts::IfElse>(BlockData::System, 2);
     registerBlock<StdExcts::Debug>(BlockData::System, 4);
 
     registerBlock<StdExcts::VariableGet>(BlockData::System, 100);
