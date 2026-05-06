@@ -400,8 +400,10 @@ public:
         auto count = var.count();
 
         for (qint64 i = 0; i < count; i++) {
-            auto &value = args[1];
+            auto &index = args[1];
+            auto &value = args[2];
 
+            index = i;
             value = var[i];
 
             // Выполнение тела цикла

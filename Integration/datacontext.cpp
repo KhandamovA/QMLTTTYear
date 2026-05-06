@@ -428,6 +428,7 @@ void DataContext::addStandartBlocks()
                 BlockConstructor("Массивы", startControlType + 16, true, true, "#bfcdd9", "black")
                     .text("ForEach массива ")
                     .comboBox(comboBoxListVariablesNames, "c1")
+                    .replica("index")
                     .replica("value")
                     .addContainer());
 
