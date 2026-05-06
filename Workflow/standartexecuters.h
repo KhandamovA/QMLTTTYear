@@ -162,7 +162,7 @@ public:
 
         QVariant text = args[0];
 
-        qDebug() << text.toString();
+        qDebug() << "wf:" << text.toString();
 
         return result;
     }
