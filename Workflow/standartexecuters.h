@@ -166,11 +166,13 @@ public:
     }
 };
 
-class VariableGet : public BlockExecuter
+namespace Variable {
+
+class Get : public BlockExecuter
 {
     Q_OBJECT
 public:
-    VariableGet(DataContext *context, BaseWorkFlow *workFlow)
+    Get(DataContext *context, BaseWorkFlow *workFlow)
         : BlockExecuter{context, workFlow}
     {}
 
@@ -181,18 +183,19 @@ public:
         ExecuteResult result;
 
         auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
 
-        returnResult = context->variables[varName];
+        returnResult = var;
 
         return result;
     }
 };
 
-class VariableSet : public BlockExecuter
+class Set : public BlockExecuter
 {
     Q_OBJECT
 public:
-    VariableSet(DataContext *context, BaseWorkFlow *workFlow)
+    Set(DataContext *context, BaseWorkFlow *workFlow)
         : BlockExecuter{context, workFlow}
     {}
 
@@ -203,13 +206,317 @@ public:
         ExecuteResult result;
 
         auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
         QVariant newValue = args[1];
 
-        context->variables[varName] = newValue;
+        var = newValue;
 
         return result;
     }
 };
+
+} // namespace Variable
+
+namespace Array {
+
+class Clear : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    Clear(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        var.clear();
+
+        return result;
+    }
+};
+
+class Add : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    Add(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        var.append(args[1]);
+
+        return result;
+    }
+};
+
+class RemoveAt : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    RemoveAt(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        var.removeAt(args[1].value().toDouble());
+
+        return result;
+    }
+};
+
+class GetItem : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    GetItem(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        returnResult = var[args[1].value().toDouble()];
+
+        return result;
+    }
+};
+
+class IndexOf : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    IndexOf(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        returnResult = var.indexOf(args[1]);
+
+        return result;
+    }
+};
+
+class Count : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    Count(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        returnResult = var.count();
+
+        return result;
+    }
+};
+
+class Replace : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    Replace(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        auto index = args[1].value().toDouble();
+
+        if (!(index < 0 || index >= var.count())) {
+            var[index] = args[2];
+        }
+
+        return result;
+    }
+};
+
+} // namespace Array
+
+namespace Map {
+
+class Set : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    Set(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        var.setValue(args[1].value().toString(), args[2]);
+
+        return result;
+    }
+};
+
+class Clear : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    Clear(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        var.clear();
+
+        return result;
+    }
+};
+
+class CountKeys : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    CountKeys(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        returnResult = var.keys().count();
+
+        return result;
+    }
+};
+
+class KeyAt : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    KeyAt(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[1].value().toString();
+        auto &var = context->variables[varName];
+        auto index = args[0].value().toDouble();
+
+        if (index < 0 || index >= var.keys().count()) {
+            returnResult = var.keys().at(index);
+        }
+
+        return result;
+    }
+};
+
+class Get : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    Get(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[1].value().toString();
+        auto &var = context->variables[varName];
+
+        returnResult = var.value(args[0].value().toString());
+
+        return result;
+    }
+};
+
+class RemoveKey : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    RemoveKey(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        var.removeKey(args[1].value().toString());
+
+        return result;
+    }
+};
+
+} // namespace Map
 
 namespace operators {
 

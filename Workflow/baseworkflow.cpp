@@ -170,8 +170,25 @@ void BaseWorkFlow::registerStdExecuters()
     registerBlock<StdExcts::Debug>(BlockData::System, 5);
 
     // Переменные
-    registerBlock<StdExcts::VariableGet>(BlockData::System, 100);
-    registerBlock<StdExcts::VariableSet>(BlockData::System, 101);
+    registerBlock<StdExcts::Variable::Get>(BlockData::System, 100);
+    registerBlock<StdExcts::Variable::Set>(BlockData::System, 101);
+
+    // Массивы
+    registerBlock<StdExcts::Array::Clear>(BlockData::System, 102);
+    registerBlock<StdExcts::Array::Add>(BlockData::System, 103);
+    registerBlock<StdExcts::Array::RemoveAt>(BlockData::System, 104);
+    registerBlock<StdExcts::Array::GetItem>(BlockData::System, 105);
+    registerBlock<StdExcts::Array::IndexOf>(BlockData::System, 106);
+    registerBlock<StdExcts::Array::Count>(BlockData::System, 107);
+    registerBlock<StdExcts::Array::Replace>(BlockData::System, 108);
+
+    // Словари
+    registerBlock<StdExcts::Map::Set>(BlockData::System, 109);
+    registerBlock<StdExcts::Map::Clear>(BlockData::System, 110);
+    registerBlock<StdExcts::Map::CountKeys>(BlockData::System, 111);
+    registerBlock<StdExcts::Map::KeyAt>(BlockData::System, 112);
+    registerBlock<StdExcts::Map::Get>(BlockData::System, 113);
+    registerBlock<StdExcts::Map::RemoveKey>(BlockData::System, 114);
 
     // Операторы
     registerBlock<StdExcts::operators::Plus>(BlockData::System, 200);

@@ -25,6 +25,13 @@ public:
     QVariant operator[](int index) { return list[index]; }
     int count() const { return list.count(); }
     int indexOf(const QVariant &item) { return list.indexOf(item); }
+    void removeAt(int index)
+    {
+        if (index < 0 || index >= list.count())
+            return;
+
+        list.removeAt(index);
+    }
 
     // Методы работы со словарем
     void setValue(const QString &key, const QVariant &value) { map[key] = value; }
