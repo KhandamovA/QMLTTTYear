@@ -158,16 +158,37 @@ QPointer<BlockExecuter> BaseWorkFlow::createDymanicExecuter()
 
 void BaseWorkFlow::registerStdExecuters()
 {
+    // Спец блок для возврата значений внутри пользовательских блоков
     registerBlock<DynamicBlockReturn>(BlockData::System, 500);
 
-    registerBlock<StdExcts::WhenScriptLoaded>(BlockData::System, 6);
-    registerBlock<StdExcts::IfElse>(BlockData::System, 2);
-    registerBlock<StdExcts::Debug>(BlockData::System, 4);
+    // Управление
+    registerBlock<StdExcts::WhenScriptLoaded>(BlockData::System, 0);
+    registerBlock<StdExcts::While>(BlockData::System, 1);
+    registerBlock<StdExcts::WhileCount>(BlockData::System, 2);
+    registerBlock<StdExcts::IfElse>(BlockData::System, 3);
+    registerBlock<StdExcts::If>(BlockData::System, 4);
+    registerBlock<StdExcts::Debug>(BlockData::System, 5);
 
+    // Переменные
     registerBlock<StdExcts::VariableGet>(BlockData::System, 100);
     registerBlock<StdExcts::VariableSet>(BlockData::System, 101);
 
+    // Операторы
     registerBlock<StdExcts::operators::Plus>(BlockData::System, 200);
     registerBlock<StdExcts::operators::Minus>(BlockData::System, 201);
+    registerBlock<StdExcts::operators::Multiply>(BlockData::System, 202);
+    registerBlock<StdExcts::operators::Divide>(BlockData::System, 203);
+    registerBlock<StdExcts::operators::Power>(BlockData::System, 204);
+    registerBlock<StdExcts::operators::Modulo>(BlockData::System, 205);
     registerBlock<StdExcts::operators::Glue>(BlockData::System, 206);
+    registerBlock<StdExcts::operators::Equal>(BlockData::System, 207);
+    registerBlock<StdExcts::operators::NotEqual>(BlockData::System, 208);
+    registerBlock<StdExcts::operators::More>(BlockData::System, 209);
+    registerBlock<StdExcts::operators::Less>(BlockData::System, 210);
+    registerBlock<StdExcts::operators::MoreEqual>(BlockData::System, 211);
+    registerBlock<StdExcts::operators::LessEqual>(BlockData::System, 212);
+    registerBlock<StdExcts::operators::And>(BlockData::System, 213);
+    registerBlock<StdExcts::operators::Or>(BlockData::System, 214);
+    registerBlock<StdExcts::operators::Not>(BlockData::System, 215);
+    registerBlock<StdExcts::operators::Negative>(BlockData::System, 216);
 }

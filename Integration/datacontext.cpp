@@ -222,22 +222,22 @@ void DataContext::addStandartBlocks()
     int startControlType = 0;
 
     systemBlocksInfo
-        .insert(startControlType + 6,
-                BlockConstructor("Управление", startControlType + 6, false, true, "#bfcdd9", "black")
+        .insert(startControlType + 0,
+                BlockConstructor("Управление", startControlType + 0, false, true, "#bfcdd9", "black")
                     .text("Запуск после загрузки скрипта"));
 
     // Повторять пока (while)
     systemBlocksInfo
-        .insert(startControlType + 0,
-                BlockConstructor("Управление", startControlType + 0, true, true, "#bfcdd9", "black")
+        .insert(startControlType + 1,
+                BlockConstructor("Управление", startControlType + 1, true, true, "#bfcdd9", "black")
                     .text("Повторять пока ")
                     .slot("true")
                     .addContainer());
 
     // Повторить N раз
     systemBlocksInfo
-        .insert(startControlType + 1,
-                BlockConstructor("Управление", startControlType + 1, true, true, "#bfcdd9", "black")
+        .insert(startControlType + 2,
+                BlockConstructor("Управление", startControlType + 2, true, true, "#bfcdd9", "black")
                     .text("Повторить ")
                     .slot("count")
                     .text(" раз")
@@ -245,8 +245,8 @@ void DataContext::addStandartBlocks()
 
     // Если...то...иначе
     systemBlocksInfo
-        .insert(startControlType + 2,
-                BlockConstructor("Управление", startControlType + 2, true, true, "#bfcdd9", "black")
+        .insert(startControlType + 3,
+                BlockConstructor("Управление", startControlType + 3, true, true, "#bfcdd9", "black")
                     .text("Если ")
                     .slot("true")
                     .text(" тогда")
@@ -256,8 +256,8 @@ void DataContext::addStandartBlocks()
 
     // Если...то
     systemBlocksInfo
-        .insert(startControlType + 3,
-                BlockConstructor("Управление", startControlType + 3, true, true, "#bfcdd9", "black")
+        .insert(startControlType + 4,
+                BlockConstructor("Управление", startControlType + 4, true, true, "#bfcdd9", "black")
                     .text("Если ")
                     .slot("true")
                     .text(" тогда")
@@ -265,8 +265,8 @@ void DataContext::addStandartBlocks()
 
     // Вывод в консоль (отладка)
     systemBlocksInfo
-        .insert(startControlType + 4,
-                BlockConstructor("Отладка", startControlType + 4, true, true, "#bfcdd9", "black")
+        .insert(startControlType + 5,
+                BlockConstructor("Отладка", startControlType + 5, true, true, "#bfcdd9", "black")
                     .text("Вывод в консоль ")
                     .slot("text"));
 

@@ -6,7 +6,7 @@ RunExecuter::RunExecuter(ChainId id, Chain chain)
     , m_chain{chain}
 {}
 
-ExecuteResult RunExecuter::run()
+ExecuteResult RunExecuter::run(bool withDelete)
 {
     ExecuteResult result;
 
@@ -45,7 +45,9 @@ ExecuteResult RunExecuter::run()
         }
     }
 
-    deleteLater();
+    if (withDelete) {
+        deleteLater();
+    }
     return result;
 }
 

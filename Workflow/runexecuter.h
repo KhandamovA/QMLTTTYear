@@ -10,7 +10,7 @@ class RunExecuter : public QObject
     Q_OBJECT
 public:
     RunExecuter(ChainId id, Chain chain);
-    ExecuteResult run();
+    ExecuteResult run(bool withDelete = true);
 
     ExecuteResult prepareArgs(BlockExecuter *executer);
     ExecuteResult runContainer(const ExecuteResult &result, BlockExecuter *executer);
