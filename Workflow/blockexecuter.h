@@ -21,6 +21,7 @@ struct ExecuteResult
 
     QList<int> executableContainers;
     QList<int> executableChains;
+    bool exit = false;
 };
 
 struct ExecuteQuery
@@ -93,18 +94,36 @@ public:
 
     void fromJson(const QJsonObject &data);
 
+    qint64 chainId() const;
+    void setChainId(qint64 newChainId);
+
 private:
     /// Это не нужно использовать, это для обработки слотов, используйте args для получения входных значений
     SlotsData slotsData;
 
+    qint64 m_chainId = 0; ///< Цепочка в которой тот находится
+
     QList<QString> argsNames;
 };
 
-class DymanicBlock : public BlockExecuter
+class DynamicBlock : public BlockExecuter
 {
     Q_OBJECT
 public:
-    DymanicBlock(DataContext *context, BaseWorkFlow *workFlow)
+    DynamicBlock(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+    // BlockExecuter interface
+public:
+    ExecuteResult exec(QVariant &returnResult) override;
+};
+
+class DynamicBlockReturn : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    DynamicBlockReturn(DataContext *context, BaseWorkFlow *workFlow)
         : BlockExecuter{context, workFlow}
     {}
 

@@ -59,7 +59,7 @@ bool BaseWorkFlow::loadScript(const QJsonObject &script)
     if (script.contains("chains")) {
         qint64 ids = 0;
         for (const auto &i : script["chains"].toArray()) {
-            Chain ch = createChain(i.toArray());
+            Chain ch = createChain(i.toArray(), ids);
             chains[ids] = ch;
             ids++;
         }
@@ -99,12 +99,13 @@ QPointer<BlockExecuter> BaseWorkFlow::createExecuter(const QJsonObject &data)
     return nullptr;
 }
 
-Chain BaseWorkFlow::createChain(const QJsonArray &chain)
+Chain BaseWorkFlow::createChain(const QJsonArray &chain, qint64 chainId)
 {
     Chain ret;
 
     for (const auto &i : chain) {
         auto ctx = createExecuter(i.toObject());
+        ctx->setChainId(chainId);
         ret.append(ctx);
     }
 
@@ -151,12 +152,14 @@ void BaseWorkFlow::runChain(ChainId id)
 
 QPointer<BlockExecuter> BaseWorkFlow::createDymanicExecuter()
 {
-    auto block = QPointer<BlockExecuter>(new DymanicBlock(context, this));
+    auto block = QPointer<BlockExecuter>(new DynamicBlock(context, this));
     return block;
 }
 
 void BaseWorkFlow::registerStdExecuters()
 {
+    registerBlock<DynamicBlockReturn>(BlockData::System, 500);
+
     registerBlock<StdExcts::WhenScriptLoaded>(BlockData::System, 6);
     registerBlock<StdExcts::IfElse>(BlockData::System, 2);
     registerBlock<StdExcts::Debug>(BlockData::System, 4);

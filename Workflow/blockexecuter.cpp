@@ -20,7 +20,6 @@ void BlockExecuter::fromJson(const QJsonObject &data)
 {
     origin = data["origin"].toInteger();
     type = data["type"].toInteger();
-
     tags = data["tags"].toObject();
 
     auto blockInfo = context->getBlockInfo(origin, type);
@@ -40,7 +39,7 @@ void BlockExecuter::fromJson(const QJsonObject &data)
     // Заполняем контейнеры
     auto containers = data["containers"].toArray();
     for (const auto &i : std::as_const(containers)) {
-        this->containers.append(workFlow->createChain(i.toArray()));
+        this->containers.append(workFlow->createChain(i.toArray(), chainId()));
     }
 
     auto s = data["slots"].toArray();
@@ -53,7 +52,23 @@ void BlockExecuter::fromJson(const QJsonObject &data)
     }
 }
 
-ExecuteResult DymanicBlock::exec(QVariant &returnResult)
+qint64 BlockExecuter::chainId() const
+{
+    return m_chainId;
+}
+
+void BlockExecuter::setChainId(qint64 newChainId)
+{
+    m_chainId = newChainId;
+
+    for (auto &i : containers) {
+        for (auto &j : i) {
+            j->setChainId(newChainId);
+        }
+    }
+}
+
+ExecuteResult DynamicBlock::exec(QVariant &returnResult)
 {
     ExecuteResult result;
 
@@ -104,10 +119,29 @@ ExecuteResult DymanicBlock::exec(QVariant &returnResult)
 
             RunExecuter *executer = new RunExecuter(chainId, chain);
             result = executer->run();
+
+            if (isReporter) {
+                auto ret_ = firstBlock->tags["returnValue"].toVariant();
+                returnResult = ret_;
+            }
         } else {
             qWarning() << "Отсутствует определение для пользовательского блока" << this->type;
         }
     }
+
+    return result;
+}
+
+ExecuteResult DynamicBlockReturn::exec(QVariant &returnResult)
+{
+    ExecuteResult result;
+
+    auto define_ = workFlow->getChainWithId(chainId());
+    auto &firstBlock = define_[0];
+
+    // Даем цепочке запомнить результат выполнения
+    firstBlock->tags["returnValue"] = args[0].value().toJsonValue();
+    result.exit = true;
 
     return result;
 }

@@ -26,7 +26,18 @@ ExecuteResult RunExecuter::run()
             qWarning() << "ErrorMsg:" << result.errorMessage;
             break;
         }
+
+        // Сигнал досрочного выхода из цепочки
+        if (result.exit) {
+            break;
+        }
+
         result = runContainer(result, i);
+
+        // Сигнал досрочного выхода из цепочки
+        if (result.exit) {
+            break;
+        }
 
         if (result.state == ExecuteResult::Error) {
             qWarning() << "ErrorMsg:" << result.errorMessage;

@@ -270,15 +270,11 @@ void DataContext::addStandartBlocks()
                     .text("Вывод в консоль ")
                     .slot("text"));
 
-    systemBlocksInfo.insert(startControlType + 5,
-                            BlockConstructor("Пользовательские блоки",
-                                             startControlType + 5,
-                                             true,
-                                             false,
-                                             "#bfcdd9",
-                                             "black")
-                                .text("Вернуть значение в определение ")
-                                .slot("any"));
+    systemBlocksInfo
+        .insert(500,
+                BlockConstructor("Пользовательские блоки", 500, true, false, "#bfcdd9", "black")
+                    .text("Вернуть значение в определение ")
+                    .slot("any"));
 
     // ==================== 1. ОБЫЧНЫЕ ПЕРЕМЕННЫЕ ====================
 
