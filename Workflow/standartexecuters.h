@@ -379,6 +379,45 @@ public:
     }
 };
 
+class ForEach : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    ForEach(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        RunExecuter *executer = new RunExecuter(chainId(), containers[0]);
+
+        auto count = var.count();
+
+        for (qint64 i = 0; i < count; i++) {
+            auto &value = args[1];
+
+            value = var[i];
+
+            // Выполнение тела цикла
+            result = executer->run(false);
+
+            if (result.state == ExecuteResult::Error || result.exit) {
+                break;
+            }
+        }
+
+        executer->deleteLater();
+
+        return result;
+    }
+};
+
 } // namespace Array
 
 namespace Map {
@@ -513,6 +552,50 @@ public:
         auto &var = context->variables[varName];
 
         var.removeKey(args[1].value().toString());
+
+        return result;
+    }
+};
+
+class ForEach : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    ForEach(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+public:
+    ExecuteResult exec(QVariant &returnResult) override
+    {
+        ExecuteResult result;
+
+        auto varName = args[0].value().toString();
+        auto &var = context->variables[varName];
+
+        RunExecuter *executer = new RunExecuter(chainId(), containers[0]);
+
+        auto keys = var.keys();
+
+        for (const auto &i : std::as_const(keys)) {
+            // Для того чтобы реплики внутри контейнера возвращали актуальные значения
+            // требуется заменять значения аргументов родителя, откуда были взяты эти реплики
+            // т. о. они подхватывают значения и возвращают находясь внутри
+            auto &key = args[1];
+            auto &value = args[2];
+
+            key = i;
+            value = var.value(i);
+
+            // Выполнение тела цикла
+            result = executer->run(false);
+
+            if (result.state == ExecuteResult::Error || result.exit) {
+                break;
+            }
+        }
+
+        executer->deleteLater();
 
         return result;
     }

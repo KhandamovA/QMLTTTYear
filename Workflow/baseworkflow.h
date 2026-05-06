@@ -33,7 +33,7 @@ public:
     QPointer<BlockExecuter> createExecuter(const QJsonObject &data);
 
     // Служебный метод для создания цепочек из массива Json
-    Chain createChain(const QJsonArray &chain, qint64 chainId);
+    Chain createChain(const QJsonArray &chain, qint64 chainId, BlockExecuter *parent);
 
     // Получение цепочек у которых начальный блок с указанными типами, origin = -1 -> вернет все цепочки
     QList<ChainId> getChainWithType(int origin = -1, int type = -1) const;

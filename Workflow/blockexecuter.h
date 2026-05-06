@@ -41,6 +41,11 @@ public:
         , m_value{value}
     {}
     operator QVariant() { return value(); }
+    QVariant &operator=(const QVariant &other)
+    {
+        m_value = other;
+        return m_value;
+    }
 
     QString name;
     QVariant value() const { return m_value; }
@@ -64,16 +69,16 @@ class BlockExecuter : public QObject
     friend class RunExecuter;
 
 public:
-    BlockExecuter(DataContext *context, BaseWorkFlow *workFlow)
-        : context{context}
-        , workFlow{workFlow}
-    {}
+    BlockExecuter(DataContext *context, BaseWorkFlow *workFlow);
     ~BlockExecuter();
 
     virtual ExecuteResult exec(QVariant &returnResult);
 
     BaseWorkFlow *workFlow;
     DataContext *context;
+
+    //Блок в котором он лежит
+    BlockExecuter *parent = nullptr;
 
     // Является ли блок возвращающим значение
     bool isReporter = false;

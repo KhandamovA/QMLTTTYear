@@ -57,6 +57,13 @@ BlockConstructor &BlockConstructor::button(
     return (*this);
 }
 
+BlockConstructor &BlockConstructor::replica(const QString &name)
+{
+    data.viewTexts[currentRow] += " ~~ ";
+    data.slotsInfo.append(slotInfo{.type = slotInfo::Replica, .name = name});
+    return (*this);
+}
+
 ReporterConstructor::ReporterConstructor(QString group,
                                          int type,
                                          QString bodyColor,
@@ -405,6 +412,24 @@ void DataContext::addStandartBlocks()
                     .comboBox(comboBoxListVariablesNames, "c1")
                     .text(" ключ ")
                     .slot("key"));
+
+    //
+    systemBlocksInfo
+        .insert(startControlType + 15,
+                BlockConstructor("Словари", startControlType + 15, true, true, "#bfcdd9", "black")
+                    .text("ForEach словаря ")
+                    .comboBox(comboBoxListVariablesNames, "c1")
+                    .replica("key")
+                    .replica("value")
+                    .addContainer());
+
+    systemBlocksInfo
+        .insert(startControlType + 16,
+                BlockConstructor("Массивы", startControlType + 16, true, true, "#bfcdd9", "black")
+                    .text("ForEach массива ")
+                    .comboBox(comboBoxListVariablesNames, "c1")
+                    .replica("value")
+                    .addContainer());
 
     // ==================== 0. ОПЕРАТОРЫ ====================
 

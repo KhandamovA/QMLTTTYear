@@ -69,7 +69,7 @@ private:
 
 struct slotInfo
 {
-    enum SlotType { Plain = 0, ComboBox = 1, Button = 2 };
+    enum SlotType { Plain = 0, ComboBox = 1, Button = 2, Replica = 3 };
 
     SlotType type = Plain;
     QString name;
@@ -126,6 +126,7 @@ struct BlockConstructor
         std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
             callSetterNewValue,
         const QString &name);
+    BlockConstructor &replica(const QString &name);
 
     operator BlockData() { return data; }
 

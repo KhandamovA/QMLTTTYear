@@ -7,7 +7,7 @@ QtObject {
     function titleToJson(owner, title) {
         let ret = []
 
-        let childs = Utils._findChildWithProps(title, ["isSlot", "isComboBoxSlot", "isButtonSlot"], 4)
+        let childs = Utils._findChildWithProps(title, ["isSlot", "isComboBoxSlot", "isButtonSlot", "isReplicaSlot"], 4)
         for (let i of childs) {
             if (i.ownerBlock !== owner)
                 continue
@@ -32,6 +32,11 @@ QtObject {
                 ret.push({
                     "type": 2,
                     "data": i.currentValue
+                })
+            } else if ("isReplicaSlot" in i) {
+                ret.push({
+                    "type": 3,
+                    "data": ""
                 })
             }
         }
@@ -234,7 +239,7 @@ QtObject {
 
         let counter = 0
         for (let i of titles) {
-            let tchilds = Utils._findChildWithProps(i, ["isSlot", "isComboBoxSlot", "isButtonSlot"], 4)
+            let tchilds = Utils._findChildWithProps(i, ["isSlot", "isComboBoxSlot", "isButtonSlot", "isReplicaSlot"], 4)
             for (let j of tchilds) {
                 if (j.ownerBlock !== target)
                     continue
@@ -255,6 +260,8 @@ QtObject {
                 } else if ("isButtonSlot" in j) {
                     let data = slots[counter].data
                     j.currentValue = data
+                    counter++
+                } else if ("isReplicaSlot" in j) {
                     counter++
                 }
             }

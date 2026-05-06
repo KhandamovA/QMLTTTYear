@@ -59,7 +59,7 @@ bool BaseWorkFlow::loadScript(const QJsonObject &script)
     if (script.contains("chains")) {
         qint64 ids = 0;
         for (const auto &i : script["chains"].toArray()) {
-            Chain ch = createChain(i.toArray(), ids);
+            Chain ch = createChain(i.toArray(), ids, nullptr);
             chains[ids] = ch;
             ids++;
         }
@@ -76,9 +76,10 @@ QPointer<BlockExecuter> BaseWorkFlow::createExecuter(const QJsonObject &data)
 {
     auto origin = data["origin"].toInteger();
     auto type = data["type"].toInteger();
+    auto tagsKeys = data["tags"].toObject().keys();
 
-    // Обработка динамических блоков
-    if (origin == BlockData::Dynamic) {
+    // Обработка динамических блоков и реплик
+    if (origin == BlockData::Dynamic || tagsKeys.contains("replica")) {
         auto block = createDymanicExecuter();
         block.get()->fromJson(data);
         return block;
@@ -90,6 +91,7 @@ QPointer<BlockExecuter> BaseWorkFlow::createExecuter(const QJsonObject &data)
             auto block = fac.value()();
             // Подгрузка данных
             block.get()->fromJson(data);
+
             return block;
         } else {
             qWarning() << "Executer с происхождением" << origin << "и типом" << type
@@ -99,12 +101,13 @@ QPointer<BlockExecuter> BaseWorkFlow::createExecuter(const QJsonObject &data)
     return nullptr;
 }
 
-Chain BaseWorkFlow::createChain(const QJsonArray &chain, qint64 chainId)
+Chain BaseWorkFlow::createChain(const QJsonArray &chain, qint64 chainId, BlockExecuter *parent)
 {
     Chain ret;
 
     for (const auto &i : chain) {
         auto ctx = createExecuter(i.toObject());
+        ctx->parent = parent;
         ctx->setChainId(chainId);
         ret.append(ctx);
     }
@@ -118,7 +121,7 @@ QList<ChainId> BaseWorkFlow::getChainWithType(int origin, int type) const
     auto keys = chains.keys();
     for (auto &i : keys) {
         auto ch = chains[i];
-        auto first = chains[i][0];
+        auto first = ch[0];
         if (origin == -1 || (first.get()->origin == origin && first.get()->type == type)) {
             ret.append(i);
         }
@@ -181,6 +184,7 @@ void BaseWorkFlow::registerStdExecuters()
     registerBlock<StdExcts::Array::IndexOf>(BlockData::System, 106);
     registerBlock<StdExcts::Array::Count>(BlockData::System, 107);
     registerBlock<StdExcts::Array::Replace>(BlockData::System, 108);
+    registerBlock<StdExcts::Array::ForEach>(BlockData::System, 116);
 
     // Словари
     registerBlock<StdExcts::Map::Set>(BlockData::System, 109);
@@ -189,6 +193,7 @@ void BaseWorkFlow::registerStdExecuters()
     registerBlock<StdExcts::Map::KeyAt>(BlockData::System, 112);
     registerBlock<StdExcts::Map::Get>(BlockData::System, 113);
     registerBlock<StdExcts::Map::RemoveKey>(BlockData::System, 114);
+    registerBlock<StdExcts::Map::ForEach>(BlockData::System, 115);
 
     // Операторы
     registerBlock<StdExcts::operators::Plus>(BlockData::System, 200);

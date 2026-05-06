@@ -79,6 +79,7 @@ ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
                     // Если в слоте есть репортер
                     QVariant returnResult;
                     auto reporter = workFlow->createExecuter(data.toObject());
+                    reporter->parent = executer;
                     result = prepareArgs(reporter);
 
                     if (result.state == ExecuteResult::Error) {
@@ -108,6 +109,10 @@ ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
                 auto data_ = data.toObject();
                 auto value = data_["value"];
                 Argument arg(context, workFlow, value.toVariant());
+                arg.name = executer->argsNames[args.count()];
+                args.append(arg);
+            } else if (type == slotInfo::Replica) {
+                Argument arg(context, workFlow, "");
                 arg.name = executer->argsNames[args.count()];
                 args.append(arg);
             } else {

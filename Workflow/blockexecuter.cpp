@@ -4,6 +4,11 @@
 #include "datacontext.h"
 #include "runexecuter.h"
 
+BlockExecuter::BlockExecuter(DataContext *context, BaseWorkFlow *workFlow)
+    : context{context}
+    , workFlow{workFlow}
+{}
+
 BlockExecuter::~BlockExecuter()
 {
     for (auto &i : containers) {
@@ -39,7 +44,7 @@ void BlockExecuter::fromJson(const QJsonObject &data)
     // Заполняем контейнеры
     auto containers = data["containers"].toArray();
     for (const auto &i : std::as_const(containers)) {
-        this->containers.append(workFlow->createChain(i.toArray(), chainId()));
+        this->containers.append(workFlow->createChain(i.toArray(), chainId(), this));
     }
 
     auto s = data["slots"].toArray();
@@ -77,29 +82,56 @@ ExecuteResult DynamicBlock::exec(QVariant &returnResult)
     if (tagsKeys.contains("define")) {
         return result;
     } else if (tagsKeys.contains("replica")) {
-        auto define_ = workFlow->getChainWithType(BlockData::Dynamic, this->type);
-        if (define_.count() > 0) {
-            auto chainId = define_.first();
-            auto chain = workFlow->getChainWithId(chainId);
-            auto &firstBlock = chain[0];
+        if (origin == BlockData::Dynamic) {
+            auto define_ = workFlow->getChainWithType(BlockData::Dynamic, this->type);
+            if (define_.count() > 0) {
+                auto chainId = define_.first();
+                auto chain = workFlow->getChainWithId(chainId);
+                auto &firstBlock = chain[0];
+                auto slotName = tags["slotName"].toString();
+
+                bool success = false;
+                // Заполняем выходное значение
+                for (const auto &i : firstBlock->args) {
+                    if (i.name == slotName) {
+                        success = true;
+                        returnResult = i.value();
+                        break;
+                    }
+                }
+
+                if (!success) {
+                    qWarning()
+                        << "Не удалось получить значение из определителя пользовательского блока";
+                }
+            } else {
+                qWarning() << "Отсутствует определение для пользовательского блока" << this->type;
+            }
+        } else {
+            // Если это реплика не из пользовательских блоков
+            auto current = parent;
             auto slotName = tags["slotName"].toString();
+            while (current) {
+                if (current->origin == this->origin && current->type == this->type) {
+                    break;
+                }
+                current = current->parent;
+            }
 
             bool success = false;
-            // Заполняем выходное значение
-            for (const auto &i : firstBlock->args) {
-                if (i.name == slotName) {
-                    success = true;
-                    returnResult = i.value();
-                    break;
+            if (current) {
+                for (auto &i : current->args) {
+                    if (i.name == slotName) {
+                        returnResult = i.value();
+                        success = true;
+                        break;
+                    }
                 }
             }
 
             if (!success) {
-                qWarning()
-                    << "Не удалось получить значение из определителя пользовательского блока";
+                qWarning() << "Не удалось получить значение из блока-родителя реплик";
             }
-        } else {
-            qWarning() << "Отсутствует определение для пользовательского блока" << this->type;
         }
     } else {
         // Основная логика
