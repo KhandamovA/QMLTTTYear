@@ -10,6 +10,7 @@ class RunExecuter : public QObject
     Q_OBJECT
 public:
     RunExecuter(ChainId id, Chain chain);
+    ~RunExecuter();
     ExecuteResult run(bool withDelete = true);
 
     ExecuteResult prepareArgs(BlockExecuter *executer);

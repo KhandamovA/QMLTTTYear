@@ -56,6 +56,7 @@ public:
             }
         }
 
+        executer->deleteLater();
         return result;
     }
 };
@@ -87,6 +88,7 @@ public:
             }
         }
 
+        executer->deleteLater();
         return result;
     }
 };
@@ -298,10 +300,10 @@ public:
     {
         ExecuteResult result;
 
-        auto varName = args[0].value().toString();
+        auto varName = args[1].value().toString();
         auto &var = context->variables[varName];
 
-        returnResult = var[args[1].value().toDouble()];
+        returnResult = var[args[0].value().toDouble()];
 
         return result;
     }
@@ -320,10 +322,10 @@ public:
     {
         ExecuteResult result;
 
-        auto varName = args[0].value().toString();
+        auto varName = args[1].value().toString();
         auto &var = context->variables[varName];
 
-        returnResult = var.indexOf(args[1]);
+        returnResult = var.indexOf(args[0]);
 
         return result;
     }

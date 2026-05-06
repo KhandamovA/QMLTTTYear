@@ -146,9 +146,9 @@ QtObject {
         sceneItems[uid] = target
 
         let scene = sceneContainer.rootParent
-        scene.addItem(target)
+        scene.addItem(target);
 
-        console.log("new item uid:", uid, target)
+        // console.log("new item uid:", uid, target)
         changeGridPos(target);
 
         // Обновляем положения коннекторов после попадания на сцену, чтобы значения были корректными

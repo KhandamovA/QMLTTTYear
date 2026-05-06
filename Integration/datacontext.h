@@ -81,7 +81,11 @@ struct slotInfo
 struct BlockData
 {
     enum Shape { Block = 0, Reporter = 1 };
-    enum Origin { Custom = 0, Dynamic = 1, System = 2 };
+    enum Origin {
+        Custom = 0,  ///< Блоки добавленные и зарегистрированные пользователем
+        Dynamic = 1, ///< Динамические пользовательские блоки
+        System = 2   ///< Стандартные блоки
+    };
 
     int type = -1;
     int origin = 0;

@@ -4,7 +4,14 @@
 RunExecuter::RunExecuter(ChainId id, Chain chain)
     : m_id{id}
     , m_chain{chain}
-{}
+{
+    // qDebug() << Q_FUNC_INFO << "id:" << this->m_id;
+}
+
+RunExecuter::~RunExecuter()
+{
+    // qDebug() << Q_FUNC_INFO << "id:" << this->m_id;
+}
 
 ExecuteResult RunExecuter::run(bool withDelete)
 {
