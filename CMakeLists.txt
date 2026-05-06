@@ -29,7 +29,7 @@ qt_add_qml_module(apptttYear
     RESOURCE_PREFIX /qt/qml
 
     QML_FILES
-    Main.qml
+
     Blocks/Scene.qml
     Blocks/Block.qml
     Blocks/Container.qml
@@ -61,6 +61,7 @@ qt_add_qml_module(apptttYear
     SOURCES Workflow/blockexecuter.h Workflow/blockexecuter.cpp
     SOURCES Workflow/standartexecuters.h
     SOURCES Workflow/runexecuter.h Workflow/runexecuter.cpp
+    QML_FILES Blocks/Main.qml
 
 
 
