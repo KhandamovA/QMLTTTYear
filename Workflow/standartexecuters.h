@@ -13,7 +13,7 @@ public:
 
     // BlockExecuter interface
 public:
-    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    ExecuteResult exec(QVariant &returnResult) override
     {
         ExecuteResult result;
         return result;
@@ -30,7 +30,7 @@ public:
 
     // BlockExecuter interface
 public:
-    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    ExecuteResult exec(QVariant &returnResult) override
     {
         ExecuteResult result;
 
@@ -58,7 +58,7 @@ public:
 
     // BlockExecuter interface
 public:
-    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    ExecuteResult exec(QVariant &returnResult) override
     {
         ExecuteResult result;
 
@@ -80,7 +80,7 @@ public:
 
     // BlockExecuter interface
 public:
-    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    ExecuteResult exec(QVariant &returnResult) override
     {
         ExecuteResult result;
 
@@ -102,7 +102,7 @@ public:
 
     // BlockExecuter interface
 public:
-    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    ExecuteResult exec(QVariant &returnResult) override
     {
         ExecuteResult result;
 
@@ -126,7 +126,7 @@ public:
     {}
 
 public:
-    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    ExecuteResult exec(QVariant &returnResult) override
     {
         ExecuteResult result;
         auto first = args[0].value().toDouble();
@@ -145,7 +145,7 @@ public:
     {}
 
 public:
-    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    ExecuteResult exec(QVariant &returnResult) override
     {
         ExecuteResult result;
         auto first = args[0].value().toDouble();
@@ -165,7 +165,7 @@ public:
     {}
 
 public:
-    ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult) override
+    ExecuteResult exec(QVariant &returnResult) override
     {
         ExecuteResult result;
         auto first = args[0].value().toString();

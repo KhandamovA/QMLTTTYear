@@ -12,12 +12,13 @@ public:
     RunExecuter(ChainId id, Chain chain);
     ExecuteResult run();
 
+    ExecuteResult prepareArgs(BlockExecuter *executer);
+    ExecuteResult runContainer(const ExecuteResult &result, BlockExecuter *executer);
+
 private:
     ChainId m_id;
     Chain m_chain;
 
-    ExecuteResult prepareArgs(BlockExecuter *executer);
-    ExecuteResult runContainer(const ExecuteResult &result, BlockExecuter *executer);
 signals:
 
 private slots:

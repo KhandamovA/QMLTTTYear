@@ -256,6 +256,36 @@ void BlockEditor::loadPiecesFromBlockData(const BlockData &blockData)
     }
 }
 
+QString BlockEditor::getUniqName(QString oldName, int myIndex)
+{
+    QString baseName = oldName.trimmed();
+    if (baseName.isEmpty()) {
+        oldName = "slot";
+        baseName = "slot";
+    }
+    QStringList names;
+    int counter = 0;
+    for (auto &i : pieces) {
+        if (myIndex > -1) {
+            if (myIndex == counter) {
+                counter++;
+                continue;
+            }
+        }
+        if (i.type == Piece::Slot) {
+            names.append(i.placeholder);
+        }
+        counter++;
+    }
+
+    counter = 0;
+    while (names.contains(oldName)) {
+        oldName = baseName + "_" + QString::number(counter);
+        counter++;
+    }
+    return oldName;
+}
+
 void BlockEditor::onTableCellChanged(int row, int column)
 {
     if (column == 1 && row < pieces.size()) {
@@ -265,7 +295,11 @@ void BlockEditor::onTableCellChanged(int row, int column)
         if (p.type == Piece::Text) {
             p.text = newValue;
         } else if (p.type == Piece::Slot) {
-            p.placeholder = newValue;
+            p.placeholder = getUniqName(newValue, row);
+            if (p.placeholder != newValue) {
+                QSignalBlocker blocker(pieceTable);
+                pieceTable->item(row, 1)->setText(p.placeholder);
+            }
         }
         rebuildPreview();
     }
@@ -285,7 +319,7 @@ void BlockEditor::onAddSlot()
 {
     Piece p;
     p.type = Piece::Slot;
-    p.placeholder = "slot";
+    p.placeholder = getUniqName("slot", -1);
     pieces.append(p);
     updatePieceTable();
     rebuildPreview();

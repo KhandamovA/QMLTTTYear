@@ -264,6 +264,7 @@ void EditorWatcher::createNewBlock()
     if (editor.isAccepted()) {
         auto data = editor.save();
         auto viewText = data.viewTexts[0].trimmed();
+        data.type = m_dataContext.dynamicsBlocksInfo.count();
         if (!viewText.isEmpty()) {
             data.origin = 1;
             data.group = "Пользовательские блоки";

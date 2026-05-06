@@ -46,6 +46,7 @@ private:
     void updatePieceTable();
     void updateBlockDataFromUI();
     void loadPiecesFromBlockData(const BlockData &blockData);
+    QString getUniqName(QString oldName, int myIndex = -1);
 
     EditorWatcher *watcher;
     EditorScene *scene;

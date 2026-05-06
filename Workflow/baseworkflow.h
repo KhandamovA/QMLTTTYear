@@ -30,25 +30,7 @@ public:
     }
 
     // Создание задачи из пула зарегистрированных
-    QPointer<BlockExecuter> createExecuter(const QJsonObject &data)
-    {
-        auto origin = data["origin"].toInteger();
-        auto type = data["type"].toInteger();
-
-        TypeId typeId = QString::number(origin) + "_" + QString::number(type);
-        // qDebug() << factory.keys();
-        auto fac = factory.find(typeId);
-        if (fac != factory.end()) {
-            auto block = fac.value()();
-            // Подгрузка данных
-            block.get()->fromJson(data);
-            return block;
-        } else {
-            qWarning() << "Executer с происхождением" << origin << "и типом" << type
-                       << "не зарегистрирован и не может быть создан";
-        }
-        return nullptr;
-    }
+    QPointer<BlockExecuter> createExecuter(const QJsonObject &data);
 
     // Служебный метод для создания цепочек из массива Json
     Chain createChain(const QJsonArray &chain);
@@ -68,6 +50,7 @@ private:
 
     QMap<TypeId, Creator> factory;
 
+    QPointer<BlockExecuter> createDymanicExecuter();
     void registerStdExecuters();
 };
 

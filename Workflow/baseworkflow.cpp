@@ -27,20 +27,6 @@ bool BaseWorkFlow::loadScript(const QJsonObject &script)
     variables->clear();
     context->dynamicsBlocksInfo.clear();
 
-    // Загрузка цепочек скриптов
-    if (script.contains("chains")) {
-        qint64 ids = 0;
-        for (const auto &i : script["chains"].toArray()) {
-            Chain ch = createChain(i.toArray());
-            chains[ids] = ch;
-            ids++;
-        }
-    } else {
-        qWarning() << "Скрипт который вы пытаетесь загрузить не содержит поля chains (цепочки "
-                      "последовательностей)";
-        return false;
-    }
-
     // Загрузка переменных
     if (script.contains("variables")) {
         auto variables_ = script["variables"].toArray();
@@ -69,7 +55,48 @@ bool BaseWorkFlow::loadScript(const QJsonObject &script)
         return false;
     }
 
+    // Загрузка цепочек скриптов
+    if (script.contains("chains")) {
+        qint64 ids = 0;
+        for (const auto &i : script["chains"].toArray()) {
+            Chain ch = createChain(i.toArray());
+            chains[ids] = ch;
+            ids++;
+        }
+    } else {
+        qWarning() << "Скрипт который вы пытаетесь загрузить не содержит поля chains (цепочки "
+                      "последовательностей)";
+        return false;
+    }
+
     return true;
+}
+
+QPointer<BlockExecuter> BaseWorkFlow::createExecuter(const QJsonObject &data)
+{
+    auto origin = data["origin"].toInteger();
+    auto type = data["type"].toInteger();
+
+    // Обработка динамических блоков
+    if (origin == BlockData::Dynamic) {
+        auto block = createDymanicExecuter();
+        block.get()->fromJson(data);
+        return block;
+    } else {
+        TypeId typeId = QString::number(origin) + "_" + QString::number(type);
+        // qDebug() << factory.keys();
+        auto fac = factory.find(typeId);
+        if (fac != factory.end()) {
+            auto block = fac.value()();
+            // Подгрузка данных
+            block.get()->fromJson(data);
+            return block;
+        } else {
+            qWarning() << "Executer с происхождением" << origin << "и типом" << type
+                       << "не зарегистрирован и не может быть создан";
+        }
+    }
+    return nullptr;
 }
 
 Chain BaseWorkFlow::createChain(const QJsonArray &chain)
@@ -120,6 +147,12 @@ void BaseWorkFlow::runChain(ChainId id)
 
     auto executer = new RunExecuter(id, chain);
     executer->run();
+}
+
+QPointer<BlockExecuter> BaseWorkFlow::createDymanicExecuter()
+{
+    auto block = QPointer<BlockExecuter>(new DymanicBlock(context, this));
+    return block;
 }
 
 void BaseWorkFlow::registerStdExecuters()

@@ -20,6 +20,7 @@ struct ExecuteResult
     QString errorMessage;
 
     QList<int> executableContainers;
+    QList<int> executableChains;
 };
 
 struct ExecuteQuery
@@ -68,7 +69,7 @@ public:
     {}
     ~BlockExecuter();
 
-    virtual ExecuteResult exec(const ExecuteQuery &query, QVariant &returnResult);
+    virtual ExecuteResult exec(QVariant &returnResult);
 
     BaseWorkFlow *workFlow;
     DataContext *context;
@@ -95,6 +96,21 @@ public:
 private:
     /// Это не нужно использовать, это для обработки слотов, используйте args для получения входных значений
     SlotsData slotsData;
+
+    QList<QString> argsNames;
+};
+
+class DymanicBlock : public BlockExecuter
+{
+    Q_OBJECT
+public:
+    DymanicBlock(DataContext *context, BaseWorkFlow *workFlow)
+        : BlockExecuter{context, workFlow}
+    {}
+
+    // BlockExecuter interface
+public:
+    ExecuteResult exec(QVariant &returnResult) override;
 };
 
 #endif // BLOCKEXECUTER_H
