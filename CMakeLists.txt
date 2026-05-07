@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(tttYear VERSION 0.1 LANGUAGES CXX)
+set(ThisProjectName LogicFactory)
+set(ThisLibName ${ThisProjectName}_lib)
+set(ThisExampleName ${ThisProjectName}_example)
+
+project(${ThisProjectName} VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -9,9 +13,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
-qt_add_executable(apptttYear
-    main.cpp
-)
+
 
 set_source_files_properties(Blocks/Utils.qml PROPERTIES
     QT_QML_SINGLETON_TYPE TRUE
@@ -21,9 +23,8 @@ set_source_files_properties(Blocks/Resources.qml PROPERTIES
     QT_QML_SINGLETON_TYPE TRUE
 )
 
-target_include_directories(apptttYear PRIVATE Integration)
 
-qt_add_qml_module(apptttYear
+qt_add_qml_module(${ThisLibName}
     URI tttYear
     VERSION 1.0
     RESOURCE_PREFIX /qt/qml
@@ -38,35 +39,32 @@ qt_add_qml_module(apptttYear
     Blocks/Reporter.qml
     Blocks/Utils.qml
     Blocks/BlockConnector.qml
+    Blocks/ButtonSlot.qml
+    Blocks/ReplicaSlot.qml
 
     UIElements/BlocksShop.qml
     UIElements/BlockPreview.qml
     UIElements/BlocksGroup.qml
+    UIElements/ConstructorScene.qml
+    UIElements/ShopButton.qml
     Blocks/ComboBoxSlot.qml
     Blocks/Resources.qml
+    Blocks/Main.qml
 
     SOURCES
     Integration/editorwatcher.h Integration/editorwatcher.cpp
     Integration/editorscene.h Integration/editorscene.cpp
-    QML_FILES
-    QML_FILES Blocks/ButtonSlot.qml
-    QML_FILES
-    QML_FILES UIElements/ConstructorScene.qml
-    SOURCES Integration/blockeditor.h Integration/blockeditor.cpp
-    QML_FILES UIElements/ShopButton.qml
-    QML_FILES Blocks/ReplicaSlot.qml
-    SOURCES Integration/datacontext.h Integration/datacontext.cpp
-    SOURCES Integration/dialogwithlist.h Integration/dialogwithlist.cpp
-    SOURCES Workflow/baseworkflow.h Workflow/baseworkflow.cpp
-    SOURCES Workflow/blockexecuter.h Workflow/blockexecuter.cpp
-    SOURCES Workflow/standartexecuters.h
-    SOURCES Workflow/runexecuter.h Workflow/runexecuter.cpp
-    QML_FILES Blocks/Main.qml
-
-
-
-
+    Integration/blockeditor.h Integration/blockeditor.cpp
+    Integration/datacontext.h Integration/datacontext.cpp
+    Integration/dialogwithlist.h Integration/dialogwithlist.cpp
+    Workflow/baseworkflow.h Workflow/baseworkflow.cpp
+    Workflow/blockexecuter.h Workflow/blockexecuter.cpp
+    Workflow/standartexecuters.h
+    Workflow/runexecuter.h Workflow/runexecuter.cpp
+    SOURCES Workflow/standartexecuters.cpp
 )
+
+target_include_directories(${ThisLibName} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Integration")
 
 set_source_files_properties(
     Blocks/Scene.qml
@@ -93,28 +91,18 @@ set_source_files_properties(
     PROPERTIES QT_RESOURCE_ALIAS "${CMAKE_CURRENT_SOURCE_DIR}/Integration/"
 )
 
-
-
-
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-set_target_properties(apptttYear PROPERTIES
-    #    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.apptttYear
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
-
-target_link_libraries(apptttYear
+target_link_libraries(${ThisLibName}
     PRIVATE Qt6::Quick
+    PRIVATE Qt6::Widgets
 )
-target_link_libraries(apptttYear PRIVATE Qt6::Widgets)
 
-include(GNUInstallDirs)
-install(TARGETS apptttYear
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+qt_add_executable(${ThisExampleName}
+    main.cpp
 )
+
+target_link_libraries(${ThisExampleName}
+    PRIVATE Qt6::Quick
+    PRIVATE Qt6::Widgets
+    PRIVATE ${ThisLibName}
+)
+

@@ -17,25 +17,25 @@ int main(int argc, char *argv[])
 
     EditorScene scene;
     scene.addImportPath("qrc:/qt/qml");
-    scene.setSource("qrc:/qt/qml/tttYear/Main.qml");
+    scene.setSource("qrc:/qt/qml/tttYear/Blocks/Main.qml");
     scene.show();
     auto watcher = scene.watcher();
     // return app.exec();
 
-    // DataContext context;
-    // MyWorkFlow flow(&context);
+    DataContext context;
+    MyWorkFlow flow(&context);
 
-    // QFile f("temp.json");
+    QFile f("temp.json");
 
-    // if (f.open(QIODevice::ReadOnly)) {
-    //     flow.loadScript(QJsonDocument::fromJson(f.readAll()).object());
-    // }
-    // f.close();
+    if (f.open(QIODevice::ReadOnly)) {
+        flow.loadScript(QJsonDocument::fromJson(f.readAll()).object());
+    }
+    f.close();
 
-    // auto chains = flow.getChainWithType(BlockData::System, 6);
-    // for (auto &i : chains) {
-    //     flow.runChain(i);
-    // }
+    auto chains = flow.getChainWithType(BlockData::System, 0);
+    for (auto &i : chains) {
+        flow.runChain(i);
+    }
 
     return app.exec();
 }

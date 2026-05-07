@@ -123,22 +123,22 @@ Item {
                 }
             }
 
-            ShopButton {
-                text: "Save"
-                onClicked: function () {
-                    let data = Utils.watcher.saveScript()
-                    Utils.saveToFile("temp.json", data)
-                }
-            }
+            // ShopButton {
+            //     text: "Save"
+            //     onClicked: function () {
+            //         let data = Utils.watcher.saveScript()
+            //         Utils.saveToFile("temp.json", data)
+            //     }
+            // }
 
-            ShopButton {
-                text: "Load"
-                onClicked: function () {
-                    let data = Utils.loadFromFile("temp.json")
+            // ShopButton {
+            //     text: "Load"
+            //     onClicked: function () {
+            //         let data = Utils.loadFromFile("temp.json")
 
-                    Utils.watcher.loadScript(data)
-                }
-            }
+            //         Utils.watcher.loadScript(data)
+            //     }
+            // }
         }
 
         ScrollView {
