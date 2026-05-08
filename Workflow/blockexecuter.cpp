@@ -110,12 +110,19 @@ ExecuteResult DynamicBlock::exec(QVariant &returnResult)
         } else {
             // Если это реплика не из пользовательских блоков
             auto current = parent;
+            if (!current) {
+                current = prevBlock;
+            }
             auto slotName = tags["slotName"].toString();
             while (current) {
                 if (current->origin == this->origin && current->type == this->type) {
                     break;
                 }
+                auto buffer = current;
                 current = current->parent;
+                if (!current) {
+                    current = buffer->prevBlock;
+                }
             }
 
             bool success = false;

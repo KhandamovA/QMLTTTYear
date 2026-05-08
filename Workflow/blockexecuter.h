@@ -80,6 +80,8 @@ public:
     //Блок в котором он лежит
     BlockExecuter *parent = nullptr;
 
+    BlockExecuter *prevBlock = nullptr;
+
     // Является ли блок возвращающим значение
     bool isReporter = false;
     // Определение пользовательского блока

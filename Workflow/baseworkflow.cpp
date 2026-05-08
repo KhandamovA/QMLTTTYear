@@ -112,11 +112,20 @@ Chain BaseWorkFlow::createChain(const QJsonArray &chain, qint64 chainId, BlockEx
 {
     Chain ret;
 
+    QPointer<BlockExecuter> first = nullptr;
+    QPointer<BlockExecuter> prev = nullptr;
+
     for (const auto &i : chain) {
         auto ctx = createExecuter(i.toObject());
         ctx->parent = parent;
+
+        if (prev) {
+            ctx->prevBlock = prev;
+        }
+
         ctx->setChainId(chainId);
         ret.append(ctx);
+        prev = ctx;
     }
 
     return ret;

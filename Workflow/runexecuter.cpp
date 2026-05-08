@@ -68,6 +68,7 @@ ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
     auto workFlow = executer->workFlow;
     auto context = executer->context;
 
+    QList<Argument> argsCopy = executer->args;
     //У определения аргументы трогать нельзя
     if (!tagsKeys.contains("define")) {
         args.clear();
@@ -114,6 +115,10 @@ ExecuteResult RunExecuter::prepareArgs(BlockExecuter *executer)
             } else if (type == slotInfo::Replica) {
                 Argument arg(context, workFlow, "");
                 arg.name = executer->argsNames[args.count()];
+                // Восстанавливаем если тут было значение
+                if (argsCopy.count() > args.count()) {
+                    arg = argsCopy[args.count()];
+                }
                 args.append(arg);
             } else {
                 qWarning() << type << "Обработчика данного вида слота не существует";
