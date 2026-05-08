@@ -25,7 +25,7 @@ set_source_files_properties(Blocks/Resources.qml PROPERTIES
 
 
 qt_add_qml_module(${ThisLibName}
-    URI tttYear
+    URI ${ThisProjectName}
     VERSION 1.0
     RESOURCE_PREFIX /qt/qml
 
@@ -60,8 +60,9 @@ qt_add_qml_module(${ThisLibName}
     Workflow/baseworkflow.h Workflow/baseworkflow.cpp
     Workflow/blockexecuter.h Workflow/blockexecuter.cpp
     Workflow/standartexecuters.h
+    Workflow/standartexecuters.cpp
     Workflow/runexecuter.h Workflow/runexecuter.cpp
-    SOURCES Workflow/standartexecuters.cpp
+
 )
 
 target_include_directories(${ThisLibName} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Integration")
@@ -98,6 +99,7 @@ target_link_libraries(${ThisLibName}
 
 qt_add_executable(${ThisExampleName}
     main.cpp
+
 )
 
 target_link_libraries(${ThisExampleName}

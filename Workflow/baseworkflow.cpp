@@ -16,6 +16,9 @@ BaseWorkFlow::~BaseWorkFlow()
     for (auto &i : chains) {
         qDeleteAll(i);
     }
+    if (context) {
+        delete context;
+    }
 }
 
 bool BaseWorkFlow::loadScript(const QJsonObject &script)

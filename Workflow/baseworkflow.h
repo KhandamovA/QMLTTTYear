@@ -42,6 +42,8 @@ public:
 
     void runChain(ChainId id);
 
+    DataContext *getContext() const { return context; }
+
 private:
     DataContext *context = nullptr;
 

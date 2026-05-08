@@ -160,6 +160,13 @@ Rectangle {
                 // Удаление всех динамических блоков
                 Utils.blocksShop.deleteDynamicBlocks()
                 // console.log("deleteDynamicBlocks")
+            } else if (method == "getSceneBlockData") {
+                let ret = ({})
+                if (data in Utils.sceneItems) {
+                    ret = Resources.sceneItemToJson(Utils.sceneItems[data])
+                }
+                win.watcher.handleResponse(ret, signalId)
+                return
             }
 
             // Обязательный вызов, перед выходом из функции иначе зависнет

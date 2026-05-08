@@ -38,7 +38,7 @@ BlockConstructor &BlockConstructor::addContainer()
 }
 
 BlockConstructor &BlockConstructor::comboBox(
-    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> callCurrentList,
+    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>, qint64)> callCurrentList,
     const QString &name)
 {
     data.viewTexts[currentRow] += " ?? ";
@@ -48,7 +48,7 @@ BlockConstructor &BlockConstructor::comboBox(
 }
 
 BlockConstructor &BlockConstructor::button(
-    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue,
+    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>, qint64)> callSetterNewValue,
     const QString &name)
 {
     data.viewTexts[currentRow] += " ** ";
@@ -92,7 +92,7 @@ ReporterConstructor &ReporterConstructor::slot(const QString &name)
 }
 
 ReporterConstructor &ReporterConstructor::comboBox(
-    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> callCurrentList,
+    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>, qint64)> callCurrentList,
     const QString &name)
 {
     data.viewTexts[currentRow] += " ?? ";
@@ -102,7 +102,7 @@ ReporterConstructor &ReporterConstructor::comboBox(
 }
 
 ReporterConstructor &ReporterConstructor::button(
-    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>)> callSetterNewValue,
+    std::function<QPair<QString, QVariant>(QPair<QString, QVariant>, qint64)> callSetterNewValue,
     const QString &name)
 {
     data.viewTexts[currentRow] += " ** ";
@@ -214,8 +214,9 @@ QList<BlockData> DataContext::allBlocks() const
 
 void DataContext::addStandartBlocks()
 {
-    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
-        comboBoxListVariablesNames = [this](QPair<QString, QVariant> lastValue) {
+    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue,
+                                                  qint64 blockUid)>
+        comboBoxListVariablesNames = [this](QPair<QString, QVariant> lastValue, qint64 blockUid) {
             QList<QPair<QString, QVariant>> ret;
             for (auto &i : variables.keys()) {
                 QPair<QString, QVariant> v;

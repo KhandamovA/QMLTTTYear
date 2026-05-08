@@ -29,6 +29,11 @@ Item {
         delete renderData["blockShape"]
         delete renderData["group"]
         delete renderData["slotsInfo"]
+        delete renderData["blockUid"]
+
+        if ("blockUid" in renderData) {
+            console.log("")
+        }
 
         let componentPath = ""
         if (shape === 1) {
@@ -159,6 +164,7 @@ Item {
         delete copyData["blockShape"]
         delete copyData["group"]
         delete copyData["slotsInfo"]
+        delete copyData["blockUid"]
 
         let componentPath = shape === 1 ? "../Blocks/Reporter.qml" : "../Blocks/Block.qml"
 

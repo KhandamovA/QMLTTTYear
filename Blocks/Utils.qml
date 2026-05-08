@@ -40,6 +40,7 @@ QtObject {
         delete renderData["blockShape"]
         delete renderData["group"]
         delete renderData["slotsInfo"]
+        delete renderData["blockUid"]
 
         let componentPath = ""
 

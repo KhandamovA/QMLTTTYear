@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QVariant>
 
+class BlockData;
+
 using varName = QString;
 
 class ctxVariable
@@ -74,8 +76,10 @@ struct slotInfo
     SlotType type = Plain;
     QString name;
 
-    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>)> getterList;
-    std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)> getterButtonValue;
+    std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant>, qint64 blockUid)>
+        getterList;
+    std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue, qint64 blockUid)>
+        getterButtonValue;
 };
 
 struct BlockData
@@ -119,11 +123,11 @@ struct BlockConstructor
 
     BlockConstructor &slot(const QString &name);
     BlockConstructor &comboBox(
-        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
-            callCurrentList,
+        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue,
+                                                      qint64 blockUid)> callCurrentList,
         const QString &name);
     BlockConstructor &button(
-        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
+        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue, qint64 blockUid)>
             callSetterNewValue,
         const QString &name);
     BlockConstructor &replica(const QString &name);
@@ -146,11 +150,11 @@ struct ReporterConstructor
 
     ReporterConstructor &slot(const QString &name);
     ReporterConstructor &comboBox(
-        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue)>
-            callCurrentList,
+        std::function<QList<QPair<QString, QVariant>>(QPair<QString, QVariant> lastValue,
+                                                      qint64 blockUid)> callCurrentList,
         const QString &name);
     ReporterConstructor &button(
-        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue)>
+        std::function<QPair<QString, QVariant>(QPair<QString, QVariant> lastValue, qint64 blockUid)>
             callSetterNewValue,
         const QString &name);
 

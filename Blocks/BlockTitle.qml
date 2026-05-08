@@ -54,7 +54,8 @@ Item {
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
                         "type": root.ownerBlock.type,
                         "index": counter,
-                        "origin": root.ownerBlock.origin
+                        "origin": root.ownerBlock.origin,
+                        "blockUid": root.ownerBlock.uid
                     })
                 })
                 counter++
@@ -86,7 +87,8 @@ Item {
                     "placeholder": Utils.qmlQuery("slotPlaceholder", {
                         "type": root.ownerBlock.type,
                         "index": counter,
-                        "origin": root.ownerBlock.origin
+                        "origin": root.ownerBlock.origin,
+                        "blockUid": root.ownerBlock.uid
                     })
                 })
                 counter++
@@ -141,7 +143,8 @@ Item {
                                 "index": modelData.index,
                                 "key": currentValue.key,
                                 "value": currentValue.value,
-                                "origin": root.ownerBlock.origin
+                                "origin": root.ownerBlock.origin,
+                                "blockUid": root.ownerBlock.uid
                             })
                         }
                     }
@@ -177,7 +180,8 @@ Item {
                                 "viewTexts": [slotName],
                                 "bodyColor": root.ownerBlock.bodyColor,
                                 "textColor": root.ownerBlock.textColor,
-                                "origin": root.ownerBlock.origin
+                                "origin": root.ownerBlock.origin,
+                                "blockUid": root.ownerBlock.uid
                             }
                             return replica
                         }

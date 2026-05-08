@@ -19,7 +19,10 @@ EditorScene::EditorScene(QWidget *parent)
     l->setContentsMargins(0, 0, 0, 0);
     l->addWidget(QWidget::createWindowContainer(view, this));
 
-    resize(300, 200);
+    resize(600, 400);
+
+    addImportPath("qrc:/qt/qml");
+    setSource("qrc:/qt/qml/LogicFactory/Blocks/Main.qml");
 }
 
 void EditorScene::setSource(const QString &src)

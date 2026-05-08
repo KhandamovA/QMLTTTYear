@@ -17,6 +17,7 @@ public:
 
     EditorWatcher *watcher() const;
 
+
 signals:
 
 private:

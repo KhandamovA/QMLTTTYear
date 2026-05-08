@@ -47,6 +47,12 @@ void EditorWatcher::registerBlocks(QList<BlockData> data, bool checkDefine)
     sendCommand("registerBlocks", QJsonObject{{"data", data_}, {"checkDefine", checkDefine}});
 }
 
+QJsonObject EditorWatcher::getSceneBlockData(qint64 uid)
+{
+    auto data = sendCommand("getSceneBlockData", uid);
+    return data.toObject();
+}
+
 QJsonObject EditorWatcher::saveScript()
 {
     QJsonObject ret = sendCommand("saveScript", {}).toObject();
@@ -109,6 +115,8 @@ void EditorWatcher::handleResponse(QJsonValue response, qint64 signalId)
 
 QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 {
+    auto blockUid = data["blockUid"].toInteger();
+
     if (method == "slotPlaceholder") {
         auto type = data["type"].toInteger();
         auto index = data["index"].toInteger();
@@ -159,7 +167,7 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
             if (find != m_dataContext.blocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
-                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue});
+                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue}, blockUid);
                     ret = toArray(list);
                 }
             }
@@ -168,7 +176,7 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
             if (find != m_dataContext.dynamicsBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
-                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue});
+                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue}, blockUid);
                     ret = toArray(list);
                 }
             }
@@ -177,7 +185,7 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
             if (find != m_dataContext.systemBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
-                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue});
+                    auto list = find->slotsInfo[index].getterList({lastKey, lastValue}, blockUid);
                     ret = toArray(list);
                 }
             }
@@ -198,7 +206,8 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
             if (find != m_dataContext.blocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
-                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue});
+                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue},
+                                                                        blockUid);
                 }
             }
         } else if (origin == BlockData::Dynamic) {
@@ -206,7 +215,8 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
             if (find != m_dataContext.dynamicsBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
-                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue});
+                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue},
+                                                                        blockUid);
                 }
             }
         } else if (origin == BlockData::System) {
@@ -214,7 +224,8 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
             if (find != m_dataContext.systemBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
-                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue});
+                    newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue},
+                                                                        blockUid);
                 }
             }
         }

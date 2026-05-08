@@ -42,6 +42,7 @@ public:
     ///
     void registerBlock(BlockData data, bool checkDefine = true);
     void registerBlocks(QList<BlockData> data, bool checkDefine = true);
+    QJsonObject getSceneBlockData(qint64 uid);
 
 public slots:
 
