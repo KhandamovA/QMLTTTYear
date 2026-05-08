@@ -16,7 +16,7 @@ public:
     void addImportPath(const QString &impPath);
 
     EditorWatcher *watcher() const;
-
+    DataContext *context() const;
 
 signals:
 

@@ -87,7 +87,7 @@ ExecuteResult DynamicBlock::exec(QVariant &returnResult)
             if (define_.count() > 0) {
                 auto chainId = define_.first();
                 auto chain = workFlow->getChainWithId(chainId);
-                auto &firstBlock = chain[0];
+                auto &firstBlock = (*chain)[0];
                 auto slotName = tags["slotName"].toString();
 
                 bool success = false;
@@ -140,7 +140,7 @@ ExecuteResult DynamicBlock::exec(QVariant &returnResult)
         if (define_.count() > 0) {
             auto chainId = define_.first();
             auto chain = workFlow->getChainWithId(chainId);
-            auto &firstBlock = chain[0];
+            auto &firstBlock = (*chain)[0];
             // Заполняем входные аргументы
 
             firstBlock->args.clear();
@@ -149,7 +149,7 @@ ExecuteResult DynamicBlock::exec(QVariant &returnResult)
                 firstBlock->args.last().name = i.name;
             }
 
-            RunExecuter *executer = new RunExecuter(chainId, chain);
+            RunExecuter *executer = new RunExecuter(chainId, *chain);
             result = executer->run();
 
             if (isReporter) {
@@ -169,7 +169,7 @@ ExecuteResult DynamicBlockReturn::exec(QVariant &returnResult)
     ExecuteResult result;
 
     auto define_ = workFlow->getChainWithId(chainId());
-    auto &firstBlock = define_[0];
+    auto &firstBlock = (*define_)[0];
 
     // Даем цепочке запомнить результат выполнения
     firstBlock->tags["returnValue"] = args[0].value().toJsonValue();

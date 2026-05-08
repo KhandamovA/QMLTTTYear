@@ -13,7 +13,7 @@ public:
     ~RunExecuter();
     ExecuteResult run(bool withDelete = true);
 
-    ExecuteResult prepareArgs(BlockExecuter *executer);
+    static ExecuteResult prepareArgs(BlockExecuter *executer);
     ExecuteResult runContainer(const ExecuteResult &result, BlockExecuter *executer);
 
 private:

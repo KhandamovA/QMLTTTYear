@@ -46,3 +46,8 @@ EditorWatcher *EditorScene::watcher() const
 {
     return m_watcher;
 }
+
+DataContext *EditorScene::context() const
+{
+    return m_watcher->dataContext();
+}

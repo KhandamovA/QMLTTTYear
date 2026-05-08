@@ -44,6 +44,8 @@ public:
     void registerBlocks(QList<BlockData> data, bool checkDefine = true);
     QJsonObject getSceneBlockData(qint64 uid);
 
+    DataContext *dataContext();
+
 public slots:
 
     QJsonObject saveScript();

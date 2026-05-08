@@ -26,6 +26,7 @@ bool BaseWorkFlow::loadScript(const QJsonObject &script)
     for (auto &i : chains) {
         qDeleteAll(i);
     }
+
     chains.clear();
     variables->clear();
     context->dynamicsBlocksInfo.clear();
@@ -70,6 +71,12 @@ bool BaseWorkFlow::loadScript(const QJsonObject &script)
         qWarning() << "Скрипт который вы пытаетесь загрузить не содержит поля chains (цепочки "
                       "последовательностей)";
         return false;
+    }
+
+    // Запуск скриптов которые триггерятся при загрузке скрипта
+    auto chainsLoadedScript = getChainWithType(BlockData::System, 0);
+    for (const auto &i : std::as_const(chainsLoadedScript)) {
+        runChain(i);
     }
 
     return true;
@@ -132,27 +139,27 @@ QList<ChainId> BaseWorkFlow::getChainWithType(int origin, int type) const
     return ret;
 }
 
-Chain BaseWorkFlow::getChainWithId(ChainId id) const
+Chain *BaseWorkFlow::getChainWithId(ChainId id)
 {
     auto find = chains.find(id);
     if (find != chains.end()) {
-        return (*find);
+        return &(find.value());
     } else {
         qWarning() << "Не удалось найти цепочку c id" << id;
     }
-    return {};
+    return nullptr;
 }
 
 void BaseWorkFlow::runChain(ChainId id)
 {
     auto chain = getChainWithId(id);
 
-    if (chain.count() == 0) {
+    if (chain->count() == 0) {
         qWarning() << "Не удалось запустить цепочку с id" << id << "т.к. в цепочке нет блоков";
         return;
     }
 
-    auto executer = new RunExecuter(id, chain);
+    auto executer = new RunExecuter(id, *chain);
     executer->run();
 }
 

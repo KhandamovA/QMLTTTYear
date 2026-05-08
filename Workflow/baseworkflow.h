@@ -19,7 +19,7 @@ public:
     ~BaseWorkFlow();
 
     // Загрузка скрипта
-    bool loadScript(const QJsonObject &script);
+    virtual bool loadScript(const QJsonObject &script);
 
     // Регистрация начинки блока
     template<class T>
@@ -38,7 +38,7 @@ public:
     // Получение цепочек у которых начальный блок с указанными типами, origin = -1 -> вернет все цепочки
     QList<ChainId> getChainWithType(int origin = -1, int type = -1) const;
 
-    Chain getChainWithId(ChainId id) const;
+    Chain *getChainWithId(ChainId id);
 
     void runChain(ChainId id);
 

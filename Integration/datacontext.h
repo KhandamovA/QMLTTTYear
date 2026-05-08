@@ -180,6 +180,7 @@ public:
     // Блоки которые существуют всегда origin = 2, ключ = тип, к ним относятся блоки для работы с данными
     QMap<qint64, BlockData> systemBlocksInfo;
 
+    QMap<varName, QVariant> customData;
     BlockData getBlockInfo(int origin, int type);
     QList<BlockData> allBlocks() const;
 

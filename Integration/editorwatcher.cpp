@@ -267,6 +267,11 @@ QJsonValue EditorWatcher::sendCommand(const QString &method, QJsonValue data)
     return msg->exec();
 }
 
+DataContext *EditorWatcher::dataContext()
+{
+    return &m_dataContext;
+}
+
 void EditorWatcher::createNewBlock()
 {
     BlockEditor editor(this);
