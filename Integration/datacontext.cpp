@@ -187,6 +187,11 @@ DataContext::DataContext(QObject *parent)
     addStandartBlocks();
 }
 
+void DataContext::registerUserBlock(const BlockData &newBlock)
+{
+    blocksInfo.insert(newBlock.type, newBlock);
+}
+
 BlockData DataContext::getBlockInfo(int origin, int type)
 {
     switch (origin) {

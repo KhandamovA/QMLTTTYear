@@ -57,7 +57,8 @@ Rectangle {
                 "type": ownerBlock.type,
                 "index": root.index,
                 "key": currentValue.key,
-                "value": currentValue.value
+                "value": currentValue.value,
+                "blockUid": ownerBlock.uid
             })
 
             root.currentValue = newValue

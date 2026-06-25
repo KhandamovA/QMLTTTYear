@@ -52,10 +52,11 @@ BlockEditor::BlockEditor(EditorWatcher *parent)
 
     mainLayout->addWidget(piecesGroup, 0, 0, 2, 1);
 
+    context = new DataContext;
     // Правая верхняя часть - сцена (0, 1)
-    scene = new EditorScene;
+    scene = new EditorScene{context};
     scene->addImportPath("qrc:/qt/qml");
-    scene->setSource("qrc:/qt/qml/tttYear/UIElements/ConstructorScene.qml");
+    scene->setSource("qrc:/qt/qml/LogicFactory/UIElements/ConstructorScene.qml");
     scene->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     mainLayout->addWidget(scene, 0, 1, 1, 1);
     mainLayout->setRowStretch(0, 1);
@@ -109,11 +110,16 @@ BlockEditor::BlockEditor(EditorWatcher *parent)
     connect(pieceTable, &QTableWidget::cellChanged, this, &BlockEditor::onTableCellChanged);
 }
 
+BlockEditor::~BlockEditor()
+{
+    delete context;
+}
+
 void BlockEditor::onSave()
 {
     bool exists = false;
     auto target = save().viewTexts[0].trimmed();
-    for (auto &i : watcher->m_dataContext.dynamicsBlocksInfo) {
+    for (auto &i : watcher->m_dataContext->dynamicsBlocksInfo) {
         auto text = i.viewTexts[0].trimmed();
         if (target == text) {
             exists = true;
@@ -121,7 +127,7 @@ void BlockEditor::onSave()
         }
     }
 
-    for (auto &i : watcher->m_dataContext.blocksInfo) {
+    for (auto &i : watcher->m_dataContext->blocksInfo) {
         auto text = i.viewTexts[0].trimmed();
         if (target == text) {
             exists = true;

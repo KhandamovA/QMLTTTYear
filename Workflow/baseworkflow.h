@@ -18,8 +18,9 @@ public:
     BaseWorkFlow(DataContext *context);
     ~BaseWorkFlow();
 
-    // Загрузка скрипта
-    virtual bool loadScript(const QJsonObject &script);
+    // Загрузка скрипта, withTriggers = true означает что после загрузки цепочек
+    // будут выполнены скрипты, которые помечены как запускаемые после полной загрузки
+    virtual bool loadScript(const QJsonObject &script, bool withTriggers = true);
 
     // Регистрация начинки блока
     template<class T>
@@ -40,7 +41,11 @@ public:
 
     Chain *getChainWithId(ChainId id);
 
+    Chain *getChainWithBlockUid(qint64 uid);
+
     void runChain(ChainId id);
+
+    void runChain(QJsonArray chain);
 
     DataContext *getContext() const { return context; }
 

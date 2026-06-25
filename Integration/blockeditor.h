@@ -14,6 +14,7 @@ class BlockEditor : public QDialog
     Q_OBJECT
 public:
     BlockEditor(EditorWatcher *parent);
+    ~BlockEditor();
 
     BlockData save() const;
     void load(const BlockData &blockData);
@@ -51,6 +52,7 @@ private:
     EditorWatcher *watcher;
     EditorScene *scene;
     BlockData data;
+    DataContext *context;
     bool mIsAccepted = false;
 
     QTableWidget *pieceTable;

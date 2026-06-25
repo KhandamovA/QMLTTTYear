@@ -5,10 +5,10 @@
 #include <QQuickItem>
 #include <QQuickView>
 
-EditorScene::EditorScene(QWidget *parent)
+EditorScene::EditorScene(DataContext *context, QWidget *parent)
     : QWidget{parent}
 {
-    m_watcher = new EditorWatcher;
+    m_watcher = new EditorWatcher{context};
 
     view = new QQuickView();
 
@@ -20,9 +20,6 @@ EditorScene::EditorScene(QWidget *parent)
     l->addWidget(QWidget::createWindowContainer(view, this));
 
     resize(600, 400);
-
-    addImportPath("qrc:/qt/qml");
-    setSource("qrc:/qt/qml/LogicFactory/Blocks/Main.qml");
 }
 
 void EditorScene::setSource(const QString &src)
@@ -34,6 +31,8 @@ void EditorScene::setSource(const QString &src)
     if (rootObject) {
         rootObject->setProperty("watcher", QVariant::fromValue(m_watcher));
         m_watcher->init();
+
+        connect(m_watcher, &EditorWatcher::tryExecuteChain, this, &EditorScene::tryExecuteChain);
     }
 }
 
@@ -50,4 +49,14 @@ EditorWatcher *EditorScene::watcher() const
 DataContext *EditorScene::context() const
 {
     return m_watcher->dataContext();
+}
+
+QJsonObject EditorScene::saveScript()
+{
+    return m_watcher->saveScript();
+}
+
+void EditorScene::loadScript(QJsonObject data)
+{
+    return m_watcher->loadScript(data);
 }

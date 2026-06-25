@@ -29,7 +29,7 @@ class EditorWatcher : public QObject
     friend class BlockEditor;
 
 public:
-    EditorWatcher(QObject *parent = nullptr);
+    EditorWatcher(DataContext *context);
     void init();
 
     ///
@@ -60,11 +60,13 @@ signals:
 
     void qml_signal(const QString &method, QJsonValue data, qint64 signalId);
 
+    void tryExecuteChain(QJsonArray chain);
+
 private:
     int getUniqDynamicBlockType(int id);
     QJsonValue sendCommand(const QString &method, QJsonValue data);
 
-    DataContext m_dataContext;
+    DataContext *m_dataContext = nullptr;
     qint64 signalId = 0;
 
 private:

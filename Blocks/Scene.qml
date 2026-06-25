@@ -399,6 +399,11 @@ Flickable {
                     }
                     return true
                 }
+            },
+            {
+                "text": "Выполнить",
+                "index": 2,
+                "type": "system"
             }
         ]
         contextMenu.menuModel = actions
@@ -409,6 +414,9 @@ Flickable {
             removeSelectedDialog.open()
         } else if (index === 1) {
             dublicateBlocks(targetBlock)
+        } else if (index === 2) {
+            let chain = Resources.chainToJson(targetBlock)
+            Utils.qmlQuery("tryExecute", chain)
         }
     }
 

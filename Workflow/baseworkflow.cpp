@@ -16,9 +16,12 @@ BaseWorkFlow::~BaseWorkFlow()
     for (auto &i : chains) {
         qDeleteAll(i);
     }
+    if (context) {
+        delete context;
+    }
 }
 
-bool BaseWorkFlow::loadScript(const QJsonObject &script)
+bool BaseWorkFlow::loadScript(const QJsonObject &script, bool withTriggers)
 {
     for (auto &i : chains) {
         qDeleteAll(i);
@@ -70,10 +73,12 @@ bool BaseWorkFlow::loadScript(const QJsonObject &script)
         return false;
     }
 
-    // Запуск скриптов которые триггерятся при загрузке скрипта
-    auto chainsLoadedScript = getChainWithType(BlockData::System, 0);
-    for (const auto &i : std::as_const(chainsLoadedScript)) {
-        runChain(i);
+    if (withTriggers) {
+        // Запуск скриптов которые триггерятся при загрузке скрипта
+        auto chainsLoadedScript = getChainWithType(BlockData::System, 0);
+        for (const auto &i : std::as_const(chainsLoadedScript)) {
+            runChain(i);
+        }
     }
 
     return true;
@@ -156,6 +161,13 @@ Chain *BaseWorkFlow::getChainWithId(ChainId id)
     return nullptr;
 }
 
+Chain *BaseWorkFlow::getChainWithBlockUid(qint64 uid)
+{
+    for (auto &i : chains) {
+        // i.first().
+    }
+}
+
 void BaseWorkFlow::runChain(ChainId id)
 {
     auto chain = getChainWithId(id);
@@ -166,6 +178,21 @@ void BaseWorkFlow::runChain(ChainId id)
     }
 
     auto executer = new RunExecuter(id, *chain);
+    executer->run();
+}
+
+void BaseWorkFlow::runChain(QJsonArray chain)
+{
+    if (chain.count() == 0) {
+        qWarning() << "Не удалось запустить анонимную цепочку т.к. в цепочке нет блоков";
+        return;
+    }
+
+    auto ids = this->chains.keys();
+    qint64 maxId = *std::max_element(ids.begin(), ids.end()) + 1;
+    auto chain_ = createChain(chain, maxId, nullptr);
+
+    auto executer = new RunExecuter(maxId, chain_);
     executer->run();
 }
 

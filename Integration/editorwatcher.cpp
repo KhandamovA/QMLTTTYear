@@ -7,24 +7,25 @@
 #include <QJsonValue>
 #include <QMessageBox>
 
-EditorWatcher::EditorWatcher(QObject *parent)
-    : QObject{parent}
+EditorWatcher::EditorWatcher(DataContext *context)
+    : QObject{nullptr}
+    , m_dataContext{context}
 {}
 
 void EditorWatcher::init()
 {
-    registerBlocks(m_dataContext.systemBlocksInfo.values());
+    registerBlocks(m_dataContext->allBlocks());
 }
 
 void EditorWatcher::registerBlock(BlockData data, bool checkDefine)
 {
     if (data.origin == 1) {
         data.type = getUniqDynamicBlockType(data.type);
-        m_dataContext.dynamicsBlocksInfo[data.type] = data;
+        m_dataContext->dynamicsBlocksInfo[data.type] = data;
     } else if (data.origin == 2) {
-        m_dataContext.systemBlocksInfo[data.type] = data;
+        m_dataContext->systemBlocksInfo[data.type] = data;
     } else {
-        m_dataContext.blocksInfo[data.type] = data;
+        m_dataContext->blocksInfo[data.type] = data;
     }
     sendCommand("registerBlock", QJsonObject{{"data", data.toJson()}, {"checkDefine", checkDefine}});
 }
@@ -35,11 +36,11 @@ void EditorWatcher::registerBlocks(QList<BlockData> data, bool checkDefine)
     for (auto &i : data) {
         if (i.origin == 1) {
             i.type = getUniqDynamicBlockType(i.type);
-            m_dataContext.dynamicsBlocksInfo[i.type] = i;
+            m_dataContext->dynamicsBlocksInfo[i.type] = i;
         } else if (i.origin == 2) {
-            m_dataContext.systemBlocksInfo[i.type] = i;
+            m_dataContext->systemBlocksInfo[i.type] = i;
         } else {
-            m_dataContext.blocksInfo[i.type] = i;
+            m_dataContext->blocksInfo[i.type] = i;
         }
         data_.append(i.toJson());
     }
@@ -58,16 +59,16 @@ QJsonObject EditorWatcher::saveScript()
     QJsonObject ret = sendCommand("saveScript", {}).toObject();
 
     // Сохранение динамически созданных блоков
-    auto dynBlocksTypes = m_dataContext.dynamicsBlocksInfo.keys();
+    auto dynBlocksTypes = m_dataContext->dynamicsBlocksInfo.keys();
     QJsonArray dynBlocksInfo;
     for (const auto &i : std::as_const(dynBlocksTypes)) {
-        dynBlocksInfo.append(m_dataContext.dynamicsBlocksInfo[i].toJson());
+        dynBlocksInfo.append(m_dataContext->dynamicsBlocksInfo[i].toJson());
     }
     ret["dynamicBlocks"] = dynBlocksInfo;
 
     // Сохранение переменных
     QJsonArray variables;
-    for (const auto &i : std::as_const(m_dataContext.variables)) {
+    for (const auto &i : std::as_const(m_dataContext->variables)) {
         variables.append(i.name);
     }
     ret["variables"] = variables;
@@ -90,7 +91,7 @@ void EditorWatcher::loadScript(QJsonObject data)
     data.remove("variables");
     data.remove("dynamicBlocks");
 
-    m_dataContext.dynamicsBlocksInfo.clear();
+    m_dataContext->dynamicsBlocksInfo.clear();
 
     for (const auto &i : std::as_const(dynamicBlocks)) {
         auto data = i.toObject();
@@ -98,11 +99,11 @@ void EditorWatcher::loadScript(QJsonObject data)
     }
     // qDebug() << "dynamicsBlocksAdded";
 
-    m_dataContext.variables.clear();
+    m_dataContext->variables.clear();
     for (const auto &i : std::as_const(variables)) {
         auto name = i.toString();
-        m_dataContext.variables[name] = "";
-        m_dataContext.variables[name].name = name;
+        m_dataContext->variables[name] = "";
+        m_dataContext->variables[name].name = name;
     }
 
     sendCommand("loadScript", data);
@@ -124,20 +125,20 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
 
         QString text;
         if (origin == BlockData::Custom) {
-            auto find = m_dataContext.blocksInfo.find(type);
-            if (find != m_dataContext.blocksInfo.end()) {
+            auto find = m_dataContext->blocksInfo.find(type);
+            if (find != m_dataContext->blocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count())
                     text = find->slotsInfo[index].name;
             }
         } else if (origin == BlockData::Dynamic) {
-            auto find = m_dataContext.dynamicsBlocksInfo.find(type);
-            if (find != m_dataContext.dynamicsBlocksInfo.end()) {
+            auto find = m_dataContext->dynamicsBlocksInfo.find(type);
+            if (find != m_dataContext->dynamicsBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count())
                     text = find->slotsInfo[index].name;
             }
         } else if (origin == BlockData::System) {
-            auto find = m_dataContext.systemBlocksInfo.find(type);
-            if (find != m_dataContext.systemBlocksInfo.end()) {
+            auto find = m_dataContext->systemBlocksInfo.find(type);
+            if (find != m_dataContext->systemBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count())
                     text = find->slotsInfo[index].name;
             }
@@ -163,27 +164,27 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         };
 
         if (origin == BlockData::Custom) {
-            auto find = m_dataContext.blocksInfo.find(type);
+            auto find = m_dataContext->blocksInfo.find(type);
 
-            if (find != m_dataContext.blocksInfo.end()) {
+            if (find != m_dataContext->blocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
                     auto list = find->slotsInfo[index].getterList({lastKey, lastValue}, blockUid);
                     ret = toArray(list);
                 }
             }
         } else if (origin == BlockData::Dynamic) {
-            auto find = m_dataContext.dynamicsBlocksInfo.find(type);
+            auto find = m_dataContext->dynamicsBlocksInfo.find(type);
 
-            if (find != m_dataContext.dynamicsBlocksInfo.end()) {
+            if (find != m_dataContext->dynamicsBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
                     auto list = find->slotsInfo[index].getterList({lastKey, lastValue}, blockUid);
                     ret = toArray(list);
                 }
             }
         } else if (origin == BlockData::System) {
-            auto find = m_dataContext.systemBlocksInfo.find(type);
+            auto find = m_dataContext->systemBlocksInfo.find(type);
 
-            if (find != m_dataContext.systemBlocksInfo.end()) {
+            if (find != m_dataContext->systemBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
                     auto list = find->slotsInfo[index].getterList({lastKey, lastValue}, blockUid);
                     ret = toArray(list);
@@ -202,27 +203,27 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
         QPair<QString, QVariant> newValue;
 
         if (origin == BlockData::Custom) {
-            auto find = m_dataContext.blocksInfo.find(type);
+            auto find = m_dataContext->blocksInfo.find(type);
 
-            if (find != m_dataContext.blocksInfo.end()) {
+            if (find != m_dataContext->blocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
                     newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue},
                                                                         blockUid);
                 }
             }
         } else if (origin == BlockData::Dynamic) {
-            auto find = m_dataContext.dynamicsBlocksInfo.find(type);
+            auto find = m_dataContext->dynamicsBlocksInfo.find(type);
 
-            if (find != m_dataContext.dynamicsBlocksInfo.end()) {
+            if (find != m_dataContext->dynamicsBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
                     newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue},
                                                                         blockUid);
                 }
             }
         } else if (origin == BlockData::System) {
-            auto find = m_dataContext.systemBlocksInfo.find(type);
+            auto find = m_dataContext->systemBlocksInfo.find(type);
 
-            if (find != m_dataContext.systemBlocksInfo.end()) {
+            if (find != m_dataContext->systemBlocksInfo.end()) {
                 if (index >= 0 && index < find->slotsInfo.count()) {
                     newValue = find->slotsInfo[index].getterButtonValue({lastKey, lastValue},
                                                                         blockUid);
@@ -242,14 +243,16 @@ QJsonValue EditorWatcher::qml_query(const QString &method, QJsonValue data)
     } else if (method == "loadFromFile") {
         return loadFromFile(data.toString());
     } else if (method == "removeDynamicBlock") {
-        m_dataContext.dynamicsBlocksInfo.remove(data.toInteger());
+        m_dataContext->dynamicsBlocksInfo.remove(data.toInteger());
+    } else if (method == "tryExecute") {
+        emit tryExecuteChain(data.toArray());
     }
     return {};
 }
 
 int EditorWatcher::getUniqDynamicBlockType(int id)
 {
-    while (m_dataContext.dynamicsBlocksInfo.contains(id)) {
+    while (m_dataContext->dynamicsBlocksInfo.contains(id)) {
         id++;
     }
     return id;
@@ -269,7 +272,7 @@ QJsonValue EditorWatcher::sendCommand(const QString &method, QJsonValue data)
 
 DataContext *EditorWatcher::dataContext()
 {
-    return &m_dataContext;
+    return m_dataContext;
 }
 
 void EditorWatcher::createNewBlock()
@@ -280,7 +283,7 @@ void EditorWatcher::createNewBlock()
     if (editor.isAccepted()) {
         auto data = editor.save();
         auto viewText = data.viewTexts[0].trimmed();
-        data.type = m_dataContext.dynamicsBlocksInfo.count();
+        data.type = m_dataContext->dynamicsBlocksInfo.count();
         if (!viewText.isEmpty()) {
             data.origin = 1;
             data.group = "Пользовательские блоки";
@@ -291,7 +294,7 @@ void EditorWatcher::createNewBlock()
 
 void EditorWatcher::deleteVariable()
 {
-    auto varNames = m_dataContext.variables.keys();
+    auto varNames = m_dataContext->variables.keys();
     if (varNames.isEmpty())
         return;
 
@@ -301,7 +304,7 @@ void EditorWatcher::deleteVariable()
     QString selected = dia.selectedVariable();
 
     if (!selected.isEmpty()) {
-        m_dataContext.variables.remove(selected);
+        m_dataContext->variables.remove(selected);
     }
 }
 
@@ -358,7 +361,7 @@ QString EditorWatcher::createNewVar(const QString &oldName)
     if (varName.isEmpty())
         return "";
 
-    if (m_dataContext.variables.contains(varName)) {
+    if (m_dataContext->variables.contains(varName)) {
         QMessageBox::warning(nullptr,
                              "Выберите другое имя",
                              "Переменная с таким именем уже существует, выберите другое");
@@ -366,8 +369,8 @@ QString EditorWatcher::createNewVar(const QString &oldName)
         return createNewVar(varName);
     }
 
-    m_dataContext.variables[varName] = "";
-    m_dataContext.variables[varName].name = varName;
+    m_dataContext->variables[varName] = "";
+    m_dataContext->variables[varName].name = varName;
 
     return varName;
 }
@@ -375,7 +378,7 @@ QString EditorWatcher::createNewVar(const QString &oldName)
 QJsonArray EditorWatcher::comboBoxListVariablesNames() const
 {
     QJsonArray ret;
-    for (auto &i : m_dataContext.variables.keys()) {
+    for (auto &i : m_dataContext->variables.keys()) {
         QJsonObject v;
         v["key"] = i;
         v["value"] = i;

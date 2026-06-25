@@ -1,8 +1,9 @@
-pragma ComponentBehavior: Bound
+// pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import "../UIElements"
 
 // Layout.fillWidth: true
 // Layout.fillHeight: true

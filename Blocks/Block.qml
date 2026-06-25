@@ -384,7 +384,7 @@ Item {
 
         TapHandler {
             id: tapHandler
-            onTapped: console.log("Работает!")
+            onTapped: {}
         }
 
         DragHandler {

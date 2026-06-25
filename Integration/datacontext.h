@@ -168,21 +168,29 @@ private:
 class DataContext : public QObject
 {
     Q_OBJECT
+    friend class BaseWorkFlow;
+    friend class BlockEditor;
+    friend class EditorWatcher;
+
 public:
     explicit DataContext(QObject *parent = nullptr);
 
     // Переменные, массивы, словари
     QMap<varName, ctxVariable> variables;
+
+    QMap<varName, QVariant> customData;
+
+    void registerUserBlock(const BlockData &newBlock);
+    BlockData getBlockInfo(int origin, int type);
+    QList<BlockData> allBlocks() const;
+
+private:
     // Блоки которые создаются после компиляции origin = 0, ключ = тип
     QMap<qint64, BlockData> blocksInfo;
     // Блоки которые создаются динамически во время редактирования кода origin = 1, ключ = тип
     QMap<qint64, BlockData> dynamicsBlocksInfo;
     // Блоки которые существуют всегда origin = 2, ключ = тип, к ним относятся блоки для работы с данными
     QMap<qint64, BlockData> systemBlocksInfo;
-
-    QMap<varName, QVariant> customData;
-    BlockData getBlockInfo(int origin, int type);
-    QList<BlockData> allBlocks() const;
 
 private:
     void addStandartBlocks();
